@@ -1,0 +1,938 @@
+{
+    "openapi": "3.0.0",
+    "paths": {
+      "/auth/login": {
+        "post": {
+          "operationId": "AuthController_login",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Login successful"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "summary": "User login",
+          "tags": [
+            "auth"
+          ]
+        }
+      },
+      "/auth/register": {
+        "post": {
+          "operationId": "AuthController_register",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Registration successful"
+            },
+            "400": {
+              "description": "Bad request"
+            }
+          },
+          "summary": "User registration",
+          "tags": [
+            "auth"
+          ]
+        }
+      },
+      "/auth/profile": {
+        "get": {
+          "operationId": "AuthController_getProfile",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Profile retrieved successfully"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get user profile",
+          "tags": [
+            "auth"
+          ]
+        }
+      },
+      "/monitoring/health": {
+        "get": {
+          "operationId": "MonitoringController_checkHealth",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "summary": "Check system health",
+          "tags": [
+            "Monitoring"
+          ]
+        }
+      },
+      "/metrics": {
+        "get": {
+          "operationId": "PrometheusController_index",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "Prometheus"
+          ]
+        }
+      },
+      "/mail": {
+        "post": {
+          "description": "Creates a new email with optional attachments and recipients",
+          "operationId": "MailController_createEmail",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateEmailDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Email created successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CreateEmailDto"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          },
+          "security": [
+            {
+              "cookie": []
+            }
+          ],
+          "summary": "Create a new email",
+          "tags": [
+            "mail"
+          ]
+        },
+        "get": {
+          "description": "Retrieves a paginated list of emails with optional filters",
+          "operationId": "MailController_findAll",
+          "parameters": [
+            {
+              "name": "startDate",
+              "required": false,
+              "in": "query",
+              "description": "Start date for filtering emails",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "endDate",
+              "required": false,
+              "in": "query",
+              "description": "End date for filtering emails",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "from",
+              "required": false,
+              "in": "query",
+              "description": "Filter by sender email address",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "to",
+              "required": false,
+              "in": "query",
+              "description": "Filter by recipient email address",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "subject",
+              "required": false,
+              "in": "query",
+              "description": "Filter by email subject",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "status",
+              "required": false,
+              "in": "query",
+              "description": "Filter by email status",
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "PENDING",
+                  "APPROVED",
+                  "REJECTED",
+                  "SENT",
+                  "FAILED"
+                ]
+              }
+            },
+            {
+              "name": "page",
+              "required": false,
+              "in": "query",
+              "description": "Page number (1-based)",
+              "schema": {
+                "default": 1,
+                "type": "number"
+              }
+            },
+            {
+              "name": "pageSize",
+              "required": false,
+              "in": "query",
+              "description": "Number of items per page",
+              "schema": {
+                "default": 10,
+                "type": "number"
+              }
+            },
+            {
+              "description": "Page number (1-based)",
+              "required": false,
+              "name": "page",
+              "in": "query",
+              "schema": {
+                "default": 1,
+                "type": "number"
+              }
+            },
+            {
+              "description": "Number of items per page",
+              "required": false,
+              "name": "pageSize",
+              "in": "query",
+              "schema": {
+                "default": 10,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Returns paginated list of emails",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PaginatedEmailResponseDto"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          },
+          "security": [
+            {
+              "cookie": []
+            }
+          ],
+          "summary": "Get all emails",
+          "tags": [
+            "mail"
+          ]
+        }
+      },
+      "/mail/{id}": {
+        "get": {
+          "description": "Retrieves a specific email by its ID",
+          "operationId": "MailController_getEmail",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Email ID",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Email found",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CreateEmailDto"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Email not found"
+            }
+          },
+          "security": [
+            {
+              "cookie": []
+            }
+          ],
+          "summary": "Get email by ID",
+          "tags": [
+            "mail"
+          ]
+        }
+      },
+      "/mail/{id}/approve": {
+        "post": {
+          "description": "Approves a pending email by its ID",
+          "operationId": "MailController_approveEmail",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Email ID",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Email approved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CreateEmailDto"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Email not found"
+            }
+          },
+          "security": [
+            {
+              "cookie": []
+            }
+          ],
+          "summary": "Approve email",
+          "tags": [
+            "mail"
+          ]
+        }
+      },
+      "/mail/{id}/reject": {
+        "post": {
+          "description": "Rejects a pending email by its ID with a reason",
+          "operationId": "MailController_rejectEmail",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Email ID",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RejectEmailDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Email rejected successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CreateEmailDto"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Email not found"
+            }
+          },
+          "security": [
+            {
+              "cookie": []
+            }
+          ],
+          "summary": "Reject email",
+          "tags": [
+            "mail"
+          ]
+        }
+      },
+      "/mail/{id}/sign": {
+        "post": {
+          "description": "Signs an email with PGP and approves it in one operation",
+          "operationId": "MailController_signEmail",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "Email ID",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Email signed and approved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CreateEmailDto"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Email not found"
+            },
+            "500": {
+              "description": "PGP signing failed"
+            }
+          },
+          "security": [
+            {
+              "cookie": []
+            }
+          ],
+          "summary": "Sign and approve email",
+          "tags": [
+            "mail"
+          ]
+        }
+      },
+      "/files/{key}": {
+        "get": {
+          "operationId": "MinioController_getFile",
+          "parameters": [
+            {
+              "name": "key",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "security": [
+            {
+              "cookie": []
+            }
+          ],
+          "tags": [
+            "Minio"
+          ]
+        }
+      },
+      "/queue/size": {
+        "get": {
+          "operationId": "QueueController_getQueueSize",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Returns the current size of the email queue"
+            }
+          },
+          "summary": "Get the current size of the email queue",
+          "tags": [
+            "Queue"
+          ]
+        }
+      },
+      "/queue/items": {
+        "get": {
+          "operationId": "QueueController_getQueueItems",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Returns all items in the email queue"
+            }
+          },
+          "summary": "Get all items in the email queue",
+          "tags": [
+            "Queue"
+          ]
+        }
+      },
+      "/queue/process/{id}": {
+        "post": {
+          "operationId": "QueueController_processEmail",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Email processed successfully"
+            }
+          },
+          "summary": "Manually process a specific email in the queue",
+          "tags": [
+            "Queue"
+          ]
+        }
+      }
+    },
+    "info": {
+      "title": "Mail Manager API",
+      "description": "API for managing emails and attachments",
+      "version": "1.0",
+      "contact": {}
+    },
+    "tags": [],
+    "servers": [],
+    "components": {
+      "securitySchemes": {
+        "cookie": {
+          "type": "apiKey",
+          "in": "cookie",
+          "name": "jwt"
+        }
+      },
+      "schemas": {
+        "LoginDto": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "example": "admin@example.com"
+            },
+            "password": {
+              "type": "string",
+              "example": "admin123"
+            }
+          },
+          "required": [
+            "email",
+            "password"
+          ]
+        },
+        "RegisterDto": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "example": "user@example.com"
+            },
+            "password": {
+              "type": "string",
+              "example": "password123"
+            },
+            "firstName": {
+              "type": "string",
+              "example": "John"
+            },
+            "lastName": {
+              "type": "string",
+              "example": "Doe"
+            },
+            "roleId": {
+              "type": "number",
+              "example": 1
+            }
+          },
+          "required": [
+            "email",
+            "password",
+            "firstName",
+            "lastName",
+            "roleId"
+          ]
+        },
+        "RecipientDto": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "type": "string",
+              "example": "recipient@example.com"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "TO",
+                "CC",
+                "BCC"
+              ],
+              "default": "TO"
+            }
+          },
+          "required": [
+            "address",
+            "type"
+          ]
+        },
+        "CreateEmailDto": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "example": "sender@example.com"
+            },
+            "recipients": {
+              "example": [
+                {
+                  "address": "recipient1@example.com",
+                  "type": "TO"
+                },
+                {
+                  "address": "recipient2@example.com",
+                  "type": "CC"
+                }
+              ],
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RecipientDto"
+              }
+            },
+            "subject": {
+              "type": "string",
+              "example": "Test Subject"
+            },
+            "content": {
+              "type": "string",
+              "example": "This is the email content"
+            },
+            "html": {
+              "type": "string",
+              "example": "<p>This is HTML content</p>"
+            },
+            "attachments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "filename": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "contentType": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+            "from",
+            "recipients",
+            "subject",
+            "content"
+          ]
+        },
+        "AttachmentDto": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            },
+            "filename": {
+              "type": "string"
+            },
+            "contentType": {
+              "type": "string"
+            },
+            "size": {
+              "type": "number"
+            },
+            "minioKey": {
+              "type": "string"
+            },
+            "emailId": {
+              "type": "number"
+            },
+            "createdAt": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "filename",
+            "contentType",
+            "size",
+            "minioKey",
+            "emailId",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        "EmailRecipientDto": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            },
+            "emailId": {
+              "type": "number"
+            },
+            "address": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "TO",
+                "CC",
+                "BCC"
+              ]
+            },
+            "createdAt": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "emailId",
+            "address",
+            "type",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        "EmailResponseDto": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            },
+            "from": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "APPROVED",
+                "REJECTED",
+                "SENT",
+                "FAILED"
+              ]
+            },
+            "signedContent": {
+              "type": "string"
+            },
+            "rejectionReason": {
+              "type": "string"
+            },
+            "approvedBy": {
+              "type": "number"
+            },
+            "approvedAt": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "rejectedBy": {
+              "type": "number"
+            },
+            "rejectedAt": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "attachments": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AttachmentDto"
+              }
+            },
+            "recipients": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EmailRecipientDto"
+              }
+            },
+            "createdAt": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "from",
+            "subject",
+            "content",
+            "status",
+            "attachments",
+            "recipients",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        "PaginatedEmailResponseDto": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EmailResponseDto"
+              }
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "page": {
+                  "type": "number"
+                },
+                "pageSize": {
+                  "type": "number"
+                },
+                "totalItems": {
+                  "type": "number"
+                },
+                "totalPages": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "items",
+            "meta"
+          ]
+        },
+        "RejectEmailDto": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "example": "Email content violates policy",
+              "description": "Reason for rejecting the email"
+            }
+          },
+          "required": [
+            "reason"
+          ]
+        }
+      }
+    }
+  }
