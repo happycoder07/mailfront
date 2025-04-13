@@ -11,12 +11,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { API_ENDPOINTS } from '@/lib/config';
 import { rejectEmailSchema, RejectEmailFormData } from '@/lib/validation';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, X, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 
@@ -87,63 +90,78 @@ export function RejectEmailForm({ emailId, onRejected, onCancel }: RejectEmailFo
   // If user doesn't have permission to reject emails, show a message
   if (!canReject) {
     return (
-      <div className="p-6 text-center">
-        <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
-        <p className="text-muted-foreground">
-          You do not have permission to reject emails. Please contact your administrator.
-        </p>
-        <Button type="button" variant="outline" className="mt-4" onClick={onCancel}>
-          Go Back
-        </Button>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Access Denied</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Permission Required</AlertTitle>
+            <AlertDescription>
+              You do not have permission to reject emails. Please contact your administrator.
+            </AlertDescription>
+          </Alert>
+          <div className="mt-4 flex justify-end">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Go Back
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="reason"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Rejection Reason</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Please provide a reason for rejecting this email..."
-                  className="min-h-[100px]"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="flex space-x-2">
-          <Button type="submit" variant="destructive" className="flex-1" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Rejecting...
-              </>
-            ) : (
-              <>
-                <X className="mr-2 h-4 w-4" />
-                Reject Email
-              </>
-            )}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="flex-1"
-            onClick={onCancel}
-            disabled={isLoading}
-          >
-            Cancel
-          </Button>
-        </div>
-      </form>
-    </Form>
+    <Card>
+      <CardHeader>
+        <CardTitle>Reject Email</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="reason"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Rejection Reason</FormLabel>
+                  <FormDescription>
+                    Please provide a clear reason for rejecting this email. This will help the
+                    sender understand why their email was rejected.
+                  </FormDescription>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Please provide a reason for rejecting this email..."
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex justify-end space-x-2">
+              <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="destructive" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Rejecting...
+                  </>
+                ) : (
+                  <>
+                    <X className="mr-2 h-4 w-4" />
+                    Reject Email
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }

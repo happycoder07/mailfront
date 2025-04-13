@@ -7,8 +7,21 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/components/ui/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { API_ENDPOINTS, EmailResponseDto } from '@/lib/config';
-import { FileText, Check, X, FileText as FileTextIcon, Download, Eye } from 'lucide-react';
+import {
+  FileText,
+  Check,
+  X,
+  FileText as FileTextIcon,
+  Download,
+  Eye,
+  AlertCircle,
+  Loader2,
+} from 'lucide-react';
 import { RejectEmailForm } from './reject-email-form';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
@@ -238,201 +251,162 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
             onCancel={handleRejectCancel}
           />
         ) : (
-          <div className="space-y-6">
-            {/* Email Metadata Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <div className="text-sm font-medium text-muted-foreground">From</div>
-                <div className="text-sm">{email.from}</div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-sm font-medium text-muted-foreground">Created At</div>
-                <div className="text-sm">{format(new Date(email.createdAt), 'PPp')}</div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-sm font-medium text-muted-foreground">Last Updated</div>
-                <div className="text-sm">{format(new Date(email.updatedAt), 'PPp')}</div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-sm font-medium text-muted-foreground">Email ID</div>
-                <div className="text-sm">{email.id}</div>
-              </div>
-            </div>
-
-            {/* Recipients Section */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="text-sm font-medium text-muted-foreground">To</div>
-                <div className="text-sm">
-                  {email.recipients
-                    .filter(r => r.type === 'TO')
-                    .map(r => r.address)
-                    .join(', ')}
-                </div>
-              </div>
-              {email.recipients.some(r => r.type === 'CC') && (
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-muted-foreground">CC</div>
-                  <div className="text-sm">
-                    {email.recipients
-                      .filter(r => r.type === 'CC')
-                      .map(r => r.address)
-                      .join(', ')}
+          <Tabs defaultValue="details" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="attachments">Attachments</TabsTrigger>
+            </TabsList>
+            <TabsContent value="details" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Email Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <div className="text-sm font-medium text-muted-foreground">From</div>
+                      <div className="text-sm">{email.from}</div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="text-sm font-medium text-muted-foreground">Created At</div>
+                      <div className="text-sm">{format(new Date(email.createdAt), 'PPp')}</div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="text-sm font-medium text-muted-foreground">Status</div>
+                      <div className="text-sm">{getStatusBadge(email.status)}</div>
+                    </div>
                   </div>
-                </div>
-              )}
-              {email.recipients.some(r => r.type === 'BCC') && (
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-muted-foreground">BCC</div>
-                  <div className="text-sm">
-                    {email.recipients
-                      .filter(r => r.type === 'BCC')
-                      .map(r => r.address)
-                      .join(', ')}
+                  <Separator />
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-muted-foreground">Recipients</div>
+                    <div className="flex flex-wrap gap-2">
+                      {email.recipients.map(r => (
+                        <Badge
+                          key={r.id}
+                          variant={
+                            r.type === 'TO' ? 'default' : r.type === 'CC' ? 'secondary' : 'outline'
+                          }
+                        >
+                          {r.type}: {r.address}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-
-            <Separator />
-
-            {/* Status Information Section */}
-            <div className="space-y-4">
-              {email.approvedBy && (
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-muted-foreground">
-                    Approval Information
+                  <Separator />
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-muted-foreground">Content</div>
+                    <ScrollArea className="h-[200px] rounded-md border p-4">
+                      <pre className="text-sm whitespace-pre-wrap">{email.content}</pre>
+                    </ScrollArea>
                   </div>
-                  <div className="text-sm">
-                    Approved by user ID: {email.approvedBy} on{' '}
-                    {format(new Date(email.approvedAt!), 'PPp')}
-                  </div>
-                </div>
-              )}
-              {email.rejectedBy && (
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-muted-foreground">
-                    Rejection Information
-                  </div>
-                  <div className="text-sm">
-                    Rejected by user ID: {email.rejectedBy} on{' '}
-                    {format(new Date(email.rejectedAt!), 'PPp')}
-                  </div>
-                  {email.rejectionReason && (
-                    <div className="text-sm text-muted-foreground">
-                      Reason: {email.rejectionReason}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="attachments" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Attachments</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {email.attachments && email.attachments.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {email.attachments.map(attachment => (
+                        <Card key={attachment.id}>
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <FileTextIcon className="h-4 w-4" />
+                                <span className="text-sm font-medium">{attachment.filename}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleViewAttachment(attachment)}
+                                      disabled={!canViewAttachments}
+                                    >
+                                      <Eye className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>View attachment</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleDownloadAttachment(attachment)}
+                                      disabled={!canViewAttachments}
+                                    >
+                                      <Download className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Download attachment</TooltipContent>
+                                </Tooltip>
+                              </div>
+                            </div>
+                            <div className="mt-2 text-xs text-muted-foreground">
+                              {attachment.contentType} • {Math.round(attachment.size / 1024)} KB
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center text-muted-foreground py-8">
+                      No attachments found
                     </div>
                   )}
-                </div>
-              )}
-            </div>
-
-            <Separator />
-
-            {/* Email Content Section */}
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-muted-foreground">Content</div>
-              <textarea
-                readOnly
-                value={email.content}
-                className="w-full whitespace-pre-wrap text-sm bg-muted/50 p-4 rounded-lg min-h-[150px] max-h-[300px] overflow-y-auto resize-y"
-              />
-              {email.signedContent && (
-                <div className="mt-4">
-                  <div className="text-sm font-medium text-muted-foreground">Signed Content</div>
-                  <textarea
-                    readOnly
-                    value={email.signedContent}
-                    className="w-full whitespace-pre-wrap text-sm bg-muted/50 p-4 rounded-lg min-h-[150px] max-h-[300px] overflow-y-auto resize-y"
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Attachments Section */}
-            {email.attachments.length > 0 && canViewAttachments && (
-              <>
-                <Separator />
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-muted-foreground">Attachments</div>
-                  <div className="space-y-2">
-                    {email.attachments.map((attachment, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between rounded-lg border p-3 bg-muted/50"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <FileTextIcon className="h-5 w-5 text-muted-foreground" />
-                          <div className="space-y-1">
-                            <div className="text-sm font-medium">{attachment.filename}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {attachment.contentType} • {(attachment.size / 1024).toFixed(1)} KB
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              Created: {format(new Date(attachment.createdAt), 'PPp')}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleViewAttachment(attachment)}
-                            title="View attachment"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDownloadAttachment(attachment)}
-                            title="Download attachment"
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        )}
+        {!isRejecting && (
+          <div className="flex justify-end gap-2 mt-4">
+            {email.status === 'PENDING' && canApprove && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="default" onClick={handleApprove} disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Approving...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="mr-2 h-4 w-4" />
+                        Approve
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Approve this email</TooltipContent>
+              </Tooltip>
             )}
-
-            {/* Actions Section */}
-            {email.status === 'PENDING' && (canApprove || canReject || canSign) && (
-              <div className="flex space-x-2 pt-4">
-                {canApprove && (
-                  <Button
-                    onClick={handleApprove}
-                    className="flex items-center space-x-2"
-                    disabled={isLoading}
-                  >
-                    <Check className="h-4 w-4" />
-                    <span>Approve</span>
+            {email.status === 'PENDING' && canReject && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="destructive" onClick={handleReject} disabled={isLoading}>
+                    <X className="mr-2 h-4 w-4" />
+                    Reject
                   </Button>
-                )}
-                {canReject && (
-                  <Button
-                    onClick={handleReject}
-                    variant="destructive"
-                    className="flex items-center space-x-2"
-                    disabled={isLoading}
-                  >
-                    <X className="h-4 w-4" />
-                    <span>Reject</span>
+                </TooltipTrigger>
+                <TooltipContent>Reject this email</TooltipContent>
+              </Tooltip>
+            )}
+            {email.status === 'PENDING' && canSign && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" onClick={handleSign} disabled={isLoading}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Sign
                   </Button>
-                )}
-                {canSign && (
-                  <Button
-                    onClick={handleSign}
-                    className="flex items-center space-x-2"
-                    disabled={isLoading}
-                  >
-                    <FileText className="h-4 w-4" />
-                    <span>Sign</span>
-                  </Button>
-                )}
-              </div>
+                </TooltipTrigger>
+                <TooltipContent>Sign this email</TooltipContent>
+              </Tooltip>
             )}
           </div>
         )}

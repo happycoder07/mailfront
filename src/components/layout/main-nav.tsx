@@ -4,15 +4,18 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Separator } from '@/components/ui/separator';
 import { API_ENDPOINTS } from '@/lib/config';
-import { Mail, Inbox, Activity, User, LogOut, Menu } from 'lucide-react';
+import { Mail, Inbox, Activity, User, LogOut, Menu, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export function MainNav() {
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { hasPermission } = useAuth();
 
   // Define navigation items with their required permissions
@@ -21,7 +24,7 @@ export function MainNav() {
       title: 'Emails',
       href: '/emails',
       icon: Mail,
-      // Emails section requires any of these permissions
+      description: 'Manage and monitor email communications',
       permissions: [
         PERMISSIONS.VIEW_EMAILS,
         PERMISSIONS.APPROVE_EMAILS,
@@ -34,21 +37,21 @@ export function MainNav() {
       title: 'Queue',
       href: '/queue',
       icon: Inbox,
-      // Queue section requires any of these permissions
+      description: 'View and manage email queue',
       permissions: [PERMISSIONS.VIEW_QUEUE, PERMISSIONS.MANAGE_QUEUE, PERMISSIONS.SEND_EMAIL],
     },
     {
       title: 'Users',
       href: '/users',
       icon: User,
-      // Users section requires any of these permissions
+      description: 'Manage user accounts and permissions',
       permissions: [PERMISSIONS.MANAGE_USERS, PERMISSIONS.REGISTER_USERS],
     },
     {
       title: 'Monitoring',
       href: '/monitoring',
       icon: Activity,
-      // Monitoring section requires any of these permissions
+      description: 'Monitor system metrics and health',
       permissions: [
         PERMISSIONS.VIEW_METRICS,
         PERMISSIONS.VIEW_HEALTH,
@@ -59,7 +62,7 @@ export function MainNav() {
       title: 'Profile',
       href: '/profile',
       icon: User,
-      // Profile section doesn't require any specific permission
+      description: 'Manage your account settings',
       permissions: [],
     },
   ];
@@ -75,6 +78,7 @@ export function MainNav() {
       }
     } catch (error) {
       console.error('Logout failed:', error);
+      window.location.href = '/auth/login';
     }
   };
 
@@ -88,21 +92,26 @@ export function MainNav() {
   // If user doesn't have any navigation permissions, show a message
   if (!hasAnyNavPermission) {
     return (
-      <div className="border-b bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+      <div className="border-b bg-primary text-primary-foreground">
         <div className="flex h-16 items-center px-4">
           <div className="flex items-center space-x-2 font-bold text-xl">
             <Mail className="h-6 w-6" />
-            <span>Mail Manager</span>
+            <span>NCCC Mail Manager</span>
           </div>
           <div className="ml-auto">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white hover:bg-white/20"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-5 w-5" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-primary-foreground hover:bg-primary-foreground/20"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Logout</TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -110,78 +119,116 @@ export function MainNav() {
   }
 
   return (
-    <div className="border-b bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+    <div className="border-b bg-card text-card-foreground">
       <div className="flex h-16 items-center px-4">
         <div className="flex items-center space-x-2 font-bold text-xl">
           <Mail className="h-6 w-6" />
-          <span>Mail Manager</span>
+          <span>NCCC Mail Manager</span>
         </div>
         <div className="ml-auto flex items-center space-x-4">
           <nav className="hidden md:flex items-center space-x-1">
             {navItems.map(item => {
               const Icon = item.icon;
+              const hasRequiredPermission: boolean =
+                item.permissions.length === 0 ||
+                item.permissions.some(permission => hasPermission(permission));
+
+              if (!hasRequiredPermission) return null;
+
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                    pathname === item.href
-                      ? 'bg-white/20 text-white'
-                      : 'text-white/80 hover:bg-white/10 hover:text-white'
-                  )}
-                >
-                  <Icon className="h-4 w-4 mr-2" />
-                  {item.title}
-                </Link>
+                <Tooltip key={item.href}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                        pathname === item.href
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground'
+                      )}
+                    >
+                      <Icon className="h-4 w-4 mr-2" />
+                      {item.title}
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>{item.description}</TooltipContent>
+                </Tooltip>
               );
             })}
           </nav>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/20"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden text-white hover:bg-white/20"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
+          <ThemeToggle />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-primary-foreground hover:bg-primary-foreground/20"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Logout</TooltipContent>
+          </Tooltip>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] bg-card text-card-foreground">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center space-x-2 font-bold text-xl mb-6">
+                  <Mail className="h-6 w-6" />
+                  <span>NCCC Mail Manager</span>
+                </div>
+                <nav className="flex flex-col space-y-2">
+                  {navItems.map(item => {
+                    const Icon = item.icon;
+                    const hasRequiredPermission: boolean =
+                      item.permissions.length === 0 ||
+                      item.permissions.some(permission => hasPermission(permission));
+
+                    if (!hasRequiredPermission) return null;
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                          pathname === item.href
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground'
+                        )}
+                      >
+                        <Icon className="h-4 w-4 mr-2" />
+                        <div className="flex flex-col">
+                          <span>{item.title}</span>
+                          <span className="text-xs text-muted-foreground">{item.description}</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </nav>
+                <Separator className="my-4 bg-border" />
+                <Button
+                  variant="ghost"
+                  className="text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground justify-start"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden p-4 bg-indigo-800">
-          <nav className="flex flex-col space-y-2">
-            {navItems.map(item => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                    pathname === item.href
-                      ? 'bg-white/20 text-white'
-                      : 'text-white/80 hover:bg-white/10 hover:text-white'
-                  )}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Icon className="h-4 w-4 mr-2" />
-                  {item.title}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-      )}
     </div>
   );
 }

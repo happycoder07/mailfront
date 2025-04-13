@@ -154,7 +154,7 @@ export function CreateEmailForm() {
               <FormLabel>From</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                   <Input placeholder="sender@example.com" className="pl-10" {...field} />
                 </div>
               </FormControl>

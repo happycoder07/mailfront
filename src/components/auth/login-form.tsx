@@ -83,7 +83,7 @@ export function LoginForm() {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                   <Input placeholder="name@example.com" className="pl-10" {...field} />
                 </div>
               </FormControl>
@@ -99,7 +99,7 @@ export function LoginForm() {
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                   <Input type="password" className="pl-10" {...field} />
                 </div>
               </FormControl>
@@ -109,7 +109,7 @@ export function LoginForm() {
         />
         <Button
           type="submit"
-          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+          className="w-full bg-primary hover:bg-primary/90"
           disabled={isLoading}
         >
           {isLoading ? (

@@ -13,6 +13,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,7 +26,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { X, AlertCircle, Plus, Upload, Loader2 } from 'lucide-react';
 import { API_ENDPOINTS } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
@@ -162,134 +166,197 @@ export function NewEmailForm() {
   // If user doesn't have permission to send emails, show a message
   if (!canSendEmail) {
     return (
-      <div className="p-6 text-center">
-        <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
-        <p className="text-muted-foreground">
-          You do not have permission to send emails. Please contact your administrator.
-        </p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Access Denied</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Permission Required</AlertTitle>
+            <AlertDescription>
+              You do not have permission to send emails. Please contact your administrator.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="from"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>From</FormLabel>
-              <FormControl>
-                <Input placeholder="sender@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="space-y-4">
-          <FormLabel>Recipients</FormLabel>
-          <div className="flex gap-2">
-            <Input
-              placeholder="recipient@example.com"
-              value={newRecipient}
-              onChange={e => setNewRecipient(e.target.value)}
+    <Card>
+      <CardHeader>
+        <CardTitle>Compose New Email</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="from"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>From</FormLabel>
+                  <FormDescription>
+                    The email address that will appear as the sender
+                  </FormDescription>
+                  <FormControl>
+                    <Input placeholder="sender@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            <Select
-              value={recipientType}
-              onValueChange={(value: 'TO' | 'CC' | 'BCC') => setRecipientType(value)}
-            >
-              <SelectTrigger className="w-[100px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="TO">To</SelectItem>
-                <SelectItem value="CC">CC</SelectItem>
-                <SelectItem value="BCC">BCC</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button type="button" onClick={addRecipient}>
-              Add
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {recipients.map((recipient, index) => (
-              <Badge key={index} variant="secondary">
-                {recipient.type}: {recipient.address}
-                <button type="button" onClick={() => removeRecipient(index)} className="ml-1">
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </div>
 
-        <FormField
-          control={form.control}
-          name="subject"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Subject</FormLabel>
-              <FormControl>
-                <Input placeholder="Email subject" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Content</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Email content" className="min-h-[200px]" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="html"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>HTML Content (Optional)</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="HTML content"
-                  className="min-h-[200px] font-mono"
-                  {...field}
+            <div className="space-y-4">
+              <FormLabel>Recipients</FormLabel>
+              <FormDescription>
+                Add recipients by entering their email addresses and selecting the type (To, CC, or
+                BCC)
+              </FormDescription>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="recipient@example.com"
+                  value={newRecipient}
+                  onChange={e => setNewRecipient(e.target.value)}
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <Select
+                  value={recipientType}
+                  onValueChange={(value: 'TO' | 'CC' | 'BCC') => setRecipientType(value)}
+                >
+                  <SelectTrigger className="w-[100px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="TO">To</SelectItem>
+                    <SelectItem value="CC">CC</SelectItem>
+                    <SelectItem value="BCC">BCC</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button type="button" onClick={addRecipient}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add
+                </Button>
+              </div>
+              <ScrollArea className="h-[100px] rounded-md border p-2">
+                <div className="flex flex-wrap gap-2">
+                  {recipients.map((recipient, index) => (
+                    <Badge
+                      key={index}
+                      variant={
+                        recipient.type === 'TO'
+                          ? 'default'
+                          : recipient.type === 'CC'
+                            ? 'secondary'
+                            : 'outline'
+                      }
+                    >
+                      {recipient.type}: {recipient.address}
+                      <button
+                        type="button"
+                        onClick={() => removeRecipient(index)}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
 
-        <div className="space-y-4">
-          <FormLabel>Attachments</FormLabel>
-          <Input type="file" multiple onChange={handleFileChange} className="cursor-pointer" />
-          <div className="flex flex-wrap gap-2">
-            {attachments.map((file, index) => (
-              <Badge key={index} variant="secondary">
-                {file.name}
-                <button type="button" onClick={() => removeAttachment(index)} className="ml-1">
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </div>
+            <FormField
+              control={form.control}
+              name="subject"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subject</FormLabel>
+                  <FormDescription>A brief description of the email's content</FormDescription>
+                  <FormControl>
+                    <Input placeholder="Email subject" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? 'Creating...' : 'Create Email'}
-        </Button>
-      </form>
-    </Form>
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Content</FormLabel>
+                  <FormDescription>The main body of your email</FormDescription>
+                  <FormControl>
+                    <Textarea placeholder="Email content" className="min-h-[200px]" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="space-y-4">
+              <FormLabel>Attachments</FormLabel>
+              <FormDescription>Add files to be attached to the email</FormDescription>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  multiple
+                  onChange={handleFileChange}
+                  className="cursor-pointer"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()
+                  }
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Browse
+                </Button>
+              </div>
+              <ScrollArea className="h-[100px] rounded-md border p-2">
+                <div className="flex flex-wrap gap-2">
+                  {attachments.map((file, index) => (
+                    <Badge key={index} variant="secondary">
+                      {file.name}
+                      <button
+                        type="button"
+                        onClick={() => removeAttachment(index)}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.back()}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  'Send Email'
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }
