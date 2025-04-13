@@ -25,43 +25,62 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Search, Check, X, FileText, Eye } from 'lucide-react';
+import {
+  MoreHorizontal,
+  Search,
+  Check,
+  X,
+  FileText,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/components/ui/use-toast';
-import { API_ENDPOINTS } from '@/lib/config';
+import {
+  API_ENDPOINTS,
+  EmailResponseDto,
+  PaginatedEmailResponseDto,
+  EmailStatus,
+} from '@/lib/config';
 import { EmailDialog } from './email-dialog';
-
-type Email = {
-  id: string;
-  from: string;
-  subject: string;
-  content: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SENT' | 'FAILED';
-  createdAt: string;
-  recipients: {
-    address: string;
-    type: 'TO' | 'CC' | 'BCC';
-  }[];
-  attachments: {
-    filename: string;
-    contentType: string;
-    size: number;
-  }[];
-};
+import { useAuth } from '@/lib/auth-context';
+import { PERMISSIONS } from '@/lib/permissions';
 
 export function EmailList() {
   const router = useRouter();
-  const [emails, setEmails] = useState<Email[]>([]);
+  const { hasPermission } = useAuth();
+  const [emails, setEmails] = useState<EmailResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<string>('ALL');
-  const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
+  const [selectedEmail, setSelectedEmail] = useState<EmailResponseDto | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+    totalItems: 0,
+    totalPages: 0,
+  });
 
   const fetchEmails = async () => {
+    setLoading(true);
     try {
-      const response = await fetch(API_ENDPOINTS.EMAIL.LIST, {
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (status !== 'ALL') {
+        params.append('status', status);
+      }
+      if (search) {
+        params.append('subject', search);
+      }
+      params.append('page', pagination.page.toString());
+      params.append('pageSize', pagination.pageSize.toString());
+
+      const url = `${API_ENDPOINTS.MAIL.LIST}?${params.toString()}`;
+
+      const response = await fetch(url, {
         credentials: 'include', // Include cookies in the request
       });
 
@@ -75,8 +94,13 @@ export function EmailList() {
         throw new Error('Failed to fetch emails');
       }
 
-      const data = await response.json();
+      const data: PaginatedEmailResponseDto = await response.json();
       setEmails(data.items || []);
+      setPagination({
+        ...pagination,
+        totalItems: data.meta.totalItems,
+        totalPages: data.meta.totalPages,
+      });
     } catch (error) {
       console.error('Error fetching emails:', error);
       toast({
@@ -91,11 +115,22 @@ export function EmailList() {
 
   useEffect(() => {
     fetchEmails();
-  }, []);
+  }, [status, pagination.page, pagination.pageSize]);
 
-  const handleApprove = async (id: string) => {
+  // Add auto-refresh effect
+  useEffect(() => {
+    const intervalId = setInterval(fetchEmails, 10000); // Refresh every 10 seconds
+    return () => clearInterval(intervalId);
+  }, [status, pagination.page, pagination.pageSize]);
+
+  const handleSearch = () => {
+    setPagination(prev => ({ ...prev, page: 1 }));
+    fetchEmails();
+  };
+
+  const handleApprove = async (id: number) => {
     try {
-      const response = await fetch(API_ENDPOINTS.EMAIL.APPROVE(id), {
+      const response = await fetch(API_ENDPOINTS.MAIL.APPROVE(id.toString()), {
         method: 'POST',
         credentials: 'include',
       });
@@ -126,9 +161,9 @@ export function EmailList() {
     }
   };
 
-  const handleReject = async (id: string) => {
+  const handleReject = async (id: number) => {
     try {
-      const response = await fetch(API_ENDPOINTS.EMAIL.REJECT(id), {
+      const response = await fetch(API_ENDPOINTS.MAIL.REJECT(id.toString()), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -163,9 +198,9 @@ export function EmailList() {
     }
   };
 
-  const handleSign = async (id: string) => {
+  const handleSign = async (id: number) => {
     try {
-      const response = await fetch(API_ENDPOINTS.EMAIL.SIGN(id), {
+      const response = await fetch(API_ENDPOINTS.MAIL.SIGN(id.toString()), {
         method: 'POST',
         credentials: 'include',
       });
@@ -196,69 +231,102 @@ export function EmailList() {
     }
   };
 
-  const handleView = (email: Email) => {
+  const handleView = (email: EmailResponseDto) => {
     setSelectedEmail(email);
     setDialogOpen(true);
   };
 
-  const getStatusBadge = (status: Email['status']) => {
-    const variants = {
-      PENDING: 'default',
-      APPROVED: 'default',
-      REJECTED: 'destructive',
-      SENT: 'default',
-      FAILED: 'destructive',
-    } as const;
-    return <Badge variant={variants[status]}>{status}</Badge>;
+  const handleEmailUpdated = () => {
+    fetchEmails();
   };
 
-  // Filter emails based on search and status
+  const getStatusBadge = (status: EmailStatus) => {
+    switch (status) {
+      case 'PENDING':
+        return <Badge variant="outline">Pending</Badge>;
+      case 'APPROVED':
+        return <Badge variant="default">Approved</Badge>;
+      case 'REJECTED':
+        return <Badge variant="destructive">Rejected</Badge>;
+      case 'SENT':
+        return <Badge variant="secondary">Sent</Badge>;
+      case 'FAILED':
+        return <Badge variant="destructive">Failed</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const canApprove = hasPermission(PERMISSIONS.APPROVE_EMAILS);
+  const canReject = hasPermission(PERMISSIONS.REJECT_EMAILS);
+  const canSign = hasPermission(PERMISSIONS.APPROVE_EMAILS);
+  const canViewAttachments = hasPermission(PERMISSIONS.VIEW_ATTACHMENTS);
+
   const filteredEmails = useMemo(() => {
     return emails.filter(email => {
-      // Filter by status
-      if (status !== 'ALL' && email.status !== status) {
-        return false;
-      }
-
-      // Filter by search term
       if (search) {
         const searchLower = search.toLowerCase();
         return (
-          email.from.toLowerCase().includes(searchLower) ||
           email.subject.toLowerCase().includes(searchLower) ||
-          email.content.toLowerCase().includes(searchLower)
+          email.from.toLowerCase().includes(searchLower) ||
+          email.recipients.some(r => r.address.toLowerCase().includes(searchLower))
         );
       }
-
       return true;
     });
-  }, [emails, status, search]);
+  }, [emails, search]);
+
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPagination(prev => ({ ...prev, pageSize: newPageSize, page: 1 }));
+  };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <div className="flex-1">
-          <div className="relative">
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+          <div className="relative w-full md:w-64">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search emails..."
               className="pl-8"
               value={search}
               onChange={e => setSearch(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSearch()}
             />
           </div>
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger className="w-full md:w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Statuses</SelectItem>
+              <SelectItem value="PENDING">Pending</SelectItem>
+              <SelectItem value="APPROVED">Approved</SelectItem>
+              <SelectItem value="REJECTED">Rejected</SelectItem>
+              <SelectItem value="SENT">Sent</SelectItem>
+              <SelectItem value="FAILED">Failed</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={handleSearch} className="w-full md:w-auto">
+            Search
+          </Button>
         </div>
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
+        <Select
+          value={pagination.pageSize.toString()}
+          onValueChange={value => handlePageSizeChange(parseInt(value))}
+        >
+          <SelectTrigger className="w-full md:w-[120px]">
+            <SelectValue placeholder="Page size" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL">All</SelectItem>
-            <SelectItem value="PENDING">Pending</SelectItem>
-            <SelectItem value="APPROVED">Approved</SelectItem>
-            <SelectItem value="REJECTED">Rejected</SelectItem>
-            <SelectItem value="SENT">Sent</SelectItem>
-            <SelectItem value="FAILED">Failed</SelectItem>
+            <SelectItem value="5">5 per page</SelectItem>
+            <SelectItem value="10">10 per page</SelectItem>
+            <SelectItem value="20">20 per page</SelectItem>
+            <SelectItem value="50">50 per page</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -267,11 +335,11 @@ export function EmailList() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>From</TableHead>
               <TableHead>Subject</TableHead>
+              <TableHead>To</TableHead>
+              <TableHead>Date</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -284,37 +352,60 @@ export function EmailList() {
             ) : filteredEmails.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center">
-                  No emails found
+                  No emails found.
                 </TableCell>
               </TableRow>
             ) : (
               filteredEmails.map(email => (
                 <TableRow key={email.id}>
-                  <TableCell>{email.from}</TableCell>
-                  <TableCell>{email.subject}</TableCell>
-                  <TableCell>{getStatusBadge(email.status)}</TableCell>
-                  <TableCell>{format(new Date(email.createdAt), 'PPp')}</TableCell>
+                  <TableCell className="font-medium">{email.subject}</TableCell>
                   <TableCell>
+                    <div className="flex flex-col gap-1">
+                      {email.recipients.map(r => (
+                        <Badge
+                          key={r.id}
+                          variant={
+                            r.type === 'TO' ? 'default' : r.type === 'CC' ? 'secondary' : 'outline'
+                          }
+                          className="w-fit"
+                        >
+                          {r.address}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>{format(new Date(email.createdAt), 'PPp')}</TableCell>
+                  <TableCell>{getStatusBadge(email.status)}</TableCell>
+                  <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleView(email)}>View</DropdownMenuItem>
-                        {email.status === 'PENDING' && (
-                          <>
-                            <DropdownMenuItem onClick={() => handleApprove(email.id)}>
-                              Approve
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleReject(email.id)}>
-                              Reject
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleSign(email.id)}>
-                              Sign
-                            </DropdownMenuItem>
-                          </>
+                        <DropdownMenuItem onClick={() => handleView(email)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View
+                        </DropdownMenuItem>
+                        {email.status === 'PENDING' && canApprove && (
+                          <DropdownMenuItem onClick={() => handleApprove(email.id)}>
+                            <Check className="mr-2 h-4 w-4" />
+                            Approve
+                          </DropdownMenuItem>
+                        )}
+                        {email.status === 'PENDING' && canReject && (
+                          <DropdownMenuItem onClick={() => handleReject(email.id)}>
+                            <X className="mr-2 h-4 w-4" />
+                            Reject
+                          </DropdownMenuItem>
+                        )}
+                        {email.status === 'PENDING' && canSign && (
+                          <DropdownMenuItem onClick={() => handleSign(email.id)}>
+                            <FileText className="mr-2 h-4 w-4" />
+                            Sign
+                          </DropdownMenuItem>
                         )}
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -326,15 +417,39 @@ export function EmailList() {
         </Table>
       </div>
 
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          Showing {filteredEmails.length} of {pagination.totalItems} emails
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(pagination.page - 1)}
+            disabled={pagination.page <= 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="text-sm">
+            Page {pagination.page} of {pagination.totalPages}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(pagination.page + 1)}
+            disabled={pagination.page >= pagination.totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
       {selectedEmail && (
         <EmailDialog
           email={selectedEmail}
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          onActionComplete={() => {
-            // Refresh the list after action completion
-            fetchEmails();
-          }}
+          onEmailUpdated={handleEmailUpdated}
         />
       )}
     </div>

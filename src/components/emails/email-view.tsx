@@ -10,6 +10,8 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
 import { FileText, Check, X, FileText as FileTextIcon } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
+import { PERMISSIONS } from '@/lib/permissions';
 
 interface EmailViewProps {
   id: string;
@@ -35,13 +37,20 @@ type Email = {
 
 export function EmailView({ id }: EmailViewProps) {
   const router = useRouter();
+  const { hasPermission } = useAuth();
   const [email, setEmail] = useState<Email | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Check permissions
+  const canApprove = hasPermission(PERMISSIONS.APPROVE_EMAILS);
+  const canReject = hasPermission(PERMISSIONS.REJECT_EMAILS);
+  const canSign = hasPermission(PERMISSIONS.APPROVE_EMAILS);
+  const canViewAttachments = hasPermission(PERMISSIONS.VIEW_ATTACHMENTS);
 
   useEffect(() => {
     const fetchEmail = async () => {
       try {
-        const response = await fetch(`${API_ENDPOINTS.EMAIL.DETAIL(id)}`, {
+        const response = await fetch(`${API_ENDPOINTS.MAIL.DETAIL(id)}`, {
           credentials: 'include',
         });
         if (!response.ok) {
@@ -66,7 +75,7 @@ export function EmailView({ id }: EmailViewProps) {
 
   const handleApprove = async () => {
     try {
-      const response = await fetch(`${API_ENDPOINTS.EMAIL.APPROVE(id)}`, {
+      const response = await fetch(`${API_ENDPOINTS.MAIL.APPROVE(id)}`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -90,7 +99,7 @@ export function EmailView({ id }: EmailViewProps) {
 
   const handleReject = async () => {
     try {
-      const response = await fetch(`${API_ENDPOINTS.EMAIL.REJECT(id)}`, {
+      const response = await fetch(`${API_ENDPOINTS.MAIL.REJECT(id)}`, {
         method: 'POST',
         credentials: 'include',
         body: JSON.stringify({ reason: 'Rejected by user' }),
@@ -115,7 +124,7 @@ export function EmailView({ id }: EmailViewProps) {
 
   const handleSign = async () => {
     try {
-      const response = await fetch(`${API_ENDPOINTS.EMAIL.SIGN(id)}`, {
+      const response = await fetch(`${API_ENDPOINTS.MAIL.SIGN(id)}`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -205,7 +214,7 @@ export function EmailView({ id }: EmailViewProps) {
         </CardContent>
       </Card>
 
-      {email.attachments.length > 0 && (
+      {email.attachments.length > 0 && canViewAttachments && (
         <Card>
           <CardHeader>
             <CardTitle>Attachments</CardTitle>
@@ -231,24 +240,30 @@ export function EmailView({ id }: EmailViewProps) {
         </Card>
       )}
 
-      {email.status === 'PENDING' && (
+      {email.status === 'PENDING' && (canApprove || canReject || canSign) && (
         <div className="flex space-x-2">
-          <Button onClick={handleApprove} className="flex items-center space-x-2">
-            <Check className="h-4 w-4" />
-            <span>Approve</span>
-          </Button>
-          <Button
-            onClick={handleReject}
-            variant="destructive"
-            className="flex items-center space-x-2"
-          >
-            <X className="h-4 w-4" />
-            <span>Reject</span>
-          </Button>
-          <Button onClick={handleSign} className="flex items-center space-x-2">
-            <FileText className="h-4 w-4" />
-            <span>Sign</span>
-          </Button>
+          {canApprove && (
+            <Button onClick={handleApprove} className="flex items-center space-x-2">
+              <Check className="h-4 w-4" />
+              <span>Approve</span>
+            </Button>
+          )}
+          {canReject && (
+            <Button
+              onClick={handleReject}
+              variant="destructive"
+              className="flex items-center space-x-2"
+            >
+              <X className="h-4 w-4" />
+              <span>Reject</span>
+            </Button>
+          )}
+          {canSign && (
+            <Button onClick={handleSign} className="flex items-center space-x-2">
+              <FileText className="h-4 w-4" />
+              <span>Sign</span>
+            </Button>
+          )}
         </div>
       )}
     </div>

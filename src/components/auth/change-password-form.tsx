@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -16,29 +15,26 @@ import {
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
-import { loginSchema, LoginFormData } from '@/lib/validation';
-import { Mail, Lock, Loader2 } from 'lucide-react';
-import { useAuth } from '@/lib/auth-context';
+import { changePasswordSchema, ChangePasswordFormData } from '@/lib/validation';
+import { Lock, Loader2 } from 'lucide-react';
 
-export function LoginForm() {
-  const router = useRouter();
+export function ChangePasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const { updateAuthState } = useAuth();
 
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<ChangePasswordFormData>({
+    resolver: zodResolver(changePasswordSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      currentPassword: '',
+      newPassword: '',
     },
   });
 
-  async function onSubmit(data: LoginFormData) {
+  async function onSubmit(data: ChangePasswordFormData) {
     setIsLoading(true);
 
     try {
-      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
-        method: 'POST',
+      const response = await fetch(API_ENDPOINTS.AUTH.PROFILE, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -47,24 +43,21 @@ export function LoginForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Invalid credentials');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to change password');
       }
-
-      // Update auth state after successful login
-      await updateAuthState();
 
       toast({
         title: 'Success',
-        description: 'You have been logged in successfully.',
-        variant: 'default',
-        duration: 500,
+        description: 'Your password has been changed successfully.',
       });
 
-      router.push('/emails');
+      // Reset form
+      form.reset();
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Invalid email or password',
+        description: error instanceof Error ? error.message : 'Failed to change password',
         variant: 'destructive',
       });
     } finally {
@@ -77,14 +70,14 @@ export function LoginForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="email"
+          name="currentPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Current Password</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                  <Input placeholder="name@example.com" className="pl-10" {...field} />
+                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <Input type="password" className="pl-10" {...field} />
                 </div>
               </FormControl>
               <FormMessage />
@@ -93,10 +86,10 @@ export function LoginForm() {
         />
         <FormField
           control={form.control}
-          name="password"
+          name="newPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>New Password</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -115,10 +108,10 @@ export function LoginForm() {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Signing in...
+              Changing password...
             </>
           ) : (
-            'Sign in'
+            'Change Password'
           )}
         </Button>
       </form>

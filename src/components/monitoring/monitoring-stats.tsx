@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Activity, Server, Database, Mail } from 'lucide-react';
 import { API_ENDPOINTS } from '@/lib/config';
+import { useAuth } from '@/lib/auth-context';
+import { PERMISSIONS } from '@/lib/permissions';
 
 type HealthStatus = {
   status: 'healthy' | 'unhealthy';
@@ -17,8 +19,18 @@ export function MonitoringStats() {
     message: 'All systems operational',
   });
   const [loading, setLoading] = useState(true);
+  const { hasPermission } = useAuth();
+
+  // Check if user has permission to view monitoring stats
+  const canViewMonitoring =
+    hasPermission(PERMISSIONS.VIEW_METRICS) || hasPermission(PERMISSIONS.VIEW_HEALTH);
 
   const fetchHealthStatus = async () => {
+    if (!canViewMonitoring) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(API_ENDPOINTS.MONITORING.HEALTH, {
         credentials: 'include',
@@ -39,7 +51,20 @@ export function MonitoringStats() {
     fetchHealthStatus();
     const interval = setInterval(fetchHealthStatus, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
-  }, []);
+  }, [canViewMonitoring]);
+
+  // If user doesn't have permission to view monitoring stats, show a message
+  if (!canViewMonitoring) {
+    return (
+      <div className="p-6 text-center">
+        <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
+        <p className="text-muted-foreground">
+          You do not have permission to view monitoring statistics. Please contact your
+          administrator.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

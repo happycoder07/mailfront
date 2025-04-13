@@ -27,6 +27,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import { API_ENDPOINTS } from '@/lib/config';
+import { useAuth } from '@/lib/auth-context';
+import { PERMISSIONS } from '@/lib/permissions';
 
 const formSchema = z.object({
   from: z.string().email({
@@ -63,11 +65,15 @@ type Recipient = {
 
 export function NewEmailForm() {
   const router = useRouter();
+  const { hasPermission } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [newRecipient, setNewRecipient] = useState('');
   const [recipientType, setRecipientType] = useState<'TO' | 'CC' | 'BCC'>('TO');
   const [attachments, setAttachments] = useState<File[]>([]);
+
+  // Check if user has permission to send emails
+  const canSendEmail = hasPermission(PERMISSIONS.SEND_EMAIL);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -111,10 +117,19 @@ export function NewEmailForm() {
   };
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
+    if (!canSendEmail) {
+      toast({
+        title: 'Error',
+        description: 'You do not have permission to send emails',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const response = await fetch(API_ENDPOINTS.EMAIL.LIST, {
+      const response = await fetch(API_ENDPOINTS.MAIL.LIST, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,6 +157,18 @@ export function NewEmailForm() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  // If user doesn't have permission to send emails, show a message
+  if (!canSendEmail) {
+    return (
+      <div className="p-6 text-center">
+        <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
+        <p className="text-muted-foreground">
+          You do not have permission to send emails. Please contact your administrator.
+        </p>
+      </div>
+    );
   }
 
   return (

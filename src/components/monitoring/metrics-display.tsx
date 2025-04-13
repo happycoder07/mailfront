@@ -7,6 +7,8 @@ import { Activity, ChevronDown, ChevronUp } from 'lucide-react';
 import { API_ENDPOINTS } from '@/lib/config';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/lib/auth-context';
+import { PERMISSIONS } from '@/lib/permissions';
 import {
   Table,
   TableBody,
@@ -37,9 +39,18 @@ export function MetricsDisplay() {
   const [metricGroups, setMetricGroups] = useState<MetricGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const { hasPermission } = useAuth();
+
+  // Check if user has permission to view metrics
+  const canViewMetrics = hasPermission(PERMISSIONS.VIEW_METRICS);
 
   useEffect(() => {
     const fetchMetrics = async () => {
+      if (!canViewMetrics) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch(API_ENDPOINTS.MONITORING.METRICS, {
           credentials: 'include',
@@ -67,7 +78,19 @@ export function MetricsDisplay() {
     fetchMetrics();
     const interval = setInterval(fetchMetrics, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
-  }, []);
+  }, [canViewMetrics]);
+
+  // If user doesn't have permission to view metrics, show a message
+  if (!canViewMetrics) {
+    return (
+      <div className="p-6 text-center">
+        <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
+        <p className="text-muted-foreground">
+          You do not have permission to view metrics. Please contact your administrator.
+        </p>
+      </div>
+    );
+  }
 
   const toggleGroup = (name: string) => {
     setExpandedGroups(prev => ({
