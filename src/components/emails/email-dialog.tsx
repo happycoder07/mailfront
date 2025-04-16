@@ -210,20 +210,23 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return <Badge variant="outline">Pending</Badge>;
-      case 'APPROVED':
-        return <Badge variant="default">Approved</Badge>;
-      case 'REJECTED':
-        return <Badge variant="destructive">Rejected</Badge>;
-      case 'SENT':
-        return <Badge variant="secondary">Sent</Badge>;
-      case 'FAILED':
-        return <Badge variant="destructive">Failed</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
+    return (
+      <span
+        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+          status === 'PENDING'
+            ? 'bg-[var(--status-pending)] text-[var(--status-pending-foreground)]'
+            : status === 'APPROVED'
+              ? 'bg-[var(--status-approved)] text-[var(--status-approved-foreground)]'
+              : status === 'REJECTED'
+                ? 'bg-[var(--status-rejected)] text-[var(--status-rejected-foreground)]'
+                : status === 'SENT'
+                  ? 'bg-[var(--status-sent)] text-[var(--status-sent-foreground)]'
+                  : 'bg-[var(--status-failed)] text-[var(--status-failed-foreground)]'
+        }`}
+      >
+        {status}
+      </span>
+    );
   };
 
   const canApprove = hasPermission(PERMISSIONS.APPROVE_EMAILS);

@@ -96,6 +96,17 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.623 0.214 259.815);
+  /* Status colors */
+  --status-pending: oklch(0.95 0.1 80);
+  --status-pending-foreground: oklch(0.4 0.2 80);
+  --status-approved: oklch(0.9 0.15 140);
+  --status-approved-foreground: oklch(0.3 0.2 140);
+  --status-rejected: oklch(0.95 0.1 20);
+  --status-rejected-foreground: oklch(0.4 0.2 20);
+  --status-sent: oklch(0.95 0.1 260);
+  --status-sent-foreground: oklch(0.4 0.2 260);
+  --status-failed: oklch(0.95 0.01 0);
+  --status-failed-foreground: oklch(0.4 0.01 0);
 }
 
 .dark {
@@ -130,6 +141,17 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.488 0.243 264.376);
+  /* Status colors - dark theme */
+  --status-pending: oklch(0.2 0.1 80);
+  --status-pending-foreground: oklch(0.9 0.1 80);
+  --status-approved: oklch(0.2 0.15 140);
+  --status-approved-foreground: oklch(0.9 0.15 140);
+  --status-rejected: oklch(0.2 0.1 20);
+  --status-rejected-foreground: oklch(0.9 0.1 20);
+  --status-sent: oklch(0.2 0.1 260);
+  --status-sent-foreground: oklch(0.9 0.1 260);
+  --status-failed: oklch(0.2 0.01 0);
+  --status-failed-foreground: oklch(0.9 0.01 0);
 }
 
 @layer base {

@@ -433,10 +433,10 @@ export function EmailList() {
               <div className="w-full">
                 <Select value={filters.status} onValueChange={handleStatusChange}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Filter by status" />
+                    <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ALL">All Statuses</SelectItem>
+                    <SelectItem value="ALL">All</SelectItem>
                     <SelectItem value="PENDING">Pending</SelectItem>
                     <SelectItem value="APPROVED">Approved</SelectItem>
                     <SelectItem value="REJECTED">Rejected</SelectItem>
@@ -516,14 +516,14 @@ export function EmailList() {
                             <span
                               className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                 email.status === 'PENDING'
-                                  ? 'bg-yellow-100 text-yellow-800'
+                                  ? 'bg-[var(--status-pending)] text-[var(--status-pending-foreground)]'
                                   : email.status === 'APPROVED'
-                                    ? 'bg-green-100 text-green-800'
+                                    ? 'bg-[var(--status-approved)] text-[var(--status-approved-foreground)]'
                                     : email.status === 'REJECTED'
-                                      ? 'bg-red-100 text-red-800'
+                                      ? 'bg-[var(--status-rejected)] text-[var(--status-rejected-foreground)]'
                                       : email.status === 'SENT'
-                                        ? 'bg-blue-100 text-blue-800'
-                                        : 'bg-gray-100 text-gray-800'
+                                        ? 'bg-[var(--status-sent)] text-[var(--status-sent-foreground)]'
+                                        : 'bg-[var(--status-failed)] text-[var(--status-failed-foreground)]'
                               }`}
                             >
                               {email.status}

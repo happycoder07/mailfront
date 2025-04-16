@@ -281,21 +281,21 @@ export function EmailView({ id }: { id: string }) {
                 From: {email.from} • {format(new Date(email.createdAt), 'PPpp')}
               </CardDescription>
             </div>
-            <Badge
-              variant={
+            <span
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                 email.status === 'PENDING'
-                  ? 'secondary'
+                  ? 'bg-[var(--status-pending)] text-[var(--status-pending-foreground)]'
                   : email.status === 'APPROVED'
-                    ? 'default'
+                    ? 'bg-[var(--status-approved)] text-[var(--status-approved-foreground)]'
                     : email.status === 'REJECTED'
-                      ? 'destructive'
+                      ? 'bg-[var(--status-rejected)] text-[var(--status-rejected-foreground)]'
                       : email.status === 'SENT'
-                        ? 'outline'
-                        : 'outline'
-              }
+                        ? 'bg-[var(--status-sent)] text-[var(--status-sent-foreground)]'
+                        : 'bg-[var(--status-failed)] text-[var(--status-failed-foreground)]'
+              }`}
             >
               {email.status}
-            </Badge>
+            </span>
           </div>
         </CardHeader>
         <CardContent>
