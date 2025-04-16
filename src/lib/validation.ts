@@ -37,6 +37,21 @@ export const changePasswordSchema = z.object({
   }),
 });
 
+export const editUserSchema = z.object({
+  email: z.string().email({
+    message: 'Please enter a valid email address.',
+  }),
+  firstName: z.string().min(1, {
+    message: 'First name is required.',
+  }),
+  lastName: z.string().min(1, {
+    message: 'Last name is required.',
+  }),
+  roleId: z.number({
+    required_error: 'Role is required.',
+  }),
+});
+
 // Email validation schemas
 export const recipientSchema = z.object({
   address: z.string().email({
@@ -69,7 +84,7 @@ export const createEmailSchema = z.object({
     message: 'Content is required.',
   }),
   html: z.string().optional(),
-  attachments: z.array(attachmentSchema).optional(),
+  attachments: z.array(z.instanceof(File)).optional(),
 });
 
 export const rejectEmailSchema = z.object({
@@ -82,6 +97,7 @@ export const rejectEmailSchema = z.object({
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+export type EditUserFormData = z.infer<typeof editUserSchema>;
 export type RecipientFormData = z.infer<typeof recipientSchema>;
 export type AttachmentFormData = z.infer<typeof attachmentSchema>;
 export type CreateEmailFormData = z.infer<typeof createEmailSchema>;

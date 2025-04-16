@@ -40,9 +40,10 @@ import {
   ChevronRight,
   AlertCircle,
   RefreshCw,
+  Loader2,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from '@/components/ui/use-toast';
 import {
   API_ENDPOINTS,
@@ -55,37 +56,90 @@ import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 
 export function EmailList() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { hasPermission } = useAuth();
   const [emails, setEmails] = useState<EmailResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<string>('ALL');
   const [selectedEmail, setSelectedEmail] = useState<EmailResponseDto | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 10,
     totalItems: 0,
     totalPages: 0,
   });
+  const [filters, setFilters] = useState({
+    startDate: '',
+    endDate: '',
+    from: '',
+    to: '',
+    subject: '',
+    status: '',
+  });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [selectedEmailForRejection, setSelectedEmailForRejection] =
+    useState<EmailResponseDto | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+
+  const handleFilterChange = (key: keyof typeof filters, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleStatusChange = (status: string) => {
+    setFilters(prev => ({ ...prev, status }));
+  };
+
+  const handleDateChange = (key: 'startDate' | 'endDate', date: Date | undefined) => {
+    setFilters(prev => ({ ...prev, [key]: date ? format(date, 'yyyy-MM-dd') : '' }));
+  };
+
+  const handleSearch = () => {
+    setSearching(true);
+    setAppliedFilters(filters);
+    setPagination(prev => ({ ...prev, page: 1 }));
+    fetchEmails();
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPagination(prev => ({ ...prev, pageSize: newPageSize, page: 1 }));
+  };
 
   const fetchEmails = async () => {
     setLoading(true);
     try {
-      // Build query parameters
-      const params = new URLSearchParams();
-      if (status !== 'ALL') {
-        params.append('status', status);
-      }
-      if (search) {
-        params.append('subject', search);
-      }
-      params.append('page', pagination.page.toString());
-      params.append('pageSize', pagination.pageSize.toString());
+      const params = new URLSearchParams({
+        ...(appliedFilters.startDate && { startDate: appliedFilters.startDate }),
+        ...(appliedFilters.endDate && { endDate: appliedFilters.endDate }),
+        ...(appliedFilters.from && { from: appliedFilters.from }),
+        ...(appliedFilters.to && { to: appliedFilters.to }),
+        ...(appliedFilters.subject && { subject: appliedFilters.subject }),
+        ...(appliedFilters.status &&
+          appliedFilters.status !== 'ALL' && { status: appliedFilters.status }),
+        page: pagination.page.toString(),
+        pageSize: pagination.pageSize.toString(),
+      });
 
       const url = `${API_ENDPOINTS.MAIL.LIST}?${params.toString()}`;
 
@@ -119,6 +173,7 @@ export function EmailList() {
       });
     } finally {
       setLoading(false);
+      setSearching(false);
     }
   };
 
@@ -135,12 +190,7 @@ export function EmailList() {
         clearInterval(interval);
       }
     };
-  }, [status, pagination.page, pagination.pageSize, autoRefresh]);
-
-  const handleSearch = () => {
-    setPagination(prev => ({ ...prev, page: 1 }));
-    fetchEmails();
-  };
+  }, [pagination.page, pagination.pageSize, autoRefresh, appliedFilters]);
 
   const handleApprove = async (id: number) => {
     try {
@@ -155,7 +205,8 @@ export function EmailList() {
       }
 
       if (!response.ok) {
-        throw new Error('Failed to approve email');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to approve email');
       }
 
       // Refresh the list
@@ -169,13 +220,13 @@ export function EmailList() {
       console.error('Error approving email:', error);
       toast({
         title: 'Error',
-        description: 'Failed to approve email',
+        description: error instanceof Error ? error.message : 'Failed to approve email',
         variant: 'destructive',
       });
     }
   };
 
-  const handleReject = async (id: number) => {
+  const handleReject = async (id: number, reason: string) => {
     try {
       const response = await fetch(API_ENDPOINTS.MAIL.REJECT(id.toString()), {
         method: 'POST',
@@ -183,7 +234,7 @@ export function EmailList() {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ reason: 'Rejected by user' }),
+        body: JSON.stringify({ reason }),
       });
 
       if (response.status === 401) {
@@ -192,7 +243,8 @@ export function EmailList() {
       }
 
       if (!response.ok) {
-        throw new Error('Failed to reject email');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to reject email');
       }
 
       // Refresh the list
@@ -206,7 +258,7 @@ export function EmailList() {
       console.error('Error rejecting email:', error);
       toast({
         title: 'Error',
-        description: 'Failed to reject email',
+        description: error instanceof Error ? error.message : 'Failed to reject email',
         variant: 'destructive',
       });
     }
@@ -225,7 +277,8 @@ export function EmailList() {
       }
 
       if (!response.ok) {
-        throw new Error('Failed to sign email');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to sign email');
       }
 
       // Refresh the list
@@ -239,15 +292,14 @@ export function EmailList() {
       console.error('Error signing email:', error);
       toast({
         title: 'Error',
-        description: 'Failed to sign email',
+        description: error instanceof Error ? error.message : 'Failed to sign email',
         variant: 'destructive',
       });
     }
   };
 
   const handleView = (email: EmailResponseDto) => {
-    setSelectedEmail(email);
-    setDialogOpen(true);
+    window.open(`/emails/${email.id}`, '_blank');
   };
 
   const handleEmailUpdated = () => {
@@ -290,19 +342,35 @@ export function EmailList() {
     });
   }, [emails, search]);
 
-  const handlePageChange = (newPage: number) => {
-    setPagination(prev => ({ ...prev, page: newPage }));
+  const openRejectDialog = (email: EmailResponseDto) => {
+    setSelectedEmailForRejection(email);
+    setRejectionReason('');
+    setRejectDialogOpen(true);
   };
 
-  const handlePageSizeChange = (newPageSize: number) => {
-    setPagination(prev => ({ ...prev, pageSize: newPageSize, page: 1 }));
+  const handleRejectSubmit = () => {
+    if (selectedEmailForRejection && rejectionReason.trim()) {
+      handleReject(selectedEmailForRejection.id, rejectionReason.trim());
+      setRejectDialogOpen(false);
+    }
   };
+
+  if (!hasPermission(PERMISSIONS.VIEW_EMAILS)) {
+    return (
+      <div className="p-6 text-center">
+        <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
+        <p className="text-muted-foreground">
+          You do not have permission to view emails. Please contact your administrator.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle>Email Management</CardTitle>
             <div className="flex items-center gap-4">
               <div className="flex items-center space-x-2">
@@ -320,203 +388,222 @@ export function EmailList() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-4">
-            <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-              <div className="relative w-full md:w-64">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                 <Input
-                  placeholder="Search emails..."
-                  className="pl-8"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                  placeholder="Search by subject..."
+                  className="pl-10"
+                  value={filters.subject}
+                  onChange={e => handleFilterChange('subject', e.target.value)}
                 />
               </div>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="w-full md:w-[180px]">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Statuses</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="APPROVED">Approved</SelectItem>
-                  <SelectItem value="REJECTED">Rejected</SelectItem>
-                  <SelectItem value="SENT">Sent</SelectItem>
-                  <SelectItem value="FAILED">Failed</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button onClick={handleSearch} className="w-full md:w-auto">
-                Search
-              </Button>
-            </div>
-            <Select
-              value={pagination.pageSize.toString()}
-              onValueChange={value => handlePageSizeChange(parseInt(value))}
-            >
-              <SelectTrigger className="w-full md:w-[120px]">
-                <SelectValue placeholder="Page size" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5 per page</SelectItem>
-                <SelectItem value="10">10 per page</SelectItem>
-                <SelectItem value="20">20 per page</SelectItem>
-                <SelectItem value="50">50 per page</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Subject</TableHead>
-                  <TableHead>To</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24">
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-full" />
-                        <Skeleton className="h-4 w-full" />
-                        <Skeleton className="h-4 w-full" />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : filteredEmails.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24">
-                      <Alert>
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>No emails found</AlertTitle>
-                        <AlertDescription>
-                          Try adjusting your search or filter criteria
-                        </AlertDescription>
-                      </Alert>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredEmails.map(email => (
-                    <TableRow key={email.id}>
-                      <TableCell className="font-medium">
-                        <Button
-                          variant="link"
-                          className="p-0 h-auto font-medium"
-                          onClick={() => router.push(`/emails/${email.id}`)}
-                        >
-                          {email.subject}
-                        </Button>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-1">
-                          {email.recipients.map(r => (
-                            <Badge
-                              key={r.id}
-                              variant={
-                                r.type === 'TO'
-                                  ? 'default'
-                                  : r.type === 'CC'
-                                    ? 'secondary'
-                                    : 'outline'
-                              }
-                              className="w-fit"
-                            >
-                              {r.address}
-                            </Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell>{format(new Date(email.createdAt), 'PPp')}</TableCell>
-                      <TableCell>{getStatusBadge(email.status)}</TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <DropdownMenuItem onClick={() => handleView(email)}>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  View
-                                </DropdownMenuItem>
-                              </TooltipTrigger>
-                              <TooltipContent>View email details</TooltipContent>
-                            </Tooltip>
-                            {email.status === 'PENDING' && canApprove && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <DropdownMenuItem onClick={() => handleApprove(email.id)}>
-                                    <Check className="mr-2 h-4 w-4" />
-                                    Approve
-                                  </DropdownMenuItem>
-                                </TooltipTrigger>
-                                <TooltipContent>Approve this email</TooltipContent>
-                              </Tooltip>
-                            )}
-                            {email.status === 'PENDING' && canReject && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <DropdownMenuItem onClick={() => handleReject(email.id)}>
-                                    <X className="mr-2 h-4 w-4" />
-                                    Reject
-                                  </DropdownMenuItem>
-                                </TooltipTrigger>
-                                <TooltipContent>Reject this email</TooltipContent>
-                              </Tooltip>
-                            )}
-                            {email.status === 'PENDING' && canSign && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <DropdownMenuItem onClick={() => handleSign(email.id)}>
-                                    <FileText className="mr-2 h-4 w-4" />
-                                    Sign
-                                  </DropdownMenuItem>
-                                </TooltipTrigger>
-                                <TooltipContent>Sign this email</TooltipContent>
-                              </Tooltip>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-muted-foreground">
-              Showing {filteredEmails.length} of {pagination.totalItems} emails
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(pagination.page - 1)}
-                disabled={pagination.page <= 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="text-sm">
-                Page {pagination.page} of {pagination.totalPages}
+              <div className="relative">
+                <Input
+                  placeholder="Filter by sender..."
+                  value={filters.from}
+                  onChange={e => handleFilterChange('from', e.target.value)}
+                />
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(pagination.page + 1)}
-                disabled={pagination.page >= pagination.totalPages}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+              <div className="relative">
+                <Input
+                  placeholder="Filter by recipient..."
+                  value={filters.to}
+                  onChange={e => handleFilterChange('to', e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+              <div className="w-full">
+                <DatePicker
+                  date={filters.startDate ? new Date(filters.startDate) : undefined}
+                  onSelect={date => handleDateChange('startDate', date)}
+                  placeholder="Start date"
+                />
+              </div>
+              <div className="w-full">
+                <DatePicker
+                  date={filters.endDate ? new Date(filters.endDate) : undefined}
+                  onSelect={date => handleDateChange('endDate', date)}
+                  placeholder="End date"
+                />
+              </div>
+              <div className="w-full">
+                <Select value={filters.status} onValueChange={handleStatusChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All Statuses</SelectItem>
+                    <SelectItem value="PENDING">Pending</SelectItem>
+                    <SelectItem value="APPROVED">Approved</SelectItem>
+                    <SelectItem value="REJECTED">Rejected</SelectItem>
+                    <SelectItem value="SENT">Sent</SelectItem>
+                    <SelectItem value="FAILED">Failed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-full">
+                <Button onClick={handleSearch} disabled={searching} className="w-full">
+                  {searching ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Searching...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="mr-2 h-4 w-4" />
+                      Search
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="rounded-md border">
+              <div className="relative w-full overflow-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="whitespace-nowrap">From</TableHead>
+                      <TableHead className="whitespace-nowrap">Subject</TableHead>
+                      <TableHead className="whitespace-nowrap">Status</TableHead>
+                      <TableHead className="whitespace-nowrap">Created At</TableHead>
+                      <TableHead className="whitespace-nowrap">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {loading ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center">
+                          <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                        </TableCell>
+                      </TableRow>
+                    ) : emails.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center">
+                          <Alert>
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertTitle>No emails found</AlertTitle>
+                            <AlertDescription>
+                              Try adjusting your search or filter criteria
+                            </AlertDescription>
+                          </Alert>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      emails.map(email => (
+                        <TableRow
+                          key={email.id}
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => handleView(email)}
+                        >
+                          <TableCell className="max-w-[200px] truncate">
+                            <Tooltip>
+                              <TooltipTrigger>{email.from}</TooltipTrigger>
+                              <TooltipContent>{email.from}</TooltipContent>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell className="max-w-[300px] truncate">
+                            <Tooltip>
+                              <TooltipTrigger>{email.subject}</TooltipTrigger>
+                              <TooltipContent>{email.subject}</TooltipContent>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                email.status === 'PENDING'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : email.status === 'APPROVED'
+                                    ? 'bg-green-100 text-green-800'
+                                    : email.status === 'REJECTED'
+                                      ? 'bg-red-100 text-red-800'
+                                      : email.status === 'SENT'
+                                        ? 'bg-blue-100 text-blue-800'
+                                        : 'bg-gray-100 text-gray-800'
+                              }`}
+                            >
+                              {email.status}
+                            </span>
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {format(new Date(email.createdAt), 'PPpp')}
+                          </TableCell>
+                          <TableCell>
+                            <div
+                              className="flex items-center justify-end"
+                              onClick={e => e.stopPropagation()}
+                            >
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleView(email)}>
+                                    <Eye className="mr-2 h-4 w-4" />
+                                    View
+                                  </DropdownMenuItem>
+                                  {email.status === 'PENDING' && (
+                                    <>
+                                      {canApprove && (
+                                        <DropdownMenuItem onClick={() => handleApprove(email.id)}>
+                                          <Check className="mr-2 h-4 w-4" />
+                                          Approve
+                                        </DropdownMenuItem>
+                                      )}
+                                      {canReject && (
+                                        <DropdownMenuItem onClick={() => openRejectDialog(email)}>
+                                          <X className="mr-2 h-4 w-4" />
+                                          Reject
+                                        </DropdownMenuItem>
+                                      )}
+                                      {canSign && (
+                                        <DropdownMenuItem onClick={() => handleSign(email.id)}>
+                                          <FileText className="mr-2 h-4 w-4" />
+                                          Sign
+                                        </DropdownMenuItem>
+                                      )}
+                                    </>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+              <div className="text-sm text-muted-foreground">
+                Showing {emails.length} of {pagination.totalItems} emails
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(pagination.page - 1)}
+                  disabled={pagination.page === 1}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(pagination.page + 1)}
+                  disabled={pagination.page === pagination.totalPages}
+                >
+                  Next
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -530,6 +617,33 @@ export function EmailList() {
           onEmailUpdated={handleEmailUpdated}
         />
       )}
+
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Email</DialogTitle>
+            <DialogDescription>Please provide a reason for rejecting this email.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Textarea
+                placeholder="Enter rejection reason..."
+                value={rejectionReason}
+                onChange={e => setRejectionReason(e.target.value)}
+                className="min-h-[100px]"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleRejectSubmit} disabled={!rejectionReason.trim()}>
+              Reject
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

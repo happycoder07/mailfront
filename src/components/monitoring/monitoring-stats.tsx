@@ -15,23 +15,77 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 
 type HealthStatus = {
-  status: 'healthy' | 'unhealthy';
-  message: string;
-  metrics?: {
-    cpu: number;
-    memory: number;
-    disk: number;
+  status: 'ok' | 'error';
+  info: {
+    database: {
+      status: 'up' | 'down';
+    };
+    queue: {
+      status: 'up' | 'down';
+      queueSize: number;
+      backlogAge: number;
+    };
+    system: {
+      status: 'up' | 'down';
+      memory: {
+        heapUsed: number;
+        heapTotal: number;
+        rss: number;
+        external: number;
+      };
+      cpu: {
+        usage: number;
+        cores: number;
+      };
+    };
+  };
+  error: Record<string, any>;
+  details: {
+    database: {
+      status: 'up' | 'down';
+    };
+    queue: {
+      status: 'up' | 'down';
+      queueSize: number;
+      backlogAge: number;
+    };
+    system: {
+      status: 'up' | 'down';
+      memory: {
+        heapUsed: number;
+        heapTotal: number;
+        rss: number;
+        external: number;
+      };
+      cpu: {
+        usage: number;
+        cores: number;
+      };
+    };
   };
 };
 
 export function MonitoringStats() {
   const [health, setHealth] = useState<HealthStatus>({
-    status: 'healthy',
-    message: 'All systems operational',
-    metrics: {
-      cpu: 0,
-      memory: 0,
-      disk: 0,
+    status: 'ok',
+    info: {
+      database: { status: 'up' },
+      queue: { status: 'up', queueSize: 0, backlogAge: 0 },
+      system: {
+        status: 'up',
+        memory: { heapUsed: 0, heapTotal: 0, rss: 0, external: 0 },
+        cpu: { usage: 0, cores: 0 },
+      },
+    },
+    error: {},
+    details: {
+      database: { status: 'up' },
+      queue: { status: 'up', queueSize: 0, backlogAge: 0 },
+      system: {
+        status: 'up',
+        memory: { heapUsed: 0, heapTotal: 0, rss: 0, external: 0 },
+        cpu: { usage: 0, cores: 0 },
+      },
     },
   });
   const [loading, setLoading] = useState(true);
@@ -60,12 +114,25 @@ export function MonitoringStats() {
     } catch (error) {
       console.error('Error fetching health status:', error);
       setHealth({
-        status: 'unhealthy',
-        message: 'Failed to fetch health status',
-        metrics: {
-          cpu: 0,
-          memory: 0,
-          disk: 0,
+        status: 'error',
+        info: {
+          database: { status: 'down' },
+          queue: { status: 'down', queueSize: 0, backlogAge: 0 },
+          system: {
+            status: 'down',
+            memory: { heapUsed: 0, heapTotal: 0, rss: 0, external: 0 },
+            cpu: { usage: 0, cores: 0 },
+          },
+        },
+        error: {},
+        details: {
+          database: { status: 'down' },
+          queue: { status: 'down', queueSize: 0, backlogAge: 0 },
+          system: {
+            status: 'down',
+            memory: { heapUsed: 0, heapTotal: 0, rss: 0, external: 0 },
+            cpu: { usage: 0, cores: 0 },
+          },
         },
       });
     } finally {
@@ -131,10 +198,12 @@ export function MonitoringStats() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Alert variant={health.status === 'healthy' ? 'default' : 'destructive'}>
+        <Alert variant={health.status === 'ok' ? 'default' : 'destructive'}>
           <Activity className="h-4 w-4" />
           <AlertTitle>System Status</AlertTitle>
-          <AlertDescription>{health.message}</AlertDescription>
+          <AlertDescription>
+            {health.status === 'ok' ? 'All systems operational' : 'System issues detected'}
+          </AlertDescription>
         </Alert>
         <div className="flex items-center gap-4">
           <div className="flex items-center space-x-2">
@@ -158,9 +227,11 @@ export function MonitoringStats() {
             <Server className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{health.metrics?.cpu}%</div>
-            <Progress value={health.metrics?.cpu} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-2">Current CPU utilization</p>
+            <div className="text-2xl font-bold">{health.info.system.cpu.usage.toFixed(2)}%</div>
+            <Progress value={health.info.system.cpu.usage} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-2">
+              {health.info.system.cpu.cores} cores
+            </p>
           </CardContent>
         </Card>
 
@@ -170,35 +241,51 @@ export function MonitoringStats() {
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{health.metrics?.memory}%</div>
-            <Progress value={health.metrics?.memory} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-2">Current memory utilization</p>
+            <div className="text-2xl font-bold">
+              {(health.info.system.memory.heapUsed / 1024 / 1024).toFixed(2)} MB
+            </div>
+            <Progress
+              value={
+                (health.info.system.memory.heapUsed / health.info.system.memory.heapTotal) * 100
+              }
+              className="mt-2"
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              Total: {(health.info.system.memory.heapTotal / 1024 / 1024).toFixed(2)} MB
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Disk Usage</CardTitle>
-            <Database className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{health.metrics?.disk}%</div>
-            <Progress value={health.metrics?.disk} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-2">Current disk utilization</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Mail Service</CardTitle>
+            <CardTitle className="text-sm font-medium">Queue Status</CardTitle>
             <Mail className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Badge variant={health.status === 'healthy' ? 'default' : 'destructive'}>
-                {health.status === 'healthy' ? 'Active' : 'Inactive'}
+              <Badge variant={health.info.queue.status === 'up' ? 'default' : 'destructive'}>
+                {health.info.queue.status === 'up' ? 'Active' : 'Inactive'}
               </Badge>
-              <p className="text-xs text-muted-foreground">Mail service status</p>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Queue Size: {health.info.queue.queueSize}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Backlog Age: {health.info.queue.backlogAge}s
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Database Status</CardTitle>
+            <Database className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2">
+              <Badge variant={health.info.database.status === 'up' ? 'default' : 'destructive'}>
+                {health.info.database.status === 'up' ? 'Active' : 'Inactive'}
+              </Badge>
             </div>
           </CardContent>
         </Card>

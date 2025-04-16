@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -14,27 +16,31 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { API_ENDPOINTS } from '@/lib/config';
-import { rejectEmailSchema, RejectEmailFormData } from '@/lib/validation';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { Loader2, X, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
-import { PERMISSIONS } from '@/lib/permissions';
+
+const rejectEmailSchema = z.object({
+  reason: z.string().min(1, 'Reason is required'),
+});
+
+type RejectEmailFormData = z.infer<typeof rejectEmailSchema>;
 
 interface RejectEmailFormProps {
-  emailId: number;
-  onRejected: () => void;
-  onCancel: () => void;
+  emailId: string;
 }
 
-export function RejectEmailForm({ emailId, onRejected, onCancel }: RejectEmailFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+export function RejectEmailForm({ emailId }: RejectEmailFormProps) {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { hasPermission } = useAuth();
 
-  // Check if user has permission to reject emails
-  const canReject = hasPermission(PERMISSIONS.REJECT_EMAILS);
+  const canRejectEmails = hasPermission(PERMISSIONS.REJECT_EMAILS);
 
   const form = useForm<RejectEmailFormData>({
     resolver: zodResolver(rejectEmailSchema),
@@ -43,8 +49,8 @@ export function RejectEmailForm({ emailId, onRejected, onCancel }: RejectEmailFo
     },
   });
 
-  async function onSubmit(data: RejectEmailFormData) {
-    if (!canReject) {
+  const onSubmit = async (data: RejectEmailFormData) => {
+    if (!canRejectEmails) {
       toast({
         title: 'Error',
         description: 'You do not have permission to reject emails',
@@ -53,21 +59,19 @@ export function RejectEmailForm({ emailId, onRejected, onCancel }: RejectEmailFo
       return;
     }
 
-    setIsLoading(true);
-
+    setIsSubmitting(true);
     try {
-      const response = await fetch(`${API_ENDPOINTS.MAIL.REJECT(emailId.toString())}`, {
+      const response = await fetch(API_ENDPOINTS.MAIL.REJECT(emailId), {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to reject email');
+        throw new Error('Failed to reject email');
       }
 
       toast({
@@ -75,7 +79,7 @@ export function RejectEmailForm({ emailId, onRejected, onCancel }: RejectEmailFo
         description: 'Email rejected successfully',
       });
 
-      onRejected();
+      router.push('/emails');
     } catch (error) {
       toast({
         title: 'Error',
@@ -83,12 +87,12 @@ export function RejectEmailForm({ emailId, onRejected, onCancel }: RejectEmailFo
         variant: 'destructive',
       });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
-  }
+  };
 
   // If user doesn't have permission to reject emails, show a message
-  if (!canReject) {
+  if (!canRejectEmails) {
     return (
       <Card>
         <CardHeader>
@@ -103,7 +107,7 @@ export function RejectEmailForm({ emailId, onRejected, onCancel }: RejectEmailFo
             </AlertDescription>
           </Alert>
           <div className="mt-4 flex justify-end">
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline" onClick={() => router.push('/emails')}>
               Go Back
             </Button>
           </div>
@@ -125,14 +129,14 @@ export function RejectEmailForm({ emailId, onRejected, onCancel }: RejectEmailFo
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Rejection Reason</FormLabel>
+                  <FormLabel>Reason for Rejection</FormLabel>
                   <FormDescription>
                     Please provide a clear reason for rejecting this email. This will help the
                     sender understand why their email was rejected.
                   </FormDescription>
                   <FormControl>
                     <Textarea
-                      placeholder="Please provide a reason for rejecting this email..."
+                      placeholder="Enter the reason for rejecting this email..."
                       className="min-h-[100px]"
                       {...field}
                     />
@@ -142,11 +146,8 @@ export function RejectEmailForm({ emailId, onRejected, onCancel }: RejectEmailFo
               )}
             />
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="destructive" disabled={isLoading}>
-                {isLoading ? (
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Rejecting...

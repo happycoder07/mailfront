@@ -33,6 +33,7 @@ import {
 import { Mail, Plus, Trash2, Loader2, Paperclip } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
+import { EmailResponseDto } from '@/lib/types';
 
 export function CreateEmailForm() {
   const router = useRouter();
@@ -95,12 +96,15 @@ export function CreateEmailForm() {
         formData.append('html', data.html);
       }
 
-      // Add recipients
-      formData.append('recipients', JSON.stringify(data.recipients));
+      // Add recipients as individual form fields
+      data.recipients.forEach((recipient, index) => {
+        formData.append(`recipients[${index}][address]`, recipient.address);
+        formData.append(`recipients[${index}][type]`, recipient.type);
+      });
 
       // Add attachments
-      attachments.forEach((file, index) => {
-        formData.append(`attachments`, file);
+      attachments.forEach(file => {
+        formData.append('attachments', file);
       });
 
       const response = await fetch(API_ENDPOINTS.MAIL.CREATE, {
@@ -111,8 +115,22 @@ export function CreateEmailForm() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create email');
+        let errorMessage = 'Failed to create email';
+
+        if (response.status === 401) {
+          errorMessage = 'Unauthorized - Please login again';
+        } else if (response.status === 403) {
+          errorMessage = 'Forbidden - You do not have permission to perform this action';
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+
+        throw new Error(errorMessage);
       }
+
+      const responseData: EmailResponseDto = await response.json();
 
       toast({
         title: 'Success',
@@ -256,48 +274,45 @@ export function CreateEmailForm() {
             <FormItem>
               <FormLabel>HTML Content (Optional)</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="HTML content"
-                  className="min-h-[200px] font-mono"
-                  {...field}
-                />
+                <Textarea placeholder="HTML content" className="min-h-[200px]" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="space-y-2">
-          <FormLabel>Attachments</FormLabel>
-          <div className="flex items-center space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => document.getElementById('file-upload')?.click()}
-            >
-              <Paperclip className="mr-2 h-4 w-4" />
-              Add Attachment
-            </Button>
-            <input
-              id="file-upload"
-              type="file"
-              multiple
-              className="hidden"
-              onChange={handleFileChange}
-            />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <FormLabel>Attachments</FormLabel>
+            <div className="flex items-center space-x-2">
+              <input
+                type="file"
+                id="attachments"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('attachments')?.click()}
+              >
+                <Paperclip className="mr-2 h-4 w-4" />
+                Add Attachment
+              </Button>
+            </div>
           </div>
+
           {attachments.length > 0 && (
-            <div className="mt-2 space-y-2">
+            <div className="space-y-2">
               {attachments.map((file, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between rounded-md border p-2"
-                >
+                <div key={index} className="flex items-center justify-between p-2 border rounded">
                   <span className="text-sm">{file.name}</span>
                   <Button
                     type="button"
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={() => removeAttachment(index)}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -308,20 +323,23 @@ export function CreateEmailForm() {
           )}
         </div>
 
-        <Button
-          type="submit"
-          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating email...
-            </>
-          ) : (
-            'Create Email'
+        <div className="flex items-center justify-between">
+          <Button type="submit" disabled={isLoading || !form.formState.isValid}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              'Send Email'
+            )}
+          </Button>
+          {!form.formState.isValid && (
+            <span className="text-sm text-muted-foreground">
+              Please fill in all required fields correctly
+            </span>
           )}
-        </Button>
+        </div>
       </form>
     </Form>
   );

@@ -38,12 +38,16 @@ const formSchema = z.object({
   from: z.string().email({
     message: 'Please enter a valid email address.',
   }),
-  recipients: z.array(
-    z.object({
-      address: z.string().email(),
-      type: z.enum(['TO', 'CC', 'BCC']),
-    })
-  ),
+  recipients: z
+    .array(
+      z.object({
+        address: z.string().email(),
+        type: z.enum(['TO', 'CC', 'BCC']),
+      })
+    )
+    .min(1, {
+      message: 'At least one recipient is required.',
+    }),
   subject: z.string().min(1, {
     message: 'Subject is required.',
   }),
@@ -51,15 +55,7 @@ const formSchema = z.object({
     message: 'Content is required.',
   }),
   html: z.string().optional(),
-  attachments: z
-    .array(
-      z.object({
-        filename: z.string(),
-        path: z.string(),
-        contentType: z.string(),
-      })
-    )
-    .optional(),
+  attachments: z.array(z.instanceof(File)).optional(),
 });
 
 type Recipient = {
@@ -133,29 +129,58 @@ export function NewEmailForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(API_ENDPOINTS.MAIL.LIST, {
+      const formData = new FormData();
+
+      // Add required fields
+      formData.append('from', data.from);
+      formData.append('subject', data.subject);
+      formData.append('content', data.content);
+
+      // Add optional fields if they exist
+      if (data.html) {
+        formData.append('html', data.html);
+      }
+
+      // Add recipients as individual form fields
+      data.recipients.forEach((recipient, index) => {
+        formData.append(`recipients[${index}][address]`, recipient.address);
+        formData.append(`recipients[${index}][type]`, recipient.type);
+      });
+
+      // Add attachments if they exist
+      if (data.attachments && data.attachments.length > 0) {
+        data.attachments.forEach(file => {
+          formData.append('attachments', file);
+        });
+      }
+
+      const response = await fetch(API_ENDPOINTS.MAIL.CREATE, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         credentials: 'include',
-        body: JSON.stringify(data),
+        body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create email');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create email');
       }
+
+      const emailData = await response.json();
 
       toast({
         title: 'Success',
         description: 'Email created successfully',
       });
 
-      router.push('/emails');
+      // Open the created email in a new tab
+      window.open(`/emails/${emailData.id}`, '_blank');
+
+      // Close the current tab/form
+      window.close();
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to create email',
+        description: error instanceof Error ? error.message : 'Failed to create email',
         variant: 'destructive',
       });
     } finally {
@@ -338,7 +363,7 @@ export function NewEmailForm() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.back()}
+                onClick={() => window.close()}
                 disabled={isLoading}
               >
                 Cancel

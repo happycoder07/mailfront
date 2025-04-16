@@ -12,7 +12,7 @@ interface EmailViewPageProps {
   };
 }
 
-export default function EmailViewPage({ params }: EmailViewPageProps) {
+export default async function EmailViewPage({ params }: EmailViewPageProps) {
   return (
     <div className="flex flex-col gap-4">
       <div>

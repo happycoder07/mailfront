@@ -162,7 +162,7 @@ export function MainNav() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-primary-foreground hover:bg-primary-foreground/20"
+                className="text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground"
                 onClick={handleLogout}
               >
                 <LogOut className="h-5 w-5" />

@@ -70,10 +70,6 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
     setIsRejecting(true);
   };
 
-  const handleRejectCancel = () => {
-    setIsRejecting(false);
-  };
-
   const handleRejectComplete = () => {
     setIsRejecting(false);
     onEmailUpdated();
@@ -245,11 +241,7 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
           </div>
         </DialogHeader>
         {isRejecting ? (
-          <RejectEmailForm
-            emailId={email.id}
-            onRejected={handleRejectComplete}
-            onCancel={handleRejectCancel}
-          />
+          <RejectEmailForm emailId={email.id.toString()} />
         ) : (
           <Tabs defaultValue="details" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
