@@ -28,15 +28,36 @@
     },
     "/api/mail": {
       "post": {
-        "description": "Creates a new email with optional attachments and recipients",
+        "description": "Creates a new email with optional attachments and recipients. Recipients should be provided as a JSON string array of objects with address and type fields.",
         "operationId": "MailController_createEmail",
         "parameters": [],
         "requestBody": {
           "required": true,
+          "description": "Email data with optional attachments",
           "content": {
             "multipart/form-data": {
               "schema": {
                 "$ref": "#/components/schemas/CreateEmailSchemaDto"
+              },
+              "examples": {
+                "Basic Email": {
+                  "value": {
+                    "from": "sender@example.com",
+                    "recipients": "[{\"address\":\"recipient1@example.com\",\"type\":\"TO\"},{\"address\":\"recipient2@example.com\",\"type\":\"CC\"}]",
+                    "subject": "Test Subject",
+                    "content": "This is the email content",
+                    "html": "\u003Cp\u003EThis is HTML content\u003C/p\u003E"
+                  }
+                },
+                "Email with Attachments": {
+                  "value": {
+                    "from": "sender@example.com",
+                    "recipients": "[{\"address\":\"recipient@example.com\",\"type\":\"TO\"}]",
+                    "subject": "Email with Attachments",
+                    "content": "Please find attached files",
+                    "attachments": []
+                  }
+                }
               }
             }
           }
@@ -53,7 +74,7 @@
             }
           },
           "400": {
-            "description": "Bad request"
+            "description": "Bad request - Invalid recipients format or missing required fields"
           },
           "401": {
             "description": "Unauthorized"
@@ -815,21 +836,6 @@
       }
     },
     "schemas": {
-      "RecipientDto": {
-        "type": "object",
-        "properties": {
-          "address": {
-            "type": "string",
-            "example": "recipient@example.com"
-          },
-          "type": {
-            "type": "string",
-            "enum": ["TO", "CC", "BCC"],
-            "default": "TO"
-          }
-        },
-        "required": ["address", "type"]
-      },
       "CreateEmailSchemaDto": {
         "type": "object",
         "properties": {
@@ -838,20 +844,9 @@
             "example": "sender@example.com"
           },
           "recipients": {
-            "example": [
-              {
-                "address": "recipient1@example.com",
-                "type": "TO"
-              },
-              {
-                "address": "recipient2@example.com",
-                "type": "CC"
-              }
-            ],
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecipientDto"
-            }
+            "type": "string",
+            "example": "[{\"address\":\"recipient1@example.com\",\"type\":\"TO\"},{\"address\":\"recipient2@example.com\",\"type\":\"CC\"}]",
+            "description": "JSON string array of recipients"
           },
           "subject": {
             "type": "string",
@@ -1120,20 +1115,9 @@
             "example": "sender@example.com"
           },
           "recipients": {
-            "example": [
-              {
-                "address": "recipient1@example.com",
-                "type": "TO"
-              },
-              {
-                "address": "recipient2@example.com",
-                "type": "CC"
-              }
-            ],
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecipientDto"
-            }
+            "type": "string",
+            "example": "[{\"address\":\"recipient1@example.com\",\"type\":\"TO\"},{\"address\":\"recipient2@example.com\",\"type\":\"CC\"}]",
+            "description": "JSON string array of recipients"
           },
           "subject": {
             "type": "string",

@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
-import { Loader2, Download, Check, X, FileText } from 'lucide-react';
+import { Loader2, Download, Check, X, FileText, Eye } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 
@@ -214,6 +214,45 @@ export function EmailView({ id }: { id: string }) {
     }
   };
 
+  const handleViewAttachment = async (attachment: Email['attachments'][0]) => {
+    try {
+      const response = await fetch(API_ENDPOINTS.FILE.GET(attachment.minioKey), {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to view attachment');
+      }
+
+      const blob = await response.blob();
+      const file = new File([blob], attachment.filename, { type: attachment.contentType });
+      const fileUrl = URL.createObjectURL(file);
+
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.style.display = 'none';
+      document.body.appendChild(link);
+
+      // Click the link to open in new tab
+      link.click();
+
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(fileUrl);
+      }, 100);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to view attachment',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -322,14 +361,22 @@ export function EmailView({ id }: { id: string }) {
                           {attachment.contentType} • {(attachment.size / 1024).toFixed(2)} KB
                         </p>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDownloadAttachment(attachment)}
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        Download
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewAttachment(attachment)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDownloadAttachment(attachment)}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>

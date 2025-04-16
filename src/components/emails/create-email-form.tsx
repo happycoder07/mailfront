@@ -96,11 +96,8 @@ export function CreateEmailForm() {
         formData.append('html', data.html);
       }
 
-      // Add recipients as individual form fields
-      data.recipients.forEach((recipient, index) => {
-        formData.append(`recipients[${index}][address]`, recipient.address);
-        formData.append(`recipients[${index}][type]`, recipient.type);
-      });
+      // Add recipients as a JSON string array
+      formData.append('recipients', JSON.stringify(data.recipients));
 
       // Add attachments
       attachments.forEach(file => {
