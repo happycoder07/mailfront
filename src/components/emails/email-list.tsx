@@ -41,6 +41,7 @@ import {
   AlertCircle,
   RefreshCw,
   Loader2,
+  FileSignature,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -470,6 +471,7 @@ export function EmailList() {
                       <TableHead className="whitespace-nowrap text-center">From</TableHead>
                       <TableHead className="whitespace-nowrap text-center">Subject</TableHead>
                       <TableHead className="whitespace-nowrap text-center">Status</TableHead>
+                      <TableHead className="whitespace-nowrap text-center">Signed</TableHead>
                       <TableHead className="whitespace-nowrap text-center">Created At</TableHead>
                       <TableHead className="whitespace-nowrap text-center">Actions</TableHead>
                     </TableRow>
@@ -477,13 +479,13 @@ export function EmailList() {
                   <TableBody>
                     {loading ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center">
+                        <TableCell colSpan={6} className="text-center">
                           <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                         </TableCell>
                       </TableRow>
                     ) : emails.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center">
+                        <TableCell colSpan={6} className="text-center">
                           <Alert>
                             <AlertCircle className="h-4 w-4" />
                             <AlertTitle>No emails found</AlertTitle>
@@ -528,6 +530,18 @@ export function EmailList() {
                             >
                               {email.status}
                             </span>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {email.signedContent ? (
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <FileSignature className="h-4 w-4 text-green-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>Email is signed</TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
                           </TableCell>
                           <TableCell className="whitespace-nowrap text-center">
                             {format(new Date(email.createdAt), 'PPpp')}

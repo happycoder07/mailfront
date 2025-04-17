@@ -8,9 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
-import { Loader2, Download, Check, X, FileText, Eye } from 'lucide-react';
+import { Loader2, Download, Check, X, FileText, Eye, FileSignature } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Email {
   id: number;
@@ -281,21 +282,34 @@ export function EmailView({ id }: { id: string }) {
                 From: {email.from} • {format(new Date(email.createdAt), 'PPpp')}
               </CardDescription>
             </div>
-            <span
-              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                email.status === 'PENDING'
-                  ? 'bg-[var(--status-pending)] text-[var(--status-pending-foreground)]'
-                  : email.status === 'APPROVED'
-                    ? 'bg-[var(--status-approved)] text-[var(--status-approved-foreground)]'
-                    : email.status === 'REJECTED'
-                      ? 'bg-[var(--status-rejected)] text-[var(--status-rejected-foreground)]'
-                      : email.status === 'SENT'
-                        ? 'bg-[var(--status-sent)] text-[var(--status-sent-foreground)]'
-                        : 'bg-[var(--status-failed)] text-[var(--status-failed-foreground)]'
-              }`}
-            >
-              {email.status}
-            </span>
+            <div className="flex items-center gap-2">
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                  email.status === 'PENDING'
+                    ? 'bg-[var(--status-pending)] text-[var(--status-pending-foreground)]'
+                    : email.status === 'APPROVED'
+                      ? 'bg-[var(--status-approved)] text-[var(--status-approved-foreground)]'
+                      : email.status === 'REJECTED'
+                        ? 'bg-[var(--status-rejected)] text-[var(--status-rejected-foreground)]'
+                        : email.status === 'SENT'
+                          ? 'bg-[var(--status-sent)] text-[var(--status-sent-foreground)]'
+                          : 'bg-[var(--status-failed)] text-[var(--status-failed-foreground)]'
+                }`}
+              >
+                {email.status}
+              </span>
+              {email.signedContent && (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                      <FileSignature className="h-3 w-3" />
+                      Signed
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>Email is digitally signed</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent>
