@@ -467,11 +467,11 @@ export function EmailList() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="whitespace-nowrap">From</TableHead>
-                      <TableHead className="whitespace-nowrap">Subject</TableHead>
-                      <TableHead className="whitespace-nowrap">Status</TableHead>
-                      <TableHead className="whitespace-nowrap">Created At</TableHead>
-                      <TableHead className="whitespace-nowrap">Actions</TableHead>
+                      <TableHead className="whitespace-nowrap text-center">From</TableHead>
+                      <TableHead className="whitespace-nowrap text-center">Subject</TableHead>
+                      <TableHead className="whitespace-nowrap text-center">Status</TableHead>
+                      <TableHead className="whitespace-nowrap text-center">Created At</TableHead>
+                      <TableHead className="whitespace-nowrap text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -500,19 +500,19 @@ export function EmailList() {
                           className="cursor-pointer hover:bg-muted/50"
                           onClick={() => handleView(email)}
                         >
-                          <TableCell className="max-w-[200px] truncate">
+                          <TableCell className="max-w-[200px] truncate text-center">
                             <Tooltip>
                               <TooltipTrigger>{email.from}</TooltipTrigger>
                               <TooltipContent>{email.from}</TooltipContent>
                             </Tooltip>
                           </TableCell>
-                          <TableCell className="max-w-[300px] truncate">
+                          <TableCell className="max-w-[300px] truncate text-center">
                             <Tooltip>
                               <TooltipTrigger>{email.subject}</TooltipTrigger>
                               <TooltipContent>{email.subject}</TooltipContent>
                             </Tooltip>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-center">
                             <span
                               className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                 email.status === 'PENDING'
@@ -529,12 +529,12 @@ export function EmailList() {
                               {email.status}
                             </span>
                           </TableCell>
-                          <TableCell className="whitespace-nowrap">
+                          <TableCell className="whitespace-nowrap text-center">
                             {format(new Date(email.createdAt), 'PPpp')}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-center">
                             <div
-                              className="flex items-center justify-end"
+                              className="flex items-center justify-center"
                               onClick={e => e.stopPropagation()}
                             >
                               <DropdownMenu>

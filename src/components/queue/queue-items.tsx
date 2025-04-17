@@ -19,10 +19,34 @@ import { PERMISSIONS } from '@/lib/permissions';
 
 type QueueItem = {
   id: string;
-  emailId: string;
-  status: string;
-  createdAt: string;
-  attempts: number;
+  name: string;
+  data: {
+    emailId: number;
+    retryCount: number;
+  };
+  opts: {
+    attempts: number;
+    backoff: {
+      type: string;
+      delay: number;
+    };
+    removeOnComplete: boolean;
+    removeOnFail: boolean;
+    jobId: string;
+    delay: number;
+    timestamp: number;
+  };
+  progress: number;
+  delay: number;
+  timestamp: number;
+  attemptsMade: number;
+  failedReason: string;
+  stacktrace: string[];
+  returnvalue: any;
+  debounceId: string | null;
+  finishedOn: number;
+  processedOn: number;
+  status: 'waiting' | 'active' | 'completed' | 'failed';
 };
 
 type QueueItemsResponse = {
@@ -52,12 +76,12 @@ export function QueueItems() {
       }
       const data: QueueItemsResponse = await response.json();
 
-      // Combine all queue items into a single array
-      const allItems = [
-        ...data.items.waiting,
-        ...data.items.active,
-        ...data.items.completed,
-        ...data.items.failed,
+      // Combine all queue items into a single array with their status
+      const allItems: QueueItem[] = [
+        ...data.items.waiting.map(item => ({ ...item, status: 'waiting' as const })),
+        ...data.items.active.map(item => ({ ...item, status: 'active' as const })),
+        ...data.items.completed.map(item => ({ ...item, status: 'completed' as const })),
+        ...data.items.failed.map(item => ({ ...item, status: 'failed' as const })),
       ];
       setItems(allItems);
     } catch (error) {
@@ -144,21 +168,23 @@ export function QueueItems() {
               <TableHead>ID</TableHead>
               <TableHead>Email ID</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Created At</TableHead>
               <TableHead>Attempts</TableHead>
+              <TableHead>Failed Reason</TableHead>
+              <TableHead>Created At</TableHead>
+              <TableHead>Finished At</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   No queue items found.
                 </TableCell>
               </TableRow>
@@ -166,7 +192,7 @@ export function QueueItems() {
               items.map(item => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.id}</TableCell>
-                  <TableCell>{item.emailId}</TableCell>
+                  <TableCell>{item.data.emailId}</TableCell>
                   <TableCell>
                     <Badge
                       variant={
@@ -182,13 +208,17 @@ export function QueueItems() {
                       {item.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>{formatDate(item.createdAt)}</TableCell>
-                  <TableCell>{item.attempts}</TableCell>
+                  <TableCell>
+                    {item.attemptsMade} / {item.opts.attempts}
+                  </TableCell>
+                  <TableCell className="max-w-[200px] truncate">{item.failedReason}</TableCell>
+                  <TableCell>{formatDate(new Date(item.timestamp).toISOString())}</TableCell>
+                  <TableCell>{formatDate(new Date(item.finishedOn).toISOString())}</TableCell>
                   <TableCell className="text-right">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleProcess(item.id)}
+                      onClick={() => handleProcess(item.data.emailId.toString())}
                       disabled={item.status === 'active'}
                     >
                       Process

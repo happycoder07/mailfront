@@ -17,6 +17,7 @@ import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
 import { User, Mail, Lock, Save, Loader2, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '../ui/separator';
 
 type Profile = {
   id: number;
@@ -156,7 +157,7 @@ export function ProfileForm() {
         <CardDescription>View and update your profile information</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -185,8 +186,8 @@ export function ProfileForm() {
                   id="firstName"
                   name="firstName"
                   value={formData.firstName}
-                  onChange={handleChange}
-                  placeholder="Enter your first name"
+                  disabled
+                  className="bg-muted"
                 />
               </div>
 
@@ -196,8 +197,8 @@ export function ProfileForm() {
                   id="lastName"
                   name="lastName"
                   value={formData.lastName}
-                  onChange={handleChange}
-                  placeholder="Enter your last name"
+                  disabled
+                  className="bg-muted"
                 />
               </div>
             </div>
@@ -281,7 +282,7 @@ export function ProfileForm() {
             ) : (
               <>
                 <Save className="mr-2 h-4 w-4" />
-                Save Changes
+                Save Password
               </>
             )}
           </Button>
