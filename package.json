@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --port 3001 --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3001",
     "lint": "next lint",
     "format": "prettier --write .",
     "debug": "NODE_OPTIONS='--inspect' next dev --turbopack"

@@ -3,6 +3,9 @@ import { EmailList } from '@/components/emails/email-list';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
+import { Suspense } from 'react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const metadata: Metadata = {
   title: 'Emails',
@@ -24,7 +27,28 @@ export default function EmailsPage() {
           </Button>
         </Link>
       </div>
-      <EmailList />
+      <Suspense
+        fallback={
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-8 w-[200px]" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-[200px]" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+              </div>
+            </CardContent>
+          </Card>
+        }
+      >
+        <EmailList />
+      </Suspense>
     </div>
   );
 }

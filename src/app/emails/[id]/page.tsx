@@ -7,11 +7,11 @@ export const metadata: Metadata = {
   description: 'View email details and content',
 };
 
-interface EmailViewPageProps {
-  params: {
+type EmailViewPageProps = {
+  params: Promise<{
     id: string;
-  };
-}
+  }>;
+};
 
 export default async function EmailViewPage({ params }: EmailViewPageProps) {
   const { id } = await params;

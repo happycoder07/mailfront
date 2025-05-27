@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -64,7 +63,6 @@ type Recipient = {
 };
 
 export function NewEmailForm() {
-  const router = useRouter();
   const { hasPermission } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
@@ -296,7 +294,7 @@ export function NewEmailForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Subject</FormLabel>
-                  <FormDescription>A brief description of the email's content</FormDescription>
+                  <FormDescription>A brief description of the email&apos;s content</FormDescription>
                   <FormControl>
                     <Input placeholder="Email subject" {...field} />
                   </FormControl>

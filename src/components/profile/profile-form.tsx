@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -17,7 +16,6 @@ import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
 import { User, Mail, Lock, Save, Loader2, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '../ui/separator';
 
 type Profile = {
   id: number;
@@ -29,7 +27,6 @@ type Profile = {
 };
 
 export function ProfileForm() {
-  const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -223,7 +220,7 @@ export function ProfileForm() {
           <div className="space-y-4 pt-4 border-t">
             <h3 className="text-lg font-medium">Change Password</h3>
             <p className="text-sm text-muted-foreground">
-              Leave these fields empty if you don't want to change your password
+              Leave these fields empty if you don&apos;t want to change your password
             </p>
 
             <div className="space-y-2">

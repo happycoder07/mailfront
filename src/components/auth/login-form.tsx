@@ -64,7 +64,7 @@ export function LoginForm() {
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Invalid email or password',
+        description: 'Invalid email or password' +error,
         variant: 'destructive',
       });
     } finally {

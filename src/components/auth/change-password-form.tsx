@@ -77,7 +77,12 @@ export function ChangePasswordForm() {
               <FormControl>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                  <Input type="password" className="pl-10" {...field} />
+                  <Input
+                    type="password"
+                    className="pl-10"
+                    autoComplete="current-password"
+                    {...field}
+                  />
                 </div>
               </FormControl>
               <FormMessage />
@@ -93,7 +98,12 @@ export function ChangePasswordForm() {
               <FormControl>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                  <Input type="password" className="pl-10" {...field} />
+                  <Input
+                    type="password"
+                    className="pl-10"
+                    autoComplete="new-password"
+                    {...field}
+                  />
                 </div>
               </FormControl>
               <FormMessage />

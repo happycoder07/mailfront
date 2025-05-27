@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { LoginForm } from '@/components/auth/login-form';
-import { Mail, Lock, Shield } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Login',
@@ -24,7 +24,7 @@ export default function LoginPage() {
           </div>
         </div>
         <div className="mt-6 text-center text-sm text-muted-foreground">
-          <p>Don't have an account? Contact your administrator</p>
+          <p>Don&apos;t have an account? Contact your administrator</p>
         </div>
       </div>
     </div>

@@ -20,7 +20,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { API_ENDPOINTS } from '@/lib/config';
-import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { PERMISSIONS } from '@/lib/permissions';
 import { Loader2, X, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 

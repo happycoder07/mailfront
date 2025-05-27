@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { API_ENDPOINTS, EmailResponseDto } from '@/lib/config';
+import { API_ENDPOINTS, EmailResponseDto, AttachmentDto } from '@/lib/config';
 import {
   FileText,
   Check,
@@ -19,7 +19,6 @@ import {
   FileText as FileTextIcon,
   Download,
   Eye,
-  AlertCircle,
   Loader2,
 } from 'lucide-react';
 import { RejectEmailForm } from './reject-email-form';
@@ -104,7 +103,7 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
     }
   };
 
-  const handleDownloadAttachment = async (attachment: any) => {
+  const handleDownloadAttachment = async (attachment: AttachmentDto) => {
     try {
       const response = await fetch(`${API_ENDPOINTS.FILE.GET(attachment.minioKey)}`, {
         credentials: 'include',
@@ -138,7 +137,7 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
     }
   };
 
-  const handleViewAttachment = async (attachment: any) => {
+  const handleViewAttachment = async (attachment: AttachmentDto) => {
     try {
       const response = await fetch(`${API_ENDPOINTS.FILE.GET(attachment.minioKey)}`, {
         credentials: 'include',
