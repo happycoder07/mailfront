@@ -14,7 +14,9 @@ interface EmailViewPageProps {
 }
 
 export default async function EmailViewPage({ params }: EmailViewPageProps) {
-  if (!params?.id) {
+  const { id } = await params;
+
+  if (!id) {
     notFound();
   }
 
@@ -24,7 +26,7 @@ export default async function EmailViewPage({ params }: EmailViewPageProps) {
         <h1 className="text-2xl font-bold tracking-tight">View Email</h1>
         <p className="text-muted-foreground">View email details and content</p>
       </div>
-      <EmailView id={params.id} />
+      <EmailView id={id} />
     </div>
   );
 }
