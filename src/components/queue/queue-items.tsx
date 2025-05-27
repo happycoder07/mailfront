@@ -278,10 +278,10 @@ export function QueueItems() {
                         {item.failedReason && (
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant="link" className="p-0 h-auto">
+                              <div className="text-primary underline-offset-4 hover:underline cursor-pointer">
                                 <TooltipProvider>
                                   <Tooltip>
-                                    <TooltipTrigger className="text-left">
+                                    <TooltipTrigger asChild>
                                       <span className="line-clamp-1 max-w-[200px] block">
                                         {item.failedReason}
                                       </span>
@@ -293,7 +293,7 @@ export function QueueItems() {
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
-                              </Button>
+                              </div>
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
                               <DialogHeader>
