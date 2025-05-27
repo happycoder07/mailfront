@@ -70,7 +70,7 @@ export function MainNav() {
   const handleLogout = async () => {
     try {
       const response = await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
-        method: 'POST',
+        method: 'GET',
         credentials: 'include',
       });
       if (response.ok) {
