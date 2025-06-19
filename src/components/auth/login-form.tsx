@@ -19,7 +19,7 @@ import { API_ENDPOINTS } from '@/lib/config';
 import { loginSchema, LoginFormData } from '@/lib/validation';
 import { Mail, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
-
+import { getXsrfToken } from '@/lib/utils';
 export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -41,6 +41,7 @@ export function LoginForm() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
         },
         credentials: 'include',
         body: JSON.stringify(data),
@@ -64,7 +65,7 @@ export function LoginForm() {
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Invalid email or password' +error,
+        description: 'Invalid email or password' + error,
         variant: 'destructive',
       });
     } finally {

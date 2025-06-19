@@ -12,6 +12,7 @@ import { Loader2, Download, Check, X, FileText, Eye, FileSignature } from 'lucid
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { getXsrfToken } from '@/lib/utils';
 
 interface Email {
   id: number;
@@ -129,6 +130,7 @@ export function EmailView({ id }: { id: string }) {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
         },
         body: JSON.stringify({
           reason: 'Email rejected by user',

@@ -27,6 +27,7 @@ import { registerSchema, RegisterFormData } from '@/lib/validation';
 import { Mail, Lock, User, UserCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
+import { getXsrfToken } from '@/lib/utils';
 
 export function RegisterForm() {
   const router = useRouter();
@@ -64,6 +65,7 @@ export function RegisterForm() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
         },
         body: JSON.stringify(data),
       });

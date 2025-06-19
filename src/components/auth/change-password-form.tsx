@@ -17,6 +17,7 @@ import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
 import { changePasswordSchema, ChangePasswordFormData } from '@/lib/validation';
 import { Lock, Loader2 } from 'lucide-react';
+import { getXsrfToken } from '@/lib/utils';
 
 export function ChangePasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -37,6 +38,7 @@ export function ChangePasswordForm() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
         },
         credentials: 'include',
         body: JSON.stringify(data),
@@ -98,12 +100,7 @@ export function ChangePasswordForm() {
               <FormControl>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    type="password"
-                    className="pl-10"
-                    autoComplete="new-password"
-                    {...field}
-                  />
+                  <Input type="password" className="pl-10" autoComplete="new-password" {...field} />
                 </div>
               </FormControl>
               <FormMessage />

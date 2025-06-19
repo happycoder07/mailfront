@@ -24,10 +24,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
-import {
-  createEmailSchema,
-  CreateEmailFormData
-} from '@/lib/validation';
+import { createEmailSchema, CreateEmailFormData } from '@/lib/validation';
 import { Mail, Plus, Trash2, Loader2, Paperclip } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
@@ -125,13 +122,13 @@ export function CreateEmailForm() {
         throw new Error(errorMessage);
       }
 
-     // const responseData: EmailResponseDto = await response.json();
-      if(response.status === 200 || response.status === 201){
+      // const responseData: EmailResponseDto = await response.json();
+      if (response.status === 200 || response.status === 201) {
         toast({
           title: 'Success',
           description: 'Email created successfully',
         });
-      }else{
+      } else {
         toast({
           title: 'Error',
           description: 'Failed to create email',

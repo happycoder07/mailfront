@@ -12,15 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { API_ENDPOINTS, EmailResponseDto, AttachmentDto } from '@/lib/config';
-import {
-  FileText,
-  Check,
-  X,
-  FileText as FileTextIcon,
-  Download,
-  Eye,
-  Loader2,
-} from 'lucide-react';
+import { FileText, Check, X, FileText as FileTextIcon, Download, Eye, Loader2 } from 'lucide-react';
 import { RejectEmailForm } from './reject-email-form';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';

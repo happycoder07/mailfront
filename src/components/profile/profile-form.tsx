@@ -16,6 +16,7 @@ import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
 import { User, Mail, Lock, Save, Loader2, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { getXsrfToken } from '@/lib/utils';
 
 type Profile = {
   id: number;
@@ -98,6 +99,7 @@ export function ProfileForm() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
         },
         credentials: 'include',
         body: JSON.stringify({

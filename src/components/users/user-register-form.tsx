@@ -26,6 +26,7 @@ import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { z } from 'zod';
 import type { Role } from '@/lib/config';
+import { getXsrfToken } from '@/lib/utils';
 
 const registerSchema = z
   .object({
@@ -108,6 +109,7 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
         },
         credentials: 'include',
         body: JSON.stringify(data),

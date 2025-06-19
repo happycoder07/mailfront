@@ -34,6 +34,7 @@ import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { z } from 'zod';
 import type { Role, User, EditUserDto } from '@/lib/config';
+import { getXsrfToken } from '@/lib/utils';
 
 const editUserSchema = z.object({
   email: z.string().email('Invalid email address').optional(),
@@ -128,6 +129,7 @@ export function UserDialog({ user, open, onOpenChange, onSuccess }: UserDialogPr
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
         },
         credentials: 'include',
         body: JSON.stringify(editData),

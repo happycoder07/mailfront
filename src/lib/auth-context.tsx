@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Role, ROLE_PERMISSIONS, Permission, ROLES } from './permissions';
 import { API_ENDPOINTS } from './config';
+import { getXsrfToken } from './utils';
 
 interface AuthContextType {
   role: Role | null;
@@ -24,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
         },
       });
 

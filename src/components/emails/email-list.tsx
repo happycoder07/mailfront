@@ -65,6 +65,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { getXsrfToken } from '@/lib/utils';
 
 export function EmailList() {
   const router = useRouter();
@@ -231,6 +232,7 @@ export function EmailList() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
         },
         credentials: 'include',
         body: JSON.stringify({ reason }),
