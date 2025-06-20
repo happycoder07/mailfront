@@ -66,6 +66,10 @@ export function EmailView({ id }: { id: string }) {
       setIsLoading(true);
       try {
         const response = await fetch(API_ENDPOINTS.MAIL.DETAIL(id), {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-XSRF-TOKEN': getXsrfToken(),
+          },
           credentials: 'include',
         });
 
@@ -96,6 +100,10 @@ export function EmailView({ id }: { id: string }) {
     try {
       const response = await fetch(API_ENDPOINTS.MAIL.APPROVE(id), {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
 
@@ -192,6 +200,10 @@ export function EmailView({ id }: { id: string }) {
   const handleDownloadAttachment = async (attachment: Email['attachments'][0]) => {
     try {
       const response = await fetch(API_ENDPOINTS.FILE.GET(attachment.minioKey), {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
 
@@ -220,6 +232,10 @@ export function EmailView({ id }: { id: string }) {
   const handleViewAttachment = async (attachment: Email['attachments'][0]) => {
     try {
       const response = await fetch(API_ENDPOINTS.FILE.GET(attachment.minioKey), {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
 

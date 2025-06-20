@@ -29,6 +29,7 @@ import { Mail, Plus, Trash2, Loader2, Paperclip } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { EmailResponseDto } from '@/lib/types';
+import { getXsrfToken } from '@/lib/utils';
 
 export function CreateEmailForm() {
   const router = useRouter();
@@ -101,6 +102,10 @@ export function CreateEmailForm() {
 
       const response = await fetch(API_ENDPOINTS.MAIL.CREATE, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
         body: formData,
       });

@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getXsrfToken } from '@/lib/utils';
 
 type QueueItem = {
   id: string;
@@ -82,6 +83,10 @@ export function QueueItems() {
   const fetchQueueItems = async () => {
     try {
       const response = await fetch(API_ENDPOINTS.QUEUE.ITEMS, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
       if (!response.ok) {
@@ -126,6 +131,10 @@ export function QueueItems() {
     try {
       const response = await fetch(API_ENDPOINTS.QUEUE.PROCESS(id), {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
       if (!response.ok) {

@@ -32,6 +32,7 @@ import { X, AlertCircle, Plus, Upload, Loader2 } from 'lucide-react';
 import { API_ENDPOINTS } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
+import { getXsrfToken } from '@/lib/utils';
 
 const formSchema = z.object({
   from: z.string().email({
@@ -154,6 +155,10 @@ export function NewEmailForm() {
 
       const response = await fetch(API_ENDPOINTS.MAIL.CREATE, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
         body: formData,
       });

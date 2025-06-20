@@ -19,6 +19,7 @@ import { Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { UserDialog } from './user-dialog';
 import type { User, UserListResponse } from '@/lib/config';
+import { getXsrfToken } from '@/lib/utils';
 
 export function UserList() {
   const [users, setUsers] = useState<User[]>([]);
@@ -35,6 +36,10 @@ export function UserList() {
   const fetchUsers = async () => {
     try {
       const response = await fetch(`${API_ENDPOINTS.AUTH.USERS}?search=${search}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
       if (!response.ok) {
@@ -73,6 +78,10 @@ export function UserList() {
     try {
       const response = await fetch(API_ENDPOINTS.AUTH.USER(userId.toString()), {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
 

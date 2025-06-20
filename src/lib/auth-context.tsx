@@ -49,6 +49,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initializeAuth = async () => {
       try {
         await fetch(API_ENDPOINTS.AUTH.CSRF_TOKEN, {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-XSRF-TOKEN': getXsrfToken(),
+          },
           credentials: 'include',
         });
       } catch (error) {

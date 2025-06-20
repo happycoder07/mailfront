@@ -13,6 +13,7 @@ import { PERMISSIONS } from '@/lib/permissions';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { getXsrfToken } from '@/lib/utils';
 
 type HealthStatus = {
   status: 'ok' | 'error';
@@ -104,6 +105,10 @@ export function MonitoringStats() {
 
     try {
       const response = await fetch(API_ENDPOINTS.MONITORING.HEALTH, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
       if (!response.ok) {

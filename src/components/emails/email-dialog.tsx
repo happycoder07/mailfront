@@ -16,6 +16,7 @@ import { FileText, Check, X, FileText as FileTextIcon, Download, Eye, Loader2 } 
 import { RejectEmailForm } from './reject-email-form';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
+import { getXsrfToken } from '@/lib/utils';
 
 interface EmailDialogProps {
   email: EmailResponseDto;
@@ -34,6 +35,10 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
     try {
       const response = await fetch(`${API_ENDPOINTS.MAIL.APPROVE(email.id.toString())}`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
       if (!response.ok) {
@@ -72,6 +77,10 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
     try {
       const response = await fetch(`${API_ENDPOINTS.MAIL.SIGN(email.id.toString())}`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
       if (!response.ok) {
@@ -98,6 +107,10 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
   const handleDownloadAttachment = async (attachment: AttachmentDto) => {
     try {
       const response = await fetch(`${API_ENDPOINTS.FILE.GET(attachment.minioKey)}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
 
@@ -132,6 +145,10 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
   const handleViewAttachment = async (attachment: AttachmentDto) => {
     try {
       const response = await fetch(`${API_ENDPOINTS.FILE.GET(attachment.minioKey)}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
 

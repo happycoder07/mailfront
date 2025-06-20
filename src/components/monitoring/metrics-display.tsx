@@ -22,6 +22,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { getXsrfToken } from '@/lib/utils';
 
 type MetricType = 'counter' | 'gauge' | 'histogram' | 'summary';
 
@@ -59,6 +60,10 @@ export function MetricsDisplay() {
 
     try {
       const response = await fetch(API_ENDPOINTS.MONITORING.METRICS, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken(),
+        },
         credentials: 'include',
       });
       if (!response.ok) {
