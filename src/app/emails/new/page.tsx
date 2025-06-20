@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { NewEmailForm } from '@/components/emails/new-email-form';
+import { CreateEmailForm } from '@/components/emails/create-email-form';
 
 export const metadata: Metadata = {
   title: 'New Email',
@@ -13,7 +13,7 @@ export default function NewEmailPage() {
         <h1 className="text-3xl font-bold tracking-tight">New Email</h1>
         <p className="text-muted-foreground">Create and send a new email</p>
       </div>
-      <NewEmailForm />
+      <CreateEmailForm />
     </div>
   );
 }

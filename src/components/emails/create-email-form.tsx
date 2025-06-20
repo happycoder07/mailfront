@@ -103,7 +103,6 @@ export function CreateEmailForm() {
       const response = await fetch(API_ENDPOINTS.MAIL.CREATE, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'X-XSRF-TOKEN': getXsrfToken(),
         },
         credentials: 'include',
