@@ -61,7 +61,7 @@ export function MetricsDisplay() {
     try {
       const response = await fetch(API_ENDPOINTS.MONITORING.METRICS, {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain', // Prometheus metrics are returned as text/plain
           'X-XSRF-TOKEN': getXsrfToken(),
         },
         credentials: 'include',
@@ -332,69 +332,87 @@ function parsePrometheusMetrics(text: string): MetricGroup[] {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-    if (!line) continue;
+    if (!line || line.startsWith('#')) {
+      // Parse HELP line
+      if (line.startsWith('# HELP ')) {
+        const parts = line.substring(7).split(' ');
+        currentName = parts[0];
+        currentHelp = parts.slice(1).join(' ');
 
-    // Parse HELP line
-    if (line.startsWith('# HELP ')) {
-      const parts = line.substring(7).split(' ');
-      currentName = parts[0];
-      currentHelp = parts.slice(1).join(' ');
-
-      // Initialize group if it doesn't exist
-      if (!groups[currentName]) {
-        groups[currentName] = {
-          name: currentName,
-          help: currentHelp,
-          type: 'counter', // Default type
-          metrics: [],
-        };
-      } else {
-        groups[currentName].help = currentHelp;
+        // Initialize group if it doesn't exist
+        if (!groups[currentName]) {
+          groups[currentName] = {
+            name: currentName,
+            help: currentHelp,
+            type: 'counter', // Default type
+            metrics: [],
+          };
+        } else {
+          groups[currentName].help = currentHelp;
+        }
       }
+      // Parse TYPE line
+      else if (line.startsWith('# TYPE ')) {
+        const parts = line.substring(7).split(' ');
+        currentName = parts[0];
+        const typeStr = parts[1];
+
+        // Map Prometheus types to our types
+        if (typeStr === 'counter' || typeStr === 'gauge' || typeStr === 'histogram' || typeStr === 'summary') {
+          currentType = typeStr as MetricType;
+        }
+
+        if (groups[currentName]) {
+          groups[currentName].type = currentType;
+        }
+      }
+      continue;
     }
 
-    // Parse TYPE line
-    else if (line.startsWith('# TYPE ')) {
-      const parts = line.substring(7).split(' ');
-      currentName = parts[0];
-      currentType = parts[1] as MetricType;
+    // Parse metric line (not starting with #)
+    const parts = line.split(' ');
+    if (parts.length < 2) continue;
 
-      if (groups[currentName]) {
-        groups[currentName].type = currentType;
-      }
-    }
+    const metricName = parts[0];
+    const value = parts[parts.length - 1];
+    const labels: Record<string, string> = {};
 
-    // Parse metric line
-    else if (!line.startsWith('#')) {
-      const parts = line.split(' ');
-      if (parts.length < 2) continue;
-
-      const metricName = parts[0];
-      const value = parts[parts.length - 1];
-      const labels: Record<string, string> = {};
-
-      // Parse labels if they exist
-      if (parts[0].includes('{')) {
-        const labelStr = parts[0].substring(parts[0].indexOf('{') + 1, parts[0].indexOf('}'));
+    // Parse labels if they exist
+    if (parts[0].includes('{')) {
+      const labelStart = parts[0].indexOf('{');
+      const labelEnd = parts[0].indexOf('}');
+      if (labelStart !== -1 && labelEnd !== -1 && labelEnd > labelStart) {
+        const labelStr = parts[0].substring(labelStart + 1, labelEnd);
         labelStr.split(',').forEach(label => {
           const [key, value] = label.split('=');
           if (key && value) {
+            // Remove quotes from value
             labels[key] = value.replace(/"/g, '');
           }
         });
       }
+    }
 
-      const metric: Metric = {
-        name: metricName.split('{')[0],
-        value,
+    const metric: Metric = {
+      name: metricName.split('{')[0],
+      value,
+      type: currentType,
+      help: currentHelp,
+      labels: Object.keys(labels).length > 0 ? labels : undefined,
+    };
+
+    // Find the appropriate group for this metric
+    const baseMetricName = metricName.split('{')[0];
+    if (groups[baseMetricName]) {
+      groups[baseMetricName].metrics.push(metric);
+    } else {
+      // Create a new group if none exists
+      groups[baseMetricName] = {
+        name: baseMetricName,
+        help: currentHelp || `Metric: ${baseMetricName}`,
         type: currentType,
-        help: currentHelp,
-        labels: Object.keys(labels).length > 0 ? labels : undefined,
+        metrics: [metric],
       };
-
-      if (groups[currentName]) {
-        groups[currentName].metrics.push(metric);
-      }
     }
   }
 

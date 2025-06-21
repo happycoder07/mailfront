@@ -39,11 +39,10 @@ export function LoginForm() {
     try {
       const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
         },
-        credentials: 'include',
         body: JSON.stringify(data),
       });
 

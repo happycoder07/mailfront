@@ -34,7 +34,9 @@ export const API_ENDPOINTS = {
 
   // Monitoring endpoints
   MONITORING: {
-    HEALTH: `${API_BASE_URL}/monitoring/health`,
+    HEALTH: `${API_BASE_URL}/health`,
+    TERMINUS_HEALTH: `${API_BASE_URL}/health/terminus`,
+    SYSTEM_STATUS: `${API_BASE_URL}/health/system-status`,
     METRICS: `${API_BASE_URL}/metrics`,
   },
 
@@ -175,4 +177,97 @@ export type PaginatedEmailResponseDto = {
 
 export type RejectEmailDto = {
   reason: string;
+};
+
+// Health check types based on OpenAPI specification
+export type HealthStatus = 'ok' | 'degraded' | 'error';
+
+export type ServiceHealth = 'healthy' | 'unhealthy' | 'unknown';
+
+export type HealthResponseDto = {
+  status: HealthStatus;
+  timestamp: string;
+  uptime: number;
+  environment: string;
+  version: string;
+  services: {
+    database: ServiceHealth;
+    redis: ServiceHealth;
+    minio: ServiceHealth;
+  };
+};
+
+export type TerminusHealthStatus = 'up' | 'down';
+
+export type TerminusHealthResponseDto = {
+  status: 'ok' | 'error';
+  info: {
+    database?: {
+      status: TerminusHealthStatus;
+    };
+    queue?: {
+      status: TerminusHealthStatus;
+      queueSize?: number;
+      backlogAge?: number;
+    };
+    system?: {
+      status: TerminusHealthStatus;
+      memory?: {
+        heapUsed: number;
+        heapTotal: number;
+        rss: number;
+        external: number;
+      };
+      cpu?: {
+        usage: number;
+        cores: number;
+      };
+    };
+  };
+  error: Record<string, any>;
+  details: {
+    database?: {
+      status: TerminusHealthStatus;
+    };
+    queue?: {
+      status: TerminusHealthStatus;
+      queueSize?: number;
+      backlogAge?: number;
+    };
+    system?: {
+      status: TerminusHealthStatus;
+      memory?: {
+        heapUsed: number;
+        heapTotal: number;
+        rss: number;
+        external: number;
+      };
+      cpu?: {
+        usage: number;
+        cores: number;
+      };
+    };
+  };
+};
+
+// System status types based on OpenAPI specification
+export type MemoryUsageDto = {
+  used: number;
+  total: number;
+  external: number;
+  rss: number;
+};
+
+export type CpuUsageDto = {
+  user: number;
+  system: number;
+};
+
+export type SystemStatusResponseDto = {
+  timestamp: string;
+  uptime: number;
+  memory: MemoryUsageDto;
+  cpu: CpuUsageDto;
+  environment: string;
+  version: string;
 };

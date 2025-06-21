@@ -46,23 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Initial check on mount
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        await fetch(API_ENDPOINTS.AUTH.CSRF_TOKEN, {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-XSRF-TOKEN': getXsrfToken(),
-          },
-          credentials: 'include',
-        });
-      } catch (error) {
-        console.error('Failed to fetch CSRF token:', error);
-      }
-
-      await updateAuthState();
-    };
-
-    initializeAuth();
+    updateAuthState();
   }, []);
 
   const hasPermission = (permission: Permission): boolean => {

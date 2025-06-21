@@ -1,19 +1,6 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/api/monitoring/health": {
-      "get": {
-        "operationId": "MonitoringController_checkHealth",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "summary": "Check system health",
-        "tags": ["Monitoring"]
-      }
-    },
     "/api/metrics": {
       "get": {
         "operationId": "PrometheusController_index",
@@ -86,6 +73,9 @@
         "security": [
           {
             "cookie": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "Create a new email",
@@ -246,6 +236,9 @@
         "security": [
           {
             "cookie": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "Get all emails",
@@ -291,6 +284,9 @@
         "security": [
           {
             "cookie": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "Get email by ID",
@@ -339,6 +335,9 @@
         "security": [
           {
             "cookie": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "Approve email",
@@ -397,6 +396,9 @@
         "security": [
           {
             "cookie": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "Reject email",
@@ -448,6 +450,9 @@
         "security": [
           {
             "cookie": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "Sign and approve email",
@@ -475,6 +480,9 @@
         "security": [
           {
             "cookie": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "tags": ["Minio"]
@@ -502,6 +510,11 @@
             "description": "Unauthorized"
           }
         },
+        "security": [
+          {
+            "XSRF": []
+          }
+        ],
         "summary": "User login",
         "tags": ["auth"]
       }
@@ -533,7 +546,10 @@
         },
         "security": [
           {
-            "bearer": []
+            "jwt": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "User registration",
@@ -554,7 +570,10 @@
         },
         "security": [
           {
-            "bearer": []
+            "jwt": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "Get user profile",
@@ -586,7 +605,10 @@
         },
         "security": [
           {
-            "bearer": []
+            "jwt": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "Update user profile",
@@ -605,6 +627,11 @@
             "description": "Unauthorized"
           }
         },
+        "security": [
+          {
+            "XSRF": []
+          }
+        ],
         "summary": "User logout",
         "tags": ["auth"]
       }
@@ -654,7 +681,10 @@
         },
         "security": [
           {
-            "bearer": []
+            "jwt": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "Get all users",
@@ -704,7 +734,10 @@
         },
         "security": [
           {
-            "bearer": []
+            "jwt": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "Edit user",
@@ -739,7 +772,10 @@
         },
         "security": [
           {
-            "bearer": []
+            "jwt": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "Delete user",
@@ -763,10 +799,27 @@
         },
         "security": [
           {
-            "bearer": []
+            "jwt": []
+          },
+          {
+            "XSRF": []
           }
         ],
         "summary": "Get all roles",
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/csrf-token": {
+      "get": {
+        "description": "Returns a CSRF token cookie for use in subsequent requests.",
+        "operationId": "AuthController_getCsrfToken",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "CSRF token set in cookie (XSRF-TOKEN)"
+          }
+        },
+        "summary": "Get CSRF token",
         "tags": ["auth"]
       }
     },
@@ -779,6 +832,11 @@
             "description": "Returns the current size of the email queue"
           }
         },
+        "security": [
+          {
+            "XSRF": []
+          }
+        ],
         "summary": "Get the current size of the email queue",
         "tags": ["Queue"]
       }
@@ -792,6 +850,11 @@
             "description": "Returns all items in the email queue"
           }
         },
+        "security": [
+          {
+            "XSRF": []
+          }
+        ],
         "summary": "Get all items in the email queue",
         "tags": ["Queue"]
       }
@@ -814,8 +877,129 @@
             "description": "Email processed successfully"
           }
         },
+        "security": [
+          {
+            "XSRF": []
+          }
+        ],
         "summary": "Manually process a specific email in the queue",
         "tags": ["Queue"]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "description": "Performs a comprehensive health check of all system components including database, Redis, and MinIO services.",
+        "operationId": "HealthController_getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "System is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error during health check"
+          },
+          "503": {
+            "description": "System is degraded or unhealthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Check system health",
+        "tags": ["Health"]
+      }
+    },
+    "/api/health/terminus": {
+      "get": {
+        "description": "Performs a detailed health check using @nestjs/terminus health indicators for database and queue services.",
+        "operationId": "HealthController_getTerminusHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "All health indicators are healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerminusHealthResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error during health check"
+          },
+          "503": {
+            "description": "One or more health indicators are unhealthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerminusHealthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Comprehensive health check using Terminus",
+        "tags": ["Health"]
+      }
+    },
+    "/api/health/system-status": {
+      "get": {
+        "description": "Returns detailed system information including memory usage, CPU usage, uptime, and other system metrics.",
+        "operationId": "HealthController_getSystemStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "System status information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemStatusResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error while retrieving system status"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Get detailed system status",
+        "tags": ["Health"]
       }
     }
   },
@@ -833,6 +1017,11 @@
         "type": "apiKey",
         "in": "cookie",
         "name": "jwt"
+      },
+      "XSRF": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-XSRF-TOKEN"
       }
     },
     "schemas": {
@@ -1226,6 +1415,213 @@
             "description": "User role ID"
           }
         }
+      },
+      "HealthResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Overall system health status",
+            "example": "ok",
+            "enum": ["ok", "degraded", "error"]
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp of the health check",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "uptime": {
+            "type": "number",
+            "description": "System uptime in seconds",
+            "example": 3600.5
+          },
+          "environment": {
+            "type": "string",
+            "description": "Current environment",
+            "example": "production"
+          },
+          "version": {
+            "type": "string",
+            "description": "API version",
+            "example": "1.0.0"
+          },
+          "services": {
+            "type": "object",
+            "description": "Health status of individual services",
+            "properties": {
+              "database": {
+                "type": "string",
+                "example": "healthy",
+                "enum": ["healthy", "unhealthy", "unknown"]
+              },
+              "redis": {
+                "type": "string",
+                "example": "healthy",
+                "enum": ["healthy", "unhealthy", "unknown"]
+              },
+              "minio": {
+                "type": "string",
+                "example": "healthy",
+                "enum": ["healthy", "unhealthy", "unknown"]
+              }
+            }
+          }
+        },
+        "required": ["status", "timestamp", "uptime", "environment", "version", "services"]
+      },
+      "TerminusHealthResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Overall health status",
+            "example": "ok",
+            "enum": ["ok", "error"]
+          },
+          "info": {
+            "type": "object",
+            "description": "Health check details for each component",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["up", "down"]
+                },
+                "error": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "database": {
+                "status": "up"
+              },
+              "queue": {
+                "status": "up",
+                "queueSize": 100,
+                "backlogAge": 300
+              }
+            }
+          },
+          "error": {
+            "type": "object",
+            "description": "Health check details for failed components",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["up", "down"]
+                },
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "details": {
+            "type": "object",
+            "description": "Health check details for all components",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["up", "down"]
+                },
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": ["status", "info", "error", "details"]
+      },
+      "MemoryUsageDto": {
+        "type": "object",
+        "properties": {
+          "used": {
+            "type": "number",
+            "description": "Used heap memory in bytes",
+            "example": 52428800
+          },
+          "total": {
+            "type": "number",
+            "description": "Total heap memory in bytes",
+            "example": 104857600
+          },
+          "external": {
+            "type": "number",
+            "description": "External memory usage in bytes",
+            "example": 2097152
+          },
+          "rss": {
+            "type": "number",
+            "description": "Resident set size in bytes",
+            "example": 73400320
+          }
+        },
+        "required": ["used", "total", "external", "rss"]
+      },
+      "CpuUsageDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "number",
+            "description": "CPU time spent in user mode (microseconds)",
+            "example": 1000000
+          },
+          "system": {
+            "type": "number",
+            "description": "CPU time spent in system mode (microseconds)",
+            "example": 500000
+          }
+        },
+        "required": ["user", "system"]
+      },
+      "SystemStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp of the status check",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "uptime": {
+            "type": "number",
+            "description": "System uptime in seconds",
+            "example": 3600.5
+          },
+          "memory": {
+            "description": "Memory usage statistics",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MemoryUsageDto"
+              }
+            ]
+          },
+          "cpu": {
+            "description": "CPU usage statistics",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CpuUsageDto"
+              }
+            ]
+          },
+          "environment": {
+            "type": "string",
+            "description": "Current environment",
+            "example": "production"
+          },
+          "version": {
+            "type": "string",
+            "description": "API version",
+            "example": "1.0.0"
+          }
+        },
+        "required": ["timestamp", "uptime", "memory", "cpu", "environment", "version"]
       }
     }
   }
