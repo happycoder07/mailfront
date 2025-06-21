@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -19,6 +20,63 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { getXsrfToken } from '@/lib/utils';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.1,
+      duration: 0.5,
+      ease: 'easeOut',
+    },
+  }),
+  hover: {
+    scale: 1.02,
+    transition: { duration: 0.2 },
+  },
+};
+
+const progressVariants = {
+  hidden: { width: 0 },
+  visible: (width: number) => ({
+    width: `${width}%`,
+    transition: {
+      duration: 1,
+      ease: 'easeOut',
+      delay: 0.5,
+    },
+  }),
+};
+
+const alertVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      duration: 0.5,
+      ease: 'easeOut',
+    },
+  },
+};
+
+const buttonVariants = {
+  hover: { scale: 1.05, transition: { duration: 0.2 } },
+  tap: { scale: 0.95, transition: { duration: 0.1 } },
+};
 
 export function MonitoringStats() {
   const [basicHealth, setBasicHealth] = useState<HealthResponseDto | null>(null);
@@ -112,57 +170,68 @@ export function MonitoringStats() {
   // If user doesn't have permission to view monitoring stats, show a message
   if (!canViewMonitoring) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Access Denied</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Permission Required</AlertTitle>
-            <AlertDescription>
-              You do not have permission to view monitoring statistics. Please contact your
-              administrator.
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
+      <motion.div variants={alertVariants} initial="hidden" animate="visible">
+        <Card>
+          <CardHeader>
+            <CardTitle>Access Denied</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Permission Required</AlertTitle>
+              <AlertDescription>
+                You do not have permission to view monitoring statistics. Please contact your
+                administrator.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      </motion.div>
     );
   }
 
   if (loading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <motion.div
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         {[...Array(4)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Skeleton className="h-4 w-[100px]" />
-              <Skeleton className="h-4 w-4" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-8 w-full mb-2" />
-              <Skeleton className="h-4 w-full" />
-            </CardContent>
-          </Card>
+          <motion.div key={i} variants={cardVariants} custom={i}>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <Skeleton className="h-4 w-[100px]" />
+                <Skeleton className="h-4 w-4" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-full mb-2" />
+                <Skeleton className="h-4 w-full" />
+              </CardContent>
+            </Card>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     );
   }
 
   if (error) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>System Health</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
+      <motion.div variants={alertVariants} initial="hidden" animate="visible">
+        <Card>
+          <CardHeader>
+            <CardTitle>System Health</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      </motion.div>
     );
   }
 
@@ -183,8 +252,13 @@ export function MonitoringStats() {
   const cpuUsage = calculateCpuUsage();
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <motion.div
+      className="space-y-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div className="flex items-center justify-between" variants={alertVariants}>
         <Alert variant={overallStatus === 'ok' ? 'default' : 'destructive'}>
           <Activity className="h-4 w-4" />
           <AlertTitle>System Status</AlertTitle>
@@ -199,163 +273,180 @@ export function MonitoringStats() {
             )}
           </AlertDescription>
         </Alert>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="auto-refresh"
-              checked={autoRefresh}
-              onCheckedChange={checked => setAutoRefresh(checked as boolean)}
-            />
-            <Label htmlFor="auto-refresh">Auto-refresh</Label>
-          </div>
-          <Button variant="ghost" size="icon" onClick={fetchHealthStatus} disabled={loading}>
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+        <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+          <Button variant="outline" size="sm" onClick={fetchHealthStatus}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh
           </Button>
-        </div>
+        </motion.div>
+      </motion.div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="auto-refresh"
+          checked={autoRefresh}
+          onCheckedChange={checked => setAutoRefresh(checked as boolean)}
+        />
+        <Label htmlFor="auto-refresh">Auto-refresh every 10 seconds</Label>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">CPU Usage</CardTitle>
-            <Server className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{cpuUsage ? `${cpuUsage.toFixed(2)}%` : 'N/A'}</div>
-            {cpuUsage && <Progress value={cpuUsage} className="mt-2" />}
-            <p className="text-xs text-muted-foreground mt-2">
-              {systemStatus?.cpu ? (
-                <>
-                  User: {(systemStatus.cpu.user / 1000000).toFixed(2)}s | System:{' '}
-                  {(systemStatus.cpu.system / 1000000).toFixed(2)}s
-                </>
-              ) : (
-                'No data'
-              )}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Memory Usage</CardTitle>
-            <Database className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {systemStatus?.memory?.used
-                ? `${(systemStatus.memory.used / 1024 / 1024).toFixed(2)} MB`
-                : 'N/A'}
-            </div>
-            {systemStatus?.memory?.used && systemStatus?.memory?.total && (
-              <Progress
-                value={(systemStatus.memory.used / systemStatus.memory.total) * 100}
-                className="mt-2"
-              />
-            )}
-            <p className="text-xs text-muted-foreground mt-2">
-              {systemStatus?.memory?.total
-                ? `Total: ${(systemStatus.memory.total / 1024 / 1024).toFixed(2)} MB`
-                : 'No data'}
-            </p>
-            {systemStatus?.memory?.rss && (
-              <p className="text-xs text-muted-foreground">
-                RSS: {(systemStatus.memory.rss / 1024 / 1024).toFixed(2)} MB
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Queue Status</CardTitle>
-            <Mail className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <Badge variant={queueInfo?.status === 'up' ? 'default' : 'destructive'}>
-                {queueInfo?.status === 'up'
-                  ? 'Active'
-                  : queueInfo?.status === 'down'
-                    ? 'Inactive'
-                    : 'Unknown'}
-              </Badge>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Queue Size: {queueInfo?.queueSize ?? 'N/A'}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Backlog Age: {queueInfo?.backlogAge ? `${queueInfo.backlogAge}s` : 'N/A'}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Database Status</CardTitle>
-            <Database className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <Badge variant={databaseInfo?.status === 'up' ? 'default' : 'destructive'}>
-                {databaseInfo?.status === 'up'
-                  ? 'Active'
-                  : databaseInfo?.status === 'down'
-                    ? 'Inactive'
-                    : 'Unknown'}
-              </Badge>
-            </div>
-            {basicHealth?.services?.database && (
-              <p className="text-xs text-muted-foreground mt-2">
-                Service: {basicHealth.services.database}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Additional service status cards */}
-      {basicHealth?.services && (
-        <div className="grid gap-4 md:grid-cols-3">
+      <motion.div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" variants={containerVariants}>
+        <motion.div variants={cardVariants} custom={0} whileHover="hover">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Redis Status</CardTitle>
-              <Database className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <Badge variant={basicHealth.services.redis === 'healthy' ? 'default' : 'destructive'}>
-                {basicHealth.services.redis}
-              </Badge>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">MinIO Status</CardTitle>
-              <Database className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <Badge variant={basicHealth.services.minio === 'healthy' ? 'default' : 'destructive'}>
-                {basicHealth.services.minio}
-              </Badge>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Last Updated</CardTitle>
+              <CardTitle className="text-sm font-medium">System Health</CardTitle>
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <p className="text-sm">
-                {systemStatus?.timestamp
-                  ? new Date(systemStatus.timestamp).toLocaleString()
-                  : 'N/A'}
+              <div className="text-2xl font-bold">
+                <Badge variant={overallStatus === 'ok' ? 'default' : 'destructive'}>
+                  {overallStatus.toUpperCase()}
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {overallStatus === 'ok' ? 'All systems operational' : 'Issues detected'}
               </p>
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
+
+        <motion.div variants={cardVariants} custom={1} whileHover="hover">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Queue Status</CardTitle>
+              <Mail className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {queueInfo ? (
+                  <Badge variant={queueInfo.status === 'up' ? 'default' : 'destructive'}>
+                    {queueInfo.status.toUpperCase()}
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary">UNKNOWN</Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {queueInfo ? `Queue is ${queueInfo.status}` : 'Queue status unavailable'}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={cardVariants} custom={2} whileHover="hover">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Database Status</CardTitle>
+              <Database className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {databaseInfo ? (
+                  <Badge variant={databaseInfo.status === 'up' ? 'default' : 'destructive'}>
+                    {databaseInfo.status.toUpperCase()}
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary">UNKNOWN</Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {databaseInfo
+                  ? `Database is ${databaseInfo.status}`
+                  : 'Database status unavailable'}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={cardVariants} custom={3} whileHover="hover">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Memory Usage</CardTitle>
+              <Server className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {systemStatus?.memory
+                  ? `${Math.round((systemStatus.memory.used / systemStatus.memory.total) * 100)}%`
+                  : 'N/A'}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {systemStatus?.memory
+                  ? `${Math.round(systemStatus.memory.used / 1024 / 1024)}MB / ${Math.round(
+                      systemStatus.memory.total / 1024 / 1024
+                    )}MB`
+                  : 'Memory info unavailable'}
+              </p>
+              {systemStatus?.memory && (
+                <motion.div className="mt-2">
+                  <Progress
+                    value={(systemStatus.memory.used / systemStatus.memory.total) * 100}
+                    className="h-2"
+                  />
+                </motion.div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
+
+      {systemStatus && (
+        <motion.div variants={cardVariants} custom={4} whileHover="hover">
+          <Card>
+            <CardHeader>
+              <CardTitle>System Resources</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">CPU Usage</span>
+                  <span className="text-sm text-muted-foreground">
+                    {cpuUsage ? `${Math.round(cpuUsage)}%` : 'N/A'}
+                  </span>
+                </div>
+                <motion.div
+                  variants={progressVariants}
+                  initial="hidden"
+                  animate="visible"
+                  custom={cpuUsage || 0}
+                >
+                  <Progress value={cpuUsage || 0} className="h-2" />
+                </motion.div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Memory Usage</span>
+                  <span className="text-sm text-muted-foreground">
+                    {systemStatus.memory
+                      ? `${Math.round((systemStatus.memory.used / systemStatus.memory.total) * 100)}%`
+                      : 'N/A'}
+                  </span>
+                </div>
+                <motion.div
+                  variants={progressVariants}
+                  initial="hidden"
+                  animate="visible"
+                  custom={
+                    systemStatus.memory
+                      ? (systemStatus.memory.used / systemStatus.memory.total) * 100
+                      : 0
+                  }
+                >
+                  <Progress
+                    value={
+                      systemStatus.memory
+                        ? (systemStatus.memory.used / systemStatus.memory.total) * 100
+                        : 0
+                    }
+                    className="h-2"
+                  />
+                </motion.div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
