@@ -20,7 +20,7 @@ import { Search, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { UserDialog } from './user-dialog';
 import type { User, UserListResponse } from '@/lib/config';
-import { getXsrfToken } from '@/lib/utils';
+
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -94,7 +94,7 @@ export function UserList() {
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | undefined>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { hasPermission } = useAuth();
+  const { hasPermission, getCSRFToken } = useAuth();
 
   const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
   const canEditUsers = hasPermission(PERMISSIONS.EDIT_USERS);
@@ -105,7 +105,7 @@ export function UserList() {
       const response = await fetch(`${API_ENDPOINTS.AUTH.USERS}?search=${search}`, {
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -147,7 +147,7 @@ export function UserList() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });

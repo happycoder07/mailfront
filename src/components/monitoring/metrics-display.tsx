@@ -22,7 +22,6 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { getXsrfToken } from '@/lib/utils';
 
 type MetricType = 'counter' | 'gauge' | 'histogram' | 'summary';
 
@@ -47,7 +46,7 @@ export function MetricsDisplay() {
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const { hasPermission } = useAuth();
+  const { hasPermission, getCSRFToken } = useAuth();
 
   // Check if user has permission to view metrics
   const canViewMetrics = hasPermission(PERMISSIONS.VIEW_METRICS);
@@ -62,7 +61,7 @@ export function MetricsDisplay() {
       const response = await fetch(API_ENDPOINTS.MONITORING.METRICS, {
         headers: {
           'Content-Type': 'text/plain', // Prometheus metrics are returned as text/plain
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });

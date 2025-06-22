@@ -10,7 +10,7 @@ import { PERMISSIONS } from '@/lib/permissions';
 export function QueueStats() {
   const [queueSize, setQueueSize] = useState<number>(0);
   const [loading, setLoading] = useState(true);
-  const { hasPermission } = useAuth();
+  const { hasPermission, getCSRFToken } = useAuth();
 
   // Check if user has permission to view queue stats
   const canViewQueueStats = hasPermission(PERMISSIONS.VIEW_QUEUE);
@@ -25,6 +25,9 @@ export function QueueStats() {
       try {
         const response = await fetch(API_ENDPOINTS.QUEUE.SIZE, {
           credentials: 'include',
+          headers: {
+            'X-XSRF-TOKEN': getCSRFToken(),
+          },
         });
         if (!response.ok) {
           throw new Error('Failed to fetch queue size');

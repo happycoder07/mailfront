@@ -34,7 +34,6 @@ import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { z } from 'zod';
 import type { Role, User, EditUserDto } from '@/lib/config';
-import { getXsrfToken } from '@/lib/utils';
 
 const editUserSchema = z.object({
   email: z.string().email('Invalid email address').optional(),
@@ -55,7 +54,7 @@ interface UserDialogProps {
 export function UserDialog({ user, open, onOpenChange, onSuccess }: UserDialogProps) {
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
-  const { hasPermission } = useAuth();
+  const { hasPermission, getCSRFToken } = useAuth();
 
   const form = useForm<EditUserFormData>({
     resolver: zodResolver(editUserSchema),
@@ -75,7 +74,7 @@ export function UserDialog({ user, open, onOpenChange, onSuccess }: UserDialogPr
         const response = await fetch(API_ENDPOINTS.AUTH.ROLES, {
           headers: {
             'Content-Type': 'application/json',
-            'X-XSRF-TOKEN': getXsrfToken(),
+            'X-XSRF-TOKEN': getCSRFToken(),
           },
           credentials: 'include',
         });
@@ -133,7 +132,7 @@ export function UserDialog({ user, open, onOpenChange, onSuccess }: UserDialogPr
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
         body: JSON.stringify(editData),

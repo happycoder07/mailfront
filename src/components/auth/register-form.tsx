@@ -27,12 +27,11 @@ import { registerSchema, RegisterFormData } from '@/lib/validation';
 import { Mail, Lock, User, UserCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
-import { getXsrfToken } from '@/lib/utils';
 
 export function RegisterForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const { hasPermission } = useAuth();
+  const { hasPermission, getCSRFToken } = useAuth();
 
   // Check if user has permission to register users
   const canRegisterUsers = hasPermission(PERMISSIONS.REGISTER_USERS);
@@ -65,7 +64,7 @@ export function RegisterForm() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         body: JSON.stringify(data),
       });

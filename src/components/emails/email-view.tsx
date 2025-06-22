@@ -12,7 +12,6 @@ import { Loader2, Download, Check, X, FileText, Eye, FileSignature } from 'lucid
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { getXsrfToken } from '@/lib/utils';
 
 interface Email {
   id: number;
@@ -51,7 +50,7 @@ interface Email {
 
 export function EmailView({ id }: { id: string }) {
   const router = useRouter();
-  const { hasPermission } = useAuth();
+  const { hasPermission, getCSRFToken } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [email, setEmail] = useState<Email | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -68,7 +67,7 @@ export function EmailView({ id }: { id: string }) {
         const response = await fetch(API_ENDPOINTS.MAIL.DETAIL(id), {
           headers: {
             'Content-Type': 'application/json',
-            'X-XSRF-TOKEN': getXsrfToken(),
+            'X-XSRF-TOKEN': getCSRFToken(),
           },
           credentials: 'include',
         });
@@ -102,7 +101,7 @@ export function EmailView({ id }: { id: string }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -138,7 +137,7 @@ export function EmailView({ id }: { id: string }) {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         body: JSON.stringify({
           reason: 'Email rejected by user',
@@ -202,7 +201,7 @@ export function EmailView({ id }: { id: string }) {
       const response = await fetch(API_ENDPOINTS.FILE.GET(attachment.minioKey), {
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -234,7 +233,7 @@ export function EmailView({ id }: { id: string }) {
       const response = await fetch(API_ENDPOINTS.FILE.GET(attachment.minioKey), {
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });

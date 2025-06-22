@@ -16,7 +16,6 @@ import { FileText, Check, X, FileText as FileTextIcon, Download, Eye, Loader2 } 
 import { RejectEmailForm } from './reject-email-form';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
-import { getXsrfToken } from '@/lib/utils';
 
 interface EmailDialogProps {
   email: EmailResponseDto;
@@ -28,7 +27,7 @@ interface EmailDialogProps {
 export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: EmailDialogProps) {
   const [isRejecting, setIsRejecting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { hasPermission } = useAuth();
+  const { hasPermission, getCSRFToken } = useAuth();
 
   const handleApprove = async () => {
     setIsLoading(true);
@@ -37,7 +36,7 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -79,7 +78,7 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -109,7 +108,7 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
       const response = await fetch(`${API_ENDPOINTS.FILE.GET(attachment.minioKey)}`, {
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -147,7 +146,7 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
       const response = await fetch(`${API_ENDPOINTS.FILE.GET(attachment.minioKey)}`, {
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });

@@ -16,11 +16,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
-import { API_ENDPOINTS } from '@/lib/config';
 import { loginSchema, LoginFormData } from '@/lib/validation';
 import { Mail, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
-import { getXsrfToken } from '@/lib/utils';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -69,7 +67,7 @@ const buttonVariants = {
 export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const { updateAuthState } = useAuth();
+  const { login } = useAuth();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -83,34 +81,28 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      const result = await login(data.email, data.password);
 
-      if (!response.ok) {
-        throw new Error('Invalid credentials');
+      if (result.success) {
+        toast({
+          title: 'Success',
+          description: result.message || 'You have been logged in successfully.',
+          variant: 'default',
+          duration: 500,
+        });
+
+        router.push('/emails');
+      } else {
+        toast({
+          title: 'Error',
+          description: result.message || 'Invalid email or password',
+          variant: 'destructive',
+        });
       }
-
-      // Update auth state after successful login
-      await updateAuthState();
-
-      toast({
-        title: 'Success',
-        description: 'You have been logged in successfully.',
-        variant: 'default',
-        duration: 500,
-      });
-
-      router.push('/emails');
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Invalid email or password' + error,
+        description: 'An unexpected error occurred. Please try again.',
         variant: 'destructive',
       });
     } finally {

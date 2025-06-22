@@ -72,7 +72,7 @@
         },
         "security": [
           {
-            "cookie": []
+            "jwt": []
           },
           {
             "XSRF": []
@@ -235,7 +235,7 @@
         },
         "security": [
           {
-            "cookie": []
+            "jwt": []
           },
           {
             "XSRF": []
@@ -283,7 +283,7 @@
         },
         "security": [
           {
-            "cookie": []
+            "jwt": []
           },
           {
             "XSRF": []
@@ -334,7 +334,7 @@
         },
         "security": [
           {
-            "cookie": []
+            "jwt": []
           },
           {
             "XSRF": []
@@ -395,7 +395,7 @@
         },
         "security": [
           {
-            "cookie": []
+            "jwt": []
           },
           {
             "XSRF": []
@@ -449,7 +449,7 @@
         },
         "security": [
           {
-            "cookie": []
+            "jwt": []
           },
           {
             "XSRF": []
@@ -479,7 +479,7 @@
         },
         "security": [
           {
-            "cookie": []
+            "jwt": []
           },
           {
             "XSRF": []
@@ -504,7 +504,14 @@
         },
         "responses": {
           "200": {
-            "description": "Login successful"
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized"
@@ -535,7 +542,14 @@
         },
         "responses": {
           "201": {
-            "description": "Registration successful"
+            "description": "Registration successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponseDto"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request"
@@ -562,7 +576,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Profile retrieved successfully"
+            "description": "Profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized"
@@ -670,7 +691,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Users retrieved successfully"
+            "description": "Users retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedUsersResponseDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized"
@@ -717,7 +745,14 @@
         },
         "responses": {
           "200": {
-            "description": "User edited successfully"
+            "description": "User edited successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileDto"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request"
@@ -806,20 +841,6 @@
           }
         ],
         "summary": "Get all roles",
-        "tags": ["auth"]
-      }
-    },
-    "/api/auth/csrf-token": {
-      "get": {
-        "description": "Returns a CSRF token cookie for use in subsequent requests.",
-        "operationId": "AuthController_getCsrfToken",
-        "parameters": [],
-        "responses": {
-          "204": {
-            "description": "CSRF token set in cookie (XSRF-TOKEN)"
-          }
-        },
-        "summary": "Get CSRF token",
         "tags": ["auth"]
       }
     },
@@ -1355,6 +1376,69 @@
         },
         "required": ["email", "password"]
       },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1,
+            "description": "Unique identifier of the user"
+          },
+          "email": {
+            "type": "string",
+            "example": "user@example.com",
+            "description": "Email address of the user"
+          },
+          "role": {
+            "type": "string",
+            "example": "admin",
+            "description": "Role name assigned to the user"
+          },
+          "permissions": {
+            "example": ["VIEW_EMAILS", "SEND_EMAILS"],
+            "description": "List of permissions granted to the user based on their role",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John",
+            "description": "First name of the user"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Doe",
+            "description": "Last name of the user"
+          }
+        },
+        "required": ["id", "email", "role", "permissions", "firstName", "lastName"]
+      },
+      "LoginResponseDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "description": "User information including their profile and permissions",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserResponseDto"
+              }
+            ]
+          },
+          "csrf_token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "description": "CSRF token to be included in subsequent requests via X-XSRF-TOKEN header"
+          },
+          "message": {
+            "type": "string",
+            "example": "Login successful. Include the CSRF token in X-XSRF-TOKEN header for subsequent requests.",
+            "description": "Success message with instructions for using the CSRF token"
+          }
+        },
+        "required": ["user", "csrf_token", "message"]
+      },
       "RegisterDto": {
         "type": "object",
         "properties": {
@@ -1381,6 +1465,64 @@
         },
         "required": ["email", "password", "firstName", "lastName", "roleId"]
       },
+      "RegisterResponseDto": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "example": "",
+            "description": "Access token is empty for registration response as user needs to login separately"
+          },
+          "user": {
+            "description": "Information about the newly registered user",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserResponseDto"
+              }
+            ]
+          }
+        },
+        "required": ["access_token", "user"]
+      },
+      "UserProfileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1,
+            "description": "Unique identifier of the user"
+          },
+          "email": {
+            "type": "string",
+            "example": "user@example.com",
+            "description": "Email address of the user"
+          },
+          "role": {
+            "type": "string",
+            "example": "user",
+            "description": "Role name assigned to the user"
+          },
+          "permissions": {
+            "example": ["VIEW_EMAILS"],
+            "description": "List of permissions granted to the user based on their role",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John",
+            "description": "First name of the user"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Doe",
+            "description": "Last name of the user"
+          }
+        },
+        "required": ["id", "email", "role", "permissions", "firstName", "lastName"]
+      },
       "ChangePasswordDto": {
         "type": "object",
         "properties": {
@@ -1394,6 +1536,39 @@
           }
         },
         "required": ["currentPassword", "newPassword"]
+      },
+      "PaginatedUsersResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Array of user profiles for the current page",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserProfileDto"
+            }
+          },
+          "currentPage": {
+            "type": "number",
+            "example": 1,
+            "description": "Current page number (1-based)"
+          },
+          "itemsPerPage": {
+            "type": "number",
+            "example": 10,
+            "description": "Number of items displayed per page"
+          },
+          "totalItems": {
+            "type": "number",
+            "example": 100,
+            "description": "Total number of items across all pages"
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 10,
+            "description": "Total number of pages available"
+          }
+        },
+        "required": ["data", "currentPage", "itemsPerPage", "totalItems", "totalPages"]
       },
       "EditUserDto": {
         "type": "object",

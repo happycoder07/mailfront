@@ -65,12 +65,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { getXsrfToken } from '@/lib/utils';
 
 export function EmailList() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { hasPermission } = useAuth();
+  const { hasPermission, getCSRFToken } = useAuth();
   const [emails, setEmails] = useState<EmailResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
@@ -146,7 +145,7 @@ export function EmailList() {
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include', // Include cookies in the request
       });
@@ -202,7 +201,7 @@ export function EmailList() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -240,7 +239,7 @@ export function EmailList() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
         body: JSON.stringify({ reason }),
@@ -279,7 +278,7 @@ export function EmailList() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });

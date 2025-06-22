@@ -16,7 +16,7 @@ import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
 import { User, Mail, Lock, Save, Loader2, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { getXsrfToken } from '@/lib/utils';
+import { useAuth } from '@/lib/auth-context';
 
 type Profile = {
   id: number;
@@ -38,17 +38,17 @@ export function ProfileForm() {
     newPassword: '',
     confirmPassword: '',
   });
-
+  const { getCSRFToken } = useAuth();
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await fetch(API_ENDPOINTS.AUTH.PROFILE, {
           headers: {
             'Content-Type': 'application/json',
-            'X-XSRF-TOKEN': getXsrfToken(),
+            'X-XSRF-TOKEN': getCSRFToken(),
           },
           credentials: 'include',
-
+          
         });
 
         if (!response.ok) {
@@ -104,7 +104,7 @@ export function ProfileForm() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
         body: JSON.stringify({

@@ -39,6 +39,8 @@ export const ROLES = {
 };
 
 // Role to permissions mapping
+// NOTE: This mapping is now deprecated as permissions are provided directly by the API
+// Keeping for backward compatibility and potential fallback scenarios
 export const ROLE_PERMISSIONS = {
   [ROLES.ADMIN]: [
     PERMISSIONS.MANAGE_USERS,

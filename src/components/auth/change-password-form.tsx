@@ -17,10 +17,11 @@ import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
 import { changePasswordSchema, ChangePasswordFormData } from '@/lib/validation';
 import { Lock, Loader2 } from 'lucide-react';
-import { getXsrfToken } from '@/lib/utils';
+import { useAuth } from '@/lib/auth-context';
 
 export function ChangePasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const { getCSRFToken } = useAuth();
 
   const form = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordSchema),
@@ -38,7 +39,7 @@ export function ChangePasswordForm() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
         body: JSON.stringify(data),

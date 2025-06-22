@@ -19,7 +19,6 @@ import { PERMISSIONS } from '@/lib/permissions';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { getXsrfToken } from '@/lib/utils';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -85,7 +84,7 @@ export function MonitoringStats() {
   const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { hasPermission } = useAuth();
+  const { hasPermission, getCSRFToken } = useAuth();
 
   // Check if user has permission to view monitoring stats
   const canViewMonitoring =
@@ -104,7 +103,7 @@ export function MonitoringStats() {
       const basicResponse = await fetch(API_ENDPOINTS.MONITORING.HEALTH, {
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -119,7 +118,7 @@ export function MonitoringStats() {
       const terminusResponse = await fetch(API_ENDPOINTS.MONITORING.TERMINUS_HEALTH, {
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -134,7 +133,7 @@ export function MonitoringStats() {
       const systemResponse = await fetch(API_ENDPOINTS.MONITORING.SYSTEM_STATUS, {
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });

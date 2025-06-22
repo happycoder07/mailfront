@@ -23,7 +23,6 @@ import { API_ENDPOINTS } from '@/lib/config';
 import { PERMISSIONS } from '@/lib/permissions';
 import { Loader2, X, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
-import { getXsrfToken } from '@/lib/utils';
 
 const rejectEmailSchema = z.object({
   reason: z.string().min(1, 'Reason is required'),
@@ -39,7 +38,7 @@ export function RejectEmailForm({ emailId }: RejectEmailFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { hasPermission } = useAuth();
+  const { hasPermission, getCSRFToken } = useAuth();
 
   const canRejectEmails = hasPermission(PERMISSIONS.REJECT_EMAILS);
 
@@ -67,7 +66,7 @@ export function RejectEmailForm({ emailId }: RejectEmailFormProps) {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         body: JSON.stringify(data),
       });

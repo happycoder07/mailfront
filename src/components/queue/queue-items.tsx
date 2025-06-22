@@ -29,7 +29,6 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getXsrfToken } from '@/lib/utils';
 
 type QueueItem = {
   id: string;
@@ -139,7 +138,7 @@ export function QueueItems() {
   const [items, setItems] = useState<QueueItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const { hasPermission } = useAuth();
+  const { hasPermission, getCSRFToken } = useAuth();
 
   // Check if user has permission to manage queue
   const canManageQueue = hasPermission(PERMISSIONS.MANAGE_QUEUE);
@@ -149,7 +148,7 @@ export function QueueItems() {
       const response = await fetch(API_ENDPOINTS.QUEUE.ITEMS, {
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -197,7 +196,7 @@ export function QueueItems() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });

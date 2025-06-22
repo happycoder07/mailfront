@@ -1,14 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { cn, getXsrfToken } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Separator } from '@/components/ui/separator';
-import { API_ENDPOINTS } from '@/lib/config';
 import { Mail, Inbox, Activity, User, LogOut, Menu, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
@@ -73,7 +72,8 @@ const mobileItemVariants = {
 
 export function MainNav() {
   const pathname = usePathname();
-  const { hasPermission } = useAuth();
+  const router = useRouter();
+  const { hasPermission, logout } = useAuth();
 
   // Define navigation items with their required permissions
   const navItems = [
@@ -126,20 +126,12 @@ export function MainNav() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
-        },
-        credentials: 'include',
-      });
-      if (response.ok) {
-        window.location.href = '/auth/login';
-      }
+      await logout();
+      router.push('/auth/login');
     } catch (error) {
       console.error('Logout failed:', error);
-      window.location.href = '/auth/login';
+      // Force redirect even if logout fails
+      router.push('/auth/login');
     }
   };
 

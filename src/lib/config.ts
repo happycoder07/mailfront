@@ -58,6 +58,21 @@ export type LoginDto = {
   password: string;
 };
 
+export type UserResponseDto = {
+  id: number;
+  email: string;
+  role: string;
+  permissions: string[];
+  firstName: string;
+  lastName: string;
+};
+
+export type LoginResponseDto = {
+  user: UserResponseDto;
+  csrf_token: string;
+  message: string;
+};
+
 export type RegisterDto = {
   email: string;
   password: string;

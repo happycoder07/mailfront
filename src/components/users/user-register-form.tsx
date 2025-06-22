@@ -26,7 +26,7 @@ import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { z } from 'zod';
 import type { Role } from '@/lib/config';
-import { getXsrfToken } from '@/lib/utils';
+
 
 const registerSchema = z
   .object({
@@ -51,7 +51,7 @@ interface UserRegisterFormProps {
 export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
-  const { hasPermission } = useAuth();
+  const { hasPermission, getCSRFToken } = useAuth();
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -73,7 +73,7 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
         const response = await fetch(API_ENDPOINTS.AUTH.ROLES, {
           headers: {
             'Content-Type': 'application/json',
-            'X-XSRF-TOKEN': getXsrfToken(),
+            'X-XSRF-TOKEN': getCSRFToken(),
           },
           credentials: 'include',
         });
@@ -113,7 +113,7 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken(),
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
         body: JSON.stringify(data),
