@@ -311,7 +311,7 @@ export function EmailList() {
   };
 
   const handleView = (email: EmailResponseDto) => {
-    window.open(`/emails/${email.id}`, '_blank');
+    router.push(`/emails/${email.id}`);
   };
 
   const handleEmailUpdated = () => {
