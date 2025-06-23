@@ -229,6 +229,7 @@ export function MainNav() {
               );
             })}
           </nav>
+
           <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
             <ThemeToggle />
           </motion.div>

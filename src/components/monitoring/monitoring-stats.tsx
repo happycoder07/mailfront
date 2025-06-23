@@ -19,6 +19,7 @@ import { PERMISSIONS } from '@/lib/permissions';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -260,7 +261,7 @@ export function MonitoringStats() {
       <motion.div className="flex items-center justify-between" variants={alertVariants}>
         <Alert variant={overallStatus === 'ok' ? 'default' : 'destructive'}>
           <Activity className="h-4 w-4" />
-          <AlertTitle>System Status</AlertTitle>
+          <AlertTitle className="text-md font-bold ">System Status</AlertTitle>
           <AlertDescription>
             {overallStatus === 'ok' ? 'All systems operational' : 'System issues detected'}
             {systemStatus && (
@@ -273,10 +274,14 @@ export function MonitoringStats() {
           </AlertDescription>
         </Alert>
         <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-          <Button variant="outline" size="sm" onClick={fetchHealthStatus}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh
-          </Button>
+          <Tooltip delayDuration={100}>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="sm" className="ml-2" onClick={fetchHealthStatus}>
+                <RefreshCw  />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Refresh health status</TooltipContent>
+          </Tooltip>
         </motion.div>
       </motion.div>
 
