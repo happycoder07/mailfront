@@ -10,7 +10,9 @@
             "description": ""
           }
         },
-        "tags": ["Prometheus"]
+        "tags": [
+          "Prometheus"
+        ]
       }
     },
     "/api/mail": {
@@ -79,7 +81,9 @@
           }
         ],
         "summary": "Create a new email",
-        "tags": ["mail"]
+        "tags": [
+          "mail"
+        ]
       },
       "get": {
         "description": "Retrieves a paginated list of emails with optional filters",
@@ -137,7 +141,13 @@
             "description": "Filter by email status",
             "schema": {
               "type": "string",
-              "enum": ["PENDING", "APPROVED", "REJECTED", "SENT", "FAILED"]
+              "enum": [
+                "PENDING",
+                "APPROVED",
+                "REJECTED",
+                "SENT",
+                "FAILED"
+              ]
             }
           },
           {
@@ -161,57 +171,12 @@
             }
           },
           {
-            "description": "Start date for filtering emails",
+            "name": "",
             "required": false,
-            "name": "startDate",
             "in": "query",
+            "description": "Filter and pagination parameters",
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "End date for filtering emails",
-            "required": false,
-            "name": "endDate",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by sender email address",
-            "required": false,
-            "name": "from",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by recipient email address",
-            "required": false,
-            "name": "to",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by email subject",
-            "required": false,
-            "name": "subject",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by email status",
-            "required": false,
-            "name": "status",
-            "in": "query",
-            "schema": {
-              "type": "string"
+
             }
           }
         ],
@@ -242,7 +207,9 @@
           }
         ],
         "summary": "Get all emails",
-        "tags": ["mail"]
+        "tags": [
+          "mail"
+        ]
       }
     },
     "/api/mail/{id}": {
@@ -290,7 +257,9 @@
           }
         ],
         "summary": "Get email by ID",
-        "tags": ["mail"]
+        "tags": [
+          "mail"
+        ]
       }
     },
     "/api/mail/{id}/approve": {
@@ -341,7 +310,9 @@
           }
         ],
         "summary": "Approve email",
-        "tags": ["mail"]
+        "tags": [
+          "mail"
+        ]
       }
     },
     "/api/mail/{id}/reject": {
@@ -402,7 +373,9 @@
           }
         ],
         "summary": "Reject email",
-        "tags": ["mail"]
+        "tags": [
+          "mail"
+        ]
       }
     },
     "/api/mail/{id}/sign": {
@@ -456,7 +429,9 @@
           }
         ],
         "summary": "Sign and approve email",
-        "tags": ["mail"]
+        "tags": [
+          "mail"
+        ]
       }
     },
     "/api/files/{key}": {
@@ -485,7 +460,9 @@
             "XSRF": []
           }
         ],
-        "tags": ["Minio"]
+        "tags": [
+          "Minio"
+        ]
       }
     },
     "/api/auth/login": {
@@ -523,7 +500,9 @@
           }
         ],
         "summary": "User login",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/register": {
@@ -567,7 +546,9 @@
           }
         ],
         "summary": "User registration",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/profile": {
@@ -598,7 +579,9 @@
           }
         ],
         "summary": "Get user profile",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       },
       "put": {
         "operationId": "AuthController_updateProfile",
@@ -633,7 +616,9 @@
           }
         ],
         "summary": "Update user profile",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/logout": {
@@ -654,7 +639,9 @@
           }
         ],
         "summary": "User logout",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/users": {
@@ -716,7 +703,9 @@
           }
         ],
         "summary": "Get all users",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/users/{id}": {
@@ -776,7 +765,9 @@
           }
         ],
         "summary": "Edit user",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       },
       "delete": {
         "operationId": "AuthController_deleteUser",
@@ -814,7 +805,9 @@
           }
         ],
         "summary": "Delete user",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/roles": {
@@ -841,7 +834,9 @@
           }
         ],
         "summary": "Get all roles",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/queue/size": {
@@ -859,7 +854,9 @@
           }
         ],
         "summary": "Get the current size of the email queue",
-        "tags": ["Queue"]
+        "tags": [
+          "Queue"
+        ]
       }
     },
     "/api/queue/items": {
@@ -877,7 +874,9 @@
           }
         ],
         "summary": "Get all items in the email queue",
-        "tags": ["Queue"]
+        "tags": [
+          "Queue"
+        ]
       }
     },
     "/api/queue/process/{id}": {
@@ -904,7 +903,9 @@
           }
         ],
         "summary": "Manually process a specific email in the queue",
-        "tags": ["Queue"]
+        "tags": [
+          "Queue"
+        ]
       }
     },
     "/api/health": {
@@ -946,7 +947,9 @@
           }
         ],
         "summary": "Check system health",
-        "tags": ["Health"]
+        "tags": [
+          "Health"
+        ]
       }
     },
     "/api/health/terminus": {
@@ -988,7 +991,9 @@
           }
         ],
         "summary": "Comprehensive health check using Terminus",
-        "tags": ["Health"]
+        "tags": [
+          "Health"
+        ]
       }
     },
     "/api/health/system-status": {
@@ -1020,7 +1025,598 @@
           }
         ],
         "summary": "Get detailed system status",
-        "tags": ["Health"]
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/contacts": {
+      "post": {
+        "operationId": "ContactsController_createContact",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContactDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The contact has been successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Forbidden."
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Create a new contact",
+        "tags": [
+          "contacts"
+        ]
+      },
+      "get": {
+        "operationId": "ContactsController_findAllContacts",
+        "parameters": [
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "Filter by name (case-insensitive)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eid",
+            "required": false,
+            "in": "query",
+            "description": "Filter by EID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Sort by field",
+            "schema": {
+              "example": "createdAt",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-based)",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all contacts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedContactResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Forbidden."
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Get all contacts",
+        "tags": [
+          "contacts"
+        ]
+      }
+    },
+    "/api/contacts/lists": {
+      "post": {
+        "operationId": "ContactsController_createContactList",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContactListDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The contact list has been successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactListResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Forbidden."
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Create a new contact list",
+        "tags": [
+          "contacts"
+        ]
+      },
+      "get": {
+        "operationId": "ContactsController_findAllContactLists",
+        "parameters": [
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "Filter by name (case-insensitive)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Sort by field",
+            "schema": {
+              "example": "createdAt",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "example": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-based)",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all contact lists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedContactListResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Forbidden."
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Get all contact lists",
+        "tags": [
+          "contacts"
+        ]
+      }
+    },
+    "/api/contacts/lists/{id}": {
+      "get": {
+        "operationId": "ContactsController_findOneContactList",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the contact list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactListResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Not Found."
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Get a contact list by id",
+        "tags": [
+          "contacts"
+        ]
+      },
+      "patch": {
+        "operationId": "ContactsController_updateContactList",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateContactListDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The contact list has been successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactListResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Not Found."
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Update a contact list",
+        "tags": [
+          "contacts"
+        ]
+      },
+      "delete": {
+        "operationId": "ContactsController_removeContactList",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The contact list has been successfully deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactListResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Not Found."
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Delete a contact list",
+        "tags": [
+          "contacts"
+        ]
+      }
+    },
+    "/api/contacts/{id}": {
+      "get": {
+        "operationId": "ContactsController_findOneContact",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the contact.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Not Found."
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Get a contact by id",
+        "tags": [
+          "contacts"
+        ]
+      },
+      "patch": {
+        "operationId": "ContactsController_updateContact",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateContactDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The contact has been successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request."
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Not Found."
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Update a contact",
+        "tags": [
+          "contacts"
+        ]
+      },
+      "delete": {
+        "operationId": "ContactsController_removeContact",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The contact has been successfully deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Not Found."
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Delete a contact",
+        "tags": [
+          "contacts"
+        ]
       }
     }
   },
@@ -1028,7 +1624,9 @@
     "title": "Mail Manager API",
     "description": "API for managing emails and attachments",
     "version": "v1",
-    "contact": {}
+    "contact": {
+
+    }
   },
   "tags": [],
   "servers": [],
@@ -1080,7 +1678,12 @@
             "nullable": true
           }
         },
-        "required": ["from", "recipients", "subject", "content"]
+        "required": [
+          "from",
+          "recipients",
+          "subject",
+          "content"
+        ]
       },
       "AttachmentDto": {
         "type": "object",
@@ -1159,7 +1762,11 @@
           },
           "type": {
             "type": "string",
-            "enum": ["TO", "CC", "BCC"],
+            "enum": [
+              "TO",
+              "CC",
+              "BCC"
+            ],
             "example": "TO",
             "description": "Type of recipient (TO, CC, BCC)"
           },
@@ -1176,7 +1783,14 @@
             "description": "Timestamp when the recipient was last updated"
           }
         },
-        "required": ["id", "emailId", "address", "type", "createdAt", "updatedAt"]
+        "required": [
+          "id",
+          "emailId",
+          "address",
+          "type",
+          "createdAt",
+          "updatedAt"
+        ]
       },
       "EmailResponseDto": {
         "type": "object",
@@ -1203,7 +1817,13 @@
           },
           "status": {
             "type": "string",
-            "enum": ["PENDING", "APPROVED", "REJECTED", "SENT", "FAILED"],
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "SENT",
+              "FAILED"
+            ],
             "example": "PENDING",
             "description": "Current status of the email"
           },
@@ -1315,7 +1935,10 @@
             }
           }
         },
-        "required": ["items", "meta"]
+        "required": [
+          "items",
+          "meta"
+        ]
       },
       "CreateEmailDto": {
         "type": "object",
@@ -1349,7 +1972,12 @@
             }
           }
         },
-        "required": ["from", "recipients", "subject", "content"]
+        "required": [
+          "from",
+          "recipients",
+          "subject",
+          "content"
+        ]
       },
       "RejectEmailDto": {
         "type": "object",
@@ -1360,7 +1988,9 @@
             "description": "Reason for rejecting the email"
           }
         },
-        "required": ["reason"]
+        "required": [
+          "reason"
+        ]
       },
       "LoginDto": {
         "type": "object",
@@ -1374,7 +2004,10 @@
             "example": "admin123"
           }
         },
-        "required": ["email", "password"]
+        "required": [
+          "email",
+          "password"
+        ]
       },
       "UserResponseDto": {
         "type": "object",
@@ -1395,7 +2028,10 @@
             "description": "Role name assigned to the user"
           },
           "permissions": {
-            "example": ["VIEW_EMAILS", "SEND_EMAILS"],
+            "example": [
+              "VIEW_EMAILS",
+              "SEND_EMAILS"
+            ],
             "description": "List of permissions granted to the user based on their role",
             "type": "array",
             "items": {
@@ -1413,7 +2049,14 @@
             "description": "Last name of the user"
           }
         },
-        "required": ["id", "email", "role", "permissions", "firstName", "lastName"]
+        "required": [
+          "id",
+          "email",
+          "role",
+          "permissions",
+          "firstName",
+          "lastName"
+        ]
       },
       "LoginResponseDto": {
         "type": "object",
@@ -1437,7 +2080,11 @@
             "description": "Success message with instructions for using the CSRF token"
           }
         },
-        "required": ["user", "csrf_token", "message"]
+        "required": [
+          "user",
+          "csrf_token",
+          "message"
+        ]
       },
       "RegisterDto": {
         "type": "object",
@@ -1463,7 +2110,13 @@
             "example": 1
           }
         },
-        "required": ["email", "password", "firstName", "lastName", "roleId"]
+        "required": [
+          "email",
+          "password",
+          "firstName",
+          "lastName",
+          "roleId"
+        ]
       },
       "RegisterResponseDto": {
         "type": "object",
@@ -1482,7 +2135,10 @@
             ]
           }
         },
-        "required": ["access_token", "user"]
+        "required": [
+          "access_token",
+          "user"
+        ]
       },
       "UserProfileDto": {
         "type": "object",
@@ -1503,7 +2159,9 @@
             "description": "Role name assigned to the user"
           },
           "permissions": {
-            "example": ["VIEW_EMAILS"],
+            "example": [
+              "VIEW_EMAILS"
+            ],
             "description": "List of permissions granted to the user based on their role",
             "type": "array",
             "items": {
@@ -1521,7 +2179,14 @@
             "description": "Last name of the user"
           }
         },
-        "required": ["id", "email", "role", "permissions", "firstName", "lastName"]
+        "required": [
+          "id",
+          "email",
+          "role",
+          "permissions",
+          "firstName",
+          "lastName"
+        ]
       },
       "ChangePasswordDto": {
         "type": "object",
@@ -1535,7 +2200,10 @@
             "example": "newPassword123"
           }
         },
-        "required": ["currentPassword", "newPassword"]
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
       },
       "PaginatedUsersResponseDto": {
         "type": "object",
@@ -1568,7 +2236,13 @@
             "description": "Total number of pages available"
           }
         },
-        "required": ["data", "currentPage", "itemsPerPage", "totalItems", "totalPages"]
+        "required": [
+          "data",
+          "currentPage",
+          "itemsPerPage",
+          "totalItems",
+          "totalPages"
+        ]
       },
       "EditUserDto": {
         "type": "object",
@@ -1598,7 +2272,11 @@
             "type": "string",
             "description": "Overall system health status",
             "example": "ok",
-            "enum": ["ok", "degraded", "error"]
+            "enum": [
+              "ok",
+              "degraded",
+              "error"
+            ]
           },
           "timestamp": {
             "type": "string",
@@ -1627,22 +2305,41 @@
               "database": {
                 "type": "string",
                 "example": "healthy",
-                "enum": ["healthy", "unhealthy", "unknown"]
+                "enum": [
+                  "healthy",
+                  "unhealthy",
+                  "unknown"
+                ]
               },
               "redis": {
                 "type": "string",
                 "example": "healthy",
-                "enum": ["healthy", "unhealthy", "unknown"]
+                "enum": [
+                  "healthy",
+                  "unhealthy",
+                  "unknown"
+                ]
               },
               "minio": {
                 "type": "string",
                 "example": "healthy",
-                "enum": ["healthy", "unhealthy", "unknown"]
+                "enum": [
+                  "healthy",
+                  "unhealthy",
+                  "unknown"
+                ]
               }
             }
           }
         },
-        "required": ["status", "timestamp", "uptime", "environment", "version", "services"]
+        "required": [
+          "status",
+          "timestamp",
+          "uptime",
+          "environment",
+          "version",
+          "services"
+        ]
       },
       "TerminusHealthResponseDto": {
         "type": "object",
@@ -1651,7 +2348,10 @@
             "type": "string",
             "description": "Overall health status",
             "example": "ok",
-            "enum": ["ok", "error"]
+            "enum": [
+              "ok",
+              "error"
+            ]
           },
           "info": {
             "type": "object",
@@ -1661,7 +2361,10 @@
               "properties": {
                 "status": {
                   "type": "string",
-                  "enum": ["up", "down"]
+                  "enum": [
+                    "up",
+                    "down"
+                  ]
                 },
                 "error": {
                   "type": "string"
@@ -1687,7 +2390,10 @@
               "properties": {
                 "status": {
                   "type": "string",
-                  "enum": ["up", "down"]
+                  "enum": [
+                    "up",
+                    "down"
+                  ]
                 },
                 "error": {
                   "type": "string"
@@ -1703,7 +2409,10 @@
               "properties": {
                 "status": {
                   "type": "string",
-                  "enum": ["up", "down"]
+                  "enum": [
+                    "up",
+                    "down"
+                  ]
                 },
                 "error": {
                   "type": "string"
@@ -1712,7 +2421,12 @@
             }
           }
         },
-        "required": ["status", "info", "error", "details"]
+        "required": [
+          "status",
+          "info",
+          "error",
+          "details"
+        ]
       },
       "MemoryUsageDto": {
         "type": "object",
@@ -1738,7 +2452,12 @@
             "example": 73400320
           }
         },
-        "required": ["used", "total", "external", "rss"]
+        "required": [
+          "used",
+          "total",
+          "external",
+          "rss"
+        ]
       },
       "CpuUsageDto": {
         "type": "object",
@@ -1754,7 +2473,10 @@
             "example": 500000
           }
         },
-        "required": ["user", "system"]
+        "required": [
+          "user",
+          "system"
+        ]
       },
       "SystemStatusResponseDto": {
         "type": "object",
@@ -1796,7 +2518,348 @@
             "example": "1.0.0"
           }
         },
-        "required": ["timestamp", "uptime", "memory", "cpu", "environment", "version"]
+        "required": [
+          "timestamp",
+          "uptime",
+          "memory",
+          "cpu",
+          "environment",
+          "version"
+        ]
+      },
+      "CreateContactDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the contact",
+            "example": "John Doe"
+          },
+          "eid": {
+            "type": "string",
+            "description": "EID of the contact",
+            "example": "john.doe@example.com"
+          },
+          "contactListIds": {
+            "description": "List of contact list IDs to associate with the contact",
+            "example": [1, 2],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "eid"
+        ]
+      },
+      "ContactListDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "The contact list's unique identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "The contact list's name"
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of the contact list",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The date and time the contact list was created"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The date and time the contact list was last updated"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ContactResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "The contact's unique identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "The contact's name"
+          },
+          "eid": {
+            "type": "string",
+            "description": "The contact's external identifier"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The date and time the contact was created"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The date and time the contact was last updated"
+          },
+          "contactLists": {
+            "description": "The contact lists associated with this contact",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactListDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "eid",
+          "createdAt",
+          "updatedAt",
+          "contactLists"
+        ]
+      },
+      "PaginationMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "description": "Current page number",
+            "example": 1,
+            "minimum": 1
+          },
+          "pageSize": {
+            "type": "number",
+            "description": "Number of items per page",
+            "example": 10,
+            "minimum": 1
+          },
+          "totalItems": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 100,
+            "minimum": 0
+          },
+          "totalPages": {
+            "type": "number",
+            "description": "Total number of pages",
+            "example": 10,
+            "minimum": 1
+          }
+        },
+        "required": [
+          "page",
+          "pageSize",
+          "totalItems",
+          "totalPages"
+        ]
+      },
+      "PaginatedContactResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "Array of contacts for the current page",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactResponseDto"
+            }
+          },
+          "meta": {
+            "description": "Pagination metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMetaDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "meta"
+        ]
+      },
+      "CreateContactListDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the contact list",
+            "example": "Newsletter Subscribers"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the contact list",
+            "example": "Subscribers for the weekly newsletter"
+          },
+          "contactIds": {
+            "description": "List of contact IDs to include in the list",
+            "example": [1, 2],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "ContactDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "The contact's unique identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "The contact's name"
+          },
+          "eid": {
+            "type": "string",
+            "description": "The contact's external identifier"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The date and time the contact was created"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The date and time the contact was last updated"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "eid",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ContactListResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "The contact list's unique identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "The contact list's name"
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of the contact list",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The date and time the contact list was created"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The date and time the contact list was last updated"
+          },
+          "contacts": {
+            "description": "The contacts included in this contact list",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAt",
+          "updatedAt",
+          "contacts"
+        ]
+      },
+      "PaginatedContactListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "Array of contact lists for the current page",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactListResponseDto"
+            }
+          },
+          "meta": {
+            "description": "Pagination metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMetaDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "meta"
+        ]
+      },
+      "UpdateContactListDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the contact list",
+            "example": "Newsletter Subscribers"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the contact list",
+            "example": "Subscribers for the weekly newsletter"
+          },
+          "contactIds": {
+            "description": "List of contact IDs to include in the list",
+            "example": [1, 2],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UpdateContactDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the contact",
+            "example": "John Doe"
+          },
+          "eid": {
+            "type": "string",
+            "description": "EID of the contact",
+            "example": "john.doe@example.com"
+          },
+          "contactListIds": {
+            "description": "List of contact list IDs to associate with the contact",
+            "example": [1, 2],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       }
     }
   }
