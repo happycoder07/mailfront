@@ -1,0 +1,230 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { API_ENDPOINTS, PaginatedContactListResponseDto, ContactListResponseDto } from '@/lib/config';
+import { Loader2, Eye, Pencil, Trash } from 'lucide-react';
+import { ContactListDialog } from './contact-list-dialog';
+import { useAuth } from '@/lib/auth-context';
+import { PERMISSIONS } from '@/lib/permissions';
+import { toast } from '@/components/ui/use-toast';
+
+export function ContactListsTable() {
+  const [lists, setLists] = useState<ContactListResponseDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [selectedContactList, setSelectedContactList] = useState<ContactListResponseDto | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+    totalItems: 0,
+    totalPages: 0,
+  });
+  const { hasPermission, getCSRFToken } = useAuth();
+
+  const canUpdate = hasPermission(PERMISSIONS.UPDATE_CONTACT_LIST);
+  const canDelete = hasPermission(PERMISSIONS.DELETE_CONTACT_LIST);
+
+  const fetchLists = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        ...(search && { name: search }),
+        page: pagination.page.toString(),
+        pageSize: pagination.pageSize.toString(),
+      });
+      const response = await fetch(`${API_ENDPOINTS.CONTACT_LISTS.LIST}?${params.toString()}`, {
+        credentials: 'include',
+        headers: {
+          'X-XSRF-TOKEN': getCSRFToken(),
+        },
+      });
+      const data: PaginatedContactListResponseDto = await response.json();
+      setLists(data.items || []);
+      setPagination(prev => ({
+        ...prev,
+        totalItems: data.meta.totalItems,
+        totalPages: data.meta.totalPages,
+      }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLists();
+  }, [pagination.page, pagination.pageSize, search]);
+
+  const handleView = (contactList: ContactListResponseDto) => {
+    setSelectedContactList(contactList);
+    setIsEditMode(false);
+    setDialogOpen(true);
+  };
+
+  const handleEdit = (contactList: ContactListResponseDto) => {
+    setSelectedContactList(contactList);
+    setIsEditMode(true);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (contactList: ContactListResponseDto) => {
+    if (!confirm('Are you sure you want to delete this contact list?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(API_ENDPOINTS.CONTACT_LISTS.DELETE(contactList.id), {
+        method: 'DELETE',
+        headers: {
+          'X-XSRF-TOKEN': getCSRFToken(),
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete contact list');
+      }
+
+      toast({
+        title: 'Success',
+        description: 'Contact list deleted successfully',
+      });
+      fetchLists();
+    } catch (error) {
+      console.error('Error deleting contact list:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete contact list',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleContactListUpdated = () => {
+    fetchLists();
+  };
+
+  return (
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Contact Lists</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4 flex gap-2">
+            <Input
+              placeholder="Search by name..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="max-w-xs"
+            />
+          </div>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Created At</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center">
+                      <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                    </TableCell>
+                  </TableRow>
+                ) : lists.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center">No contact lists found</TableCell>
+                  </TableRow>
+                ) : (
+                  lists.map(list => (
+                    <TableRow key={list.id}>
+                      <TableCell>{list.name}</TableCell>
+                      <TableCell>{list.description || '-'}</TableCell>
+                      <TableCell>{new Date(list.createdAt).toLocaleString()}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => handleView(list)}
+                            title="View contact list"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          {canUpdate && (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => handleEdit(list)}
+                              title="Edit contact list"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {canDelete && (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => handleDelete(list)}
+                              title="Delete contact list"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex items-center justify-between mt-4">
+            <span className="text-sm text-muted-foreground">
+              Showing {lists.length} of {pagination.totalItems} contact lists
+            </span>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPagination(p => ({ ...p, page: Math.max(1, p.page - 1) }))}
+                disabled={pagination.page === 1}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPagination(p => ({ ...p, page: Math.min(p.totalPages, p.page + 1) }))}
+                disabled={pagination.page === pagination.totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {selectedContactList && (
+        <ContactListDialog
+          contactList={selectedContactList}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          onContactListUpdated={handleContactListUpdated}
+          initialEditMode={isEditMode}
+        />
+      )}
+    </>
+  );
+}

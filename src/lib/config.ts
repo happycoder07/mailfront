@@ -50,6 +50,24 @@ export const API_ENDPOINTS = {
     GET: '/api/settings',
     UPDATE: '/api/settings',
   },
+
+  // Contacts endpoints
+  CONTACTS: {
+    LIST: `${API_BASE_URL}/contacts`,
+    DETAIL: (id: string | number) => `${API_BASE_URL}/contacts/${id}`,
+    CREATE: `${API_BASE_URL}/contacts`,
+    UPDATE: (id: string | number) => `${API_BASE_URL}/contacts/${id}`,
+    DELETE: (id: string | number) => `${API_BASE_URL}/contacts/${id}`,
+  },
+
+  // Contact Lists endpoints
+  CONTACT_LISTS: {
+    LIST: `${API_BASE_URL}/contacts/lists`,
+    DETAIL: (id: string | number) => `${API_BASE_URL}/contacts/lists/${id}`,
+    CREATE: `${API_BASE_URL}/contacts/lists`,
+    UPDATE: (id: string | number) => `${API_BASE_URL}/contacts/lists/${id}`,
+    DELETE: (id: string | number) => `${API_BASE_URL}/contacts/lists/${id}`,
+  },
 };
 
 // API Types based on OpenAPI specification
@@ -285,4 +303,83 @@ export type SystemStatusResponseDto = {
   cpu: CpuUsageDto;
   environment: string;
   version: string;
+};
+
+// Contact and Contact List Types based on OpenAPI specification
+export type CreateContactDto = {
+  name: string;
+  eid: string;
+  contactListIds?: (string | number)[];
+};
+
+export type UpdateContactDto = {
+  name?: string;
+  eid?: string;
+  contactListIds?: (string | number)[];
+};
+
+export type ContactListDto = {
+  id: number;
+  name: string;
+  description?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ContactResponseDto = {
+  id: number;
+  name: string;
+  eid: string;
+  createdAt: string;
+  updatedAt: string;
+  contactLists: ContactListDto[];
+};
+
+export type PaginatedContactResponseDto = {
+  items: ContactResponseDto[];
+  meta: {
+    page: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+  };
+};
+
+export type CreateContactListDto = {
+  name: string;
+  description?: string;
+  contactIds?: (string | number)[];
+};
+
+export type UpdateContactListDto = {
+  name?: string;
+  description?: string;
+  contactIds?: (string | number)[];
+};
+
+export type ContactDto = {
+  id: number;
+  name: string;
+  eid: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ContactListResponseDto = {
+  id: number;
+  name: string;
+  description?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  contacts: ContactDto[];
+};
+
+export type PaginatedContactListResponseDto = {
+  items: ContactListResponseDto[];
+  meta: {
+    page: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+  };
 };

@@ -122,6 +122,20 @@ export function MainNav() {
       description: 'Manage your account settings',
       permissions: [],
     },
+    {
+      title: 'Contacts',
+      href: '/contacts',
+      icon: User,
+      description: 'Manage contacts',
+      permissions: [PERMISSIONS.READ_CONTACT],
+    },
+    {
+      title: 'Contact Lists',
+      href: '/contact-lists',
+      icon: Inbox,
+      description: 'Manage contact lists',
+      permissions: [PERMISSIONS.READ_CONTACT_LIST],
+    },
   ];
 
   const handleLogout = async () => {
