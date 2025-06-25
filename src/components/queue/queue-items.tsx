@@ -291,7 +291,7 @@ export function QueueItems() {
                 </TabsList>
               </motion.div>
 
-              <AnimatePresence mode="wait">
+              <AnimatePresence>
                 <TabsContent key={selectedStatus} value={selectedStatus}>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -335,7 +335,7 @@ export function QueueItems() {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            <AnimatePresence mode="wait">
+                            <AnimatePresence>
                               {filteredItems.map((item, index) => (
                                 <motion.tr
                                   key={item.id}

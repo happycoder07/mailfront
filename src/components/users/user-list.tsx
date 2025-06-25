@@ -223,7 +223,7 @@ export function UserList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <AnimatePresence mode="wait">
+            <AnimatePresence>
               {loading ? (
                 <motion.tr
                   key="loading"

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -145,6 +145,9 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+        <DialogDescription className="sr-only">
+          {isEditing ? 'Edit contact list details and manage contacts' : `Contact list: ${contactList.name} with ${contactList.contacts.length} contact${contactList.contacts.length !== 1 ? 's' : ''}`}
+        </DialogDescription>
         <DialogHeader className="px-6 py-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
           <div className="flex items-center justify-between pr-8">
             <div className="flex items-center space-x-3">
@@ -155,11 +158,10 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                 <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   {isEditing ? 'Edit Contact List' : contactList.name}
                 </DialogTitle>
-                {!isEditing && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    {contactList.contacts.length} contact{contactList.contacts.length !== 1 ? 's' : ''}
-                  </p>
-                )}
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {!isEditing && `${contactList.contacts.length} contact${contactList.contacts.length !== 1 ? 's' : ''}`}
+                  {isEditing && 'Edit contact list details and manage contacts'}
+                </p>
               </div>
             </div>
             <div className="flex gap-2">

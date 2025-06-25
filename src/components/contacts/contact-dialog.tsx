@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS, ContactResponseDto, ContactListDto, UpdateContactDto } from '@/lib/config';
-import { Eye, Pencil, Save, X, Loader2, User, Calendar, Trash2, Users, Hash } from 'lucide-react';
+import { Eye, Pencil, Save, X, Loader2, User, Calendar, Trash2, Users, Hash, Mail } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 
@@ -124,6 +124,9 @@ export function ContactDialog({ contact, open, onOpenChange, onContactUpdated, i
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+        <DialogDescription className="sr-only">
+          {isEditing ? 'Edit contact details and manage contact list assignments' : `Contact: ${contact.name} with ${contact.contactLists.length} contact list${contact.contactLists.length !== 1 ? 's' : ''}`}
+        </DialogDescription>
         <DialogHeader className="px-6 py-4 border-b bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
           <div className="flex items-center justify-between pr-8">
             <div className="flex items-center space-x-3">
@@ -134,11 +137,10 @@ export function ContactDialog({ contact, open, onOpenChange, onContactUpdated, i
                 <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   {isEditing ? 'Edit Contact' : contact.name}
                 </DialogTitle>
-                {!isEditing && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    {contact.contactLists.length} contact list{contact.contactLists.length !== 1 ? 's' : ''}
-                  </p>
-                )}
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {!isEditing && `${contact.contactLists.length} contact list${contact.contactLists.length !== 1 ? 's' : ''}`}
+                  {isEditing && 'Edit contact details and manage contact list assignments'}
+                </p>
               </div>
             </div>
             <div className="flex gap-2">
@@ -238,8 +240,8 @@ export function ContactDialog({ contact, open, onOpenChange, onContactUpdated, i
 
                       <div className="space-y-3">
                         <Label htmlFor="eid" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                          <Hash className="h-4 w-4" />
-                          <span>EID</span>
+                          <Mail className="h-4 w-4" />
+                          <span>Email Address</span>
                         </Label>
                         {isEditing ? (
                           <Input
