@@ -136,7 +136,6 @@ export function MainNav() {
       description: 'Manage your account settings',
       permissions: [],
     },
-    ,
   ];
 
   const handleLogout = async () => {
