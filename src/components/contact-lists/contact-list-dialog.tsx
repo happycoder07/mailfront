@@ -13,9 +13,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS, ContactListResponseDto, ContactDto, UpdateContactListDto } from '@/lib/config';
-import { Eye, Pencil, Save, X, Loader2 } from 'lucide-react';
+import { Eye, Pencil, Save, X, Loader2, Users, Calendar, Trash2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface ContactListDialogProps {
   contactList: ContactListResponseDto;
@@ -49,6 +50,26 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
       });
     }
   }, [open, initialEditMode, contactList]);
+
+  const handleContactToggle = (contactId: number, checked: boolean) => {
+    if (checked) {
+      // Add contact to the list
+      setFormData(prev => ({
+        ...prev,
+        contactIds: [...(prev.contactIds || []), contactId],
+      }));
+    } else {
+      // Remove contact from the list
+      setFormData(prev => ({
+        ...prev,
+        contactIds: (prev.contactIds || []).filter(id => id !== contactId),
+      }));
+    }
+  };
+
+  const isContactSelected = (contactId: number) => {
+    return (formData.contactIds || []).includes(contactId);
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -122,18 +143,31 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+        <DialogHeader className="px-6 py-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
           <div className="flex items-center justify-between">
-            <DialogTitle>
-              {isEditing ? 'Edit Contact List' : contactList.name}
-            </DialogTitle>
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  {isEditing ? 'Edit Contact List' : contactList.name}
+                </DialogTitle>
+                {!isEditing && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {contactList.contacts.length} contact{contactList.contacts.length !== 1 ? 's' : ''}
+                  </p>
+                )}
+              </div>
+            </div>
             <div className="flex gap-2">
               {!isEditing && canEdit && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setIsEditing(true)}
+                  className="hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-950/30"
                 >
                   <Pencil className="h-4 w-4 mr-2" />
                   Edit
@@ -152,6 +186,7 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                         contactIds: contactList.contacts.map(c => c.id),
                       });
                     }}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     <X className="h-4 w-4 mr-2" />
                     Cancel
@@ -160,6 +195,7 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                     size="sm"
                     onClick={handleSave}
                     disabled={isSaving}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     {isSaving ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -174,93 +210,232 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
           </div>
         </DialogHeader>
 
-        <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="contacts">Contacts</TabsTrigger>
-          </TabsList>
+        <div className="flex-1 overflow-hidden">
+          <Tabs defaultValue="details" className="h-full flex flex-col">
+            <div className="px-6 pt-4">
+              <TabsList className="grid w-full grid-cols-2 bg-gray-100 dark:bg-gray-800">
+                <TabsTrigger value="details" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
+                  Details
+                </TabsTrigger>
+                <TabsTrigger value="contacts" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
+                  Contacts
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-          <TabsContent value="details" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Contact List Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  {isEditing ? (
-                    <Input
-                      id="name"
-                      value={formData.name || ''}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    />
-                  ) : (
-                    <div className="text-sm">{contactList.name}</div>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  {isEditing ? (
-                    <Textarea
-                      id="description"
-                      value={formData.description || ''}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Enter description..."
-                    />
-                  ) : (
-                    <div className="text-sm">{contactList.description || 'No description'}</div>
-                  )}
-                </div>
-                <Separator />
-                <div className="space-y-2">
-                  <Label>Created At</Label>
-                  <div className="text-sm">{new Date(contactList.createdAt).toLocaleString()}</div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Updated At</Label>
-                  <div className="text-sm">{new Date(contactList.updatedAt).toLocaleString()}</div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <TabsContent value="details" className="flex-1 p-6 overflow-y-auto">
+              <div className="space-y-6">
+                <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg flex items-center space-x-2">
+                      <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded">
+                        <Eye className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                      </div>
+                      <span>Contact List Information</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Name
+                        </Label>
+                        {isEditing ? (
+                          <Input
+                            id="name"
+                            value={formData.name || ''}
+                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                            className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                            placeholder="Enter contact list name..."
+                          />
+                        ) : (
+                          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border">
+                            <span className="text-gray-900 dark:text-gray-100 font-medium">{contactList.name}</span>
+                          </div>
+                        )}
+                      </div>
 
-          <TabsContent value="contacts" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Contacts ({contactList.contacts.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {contactList.contacts.length > 0 ? (
-                  <div className="space-y-2">
-                    {contactList.contacts.map((contact) => (
-                      <div
-                        key={contact.id}
-                        className="flex items-center justify-between p-3 border rounded-lg"
-                      >
-                        <div>
-                          <div className="font-medium">{contact.name}</div>
-                          <div className="text-sm text-muted-foreground">{contact.eid}</div>
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Contact Count
+                        </Label>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center space-x-2">
+                            <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            <span className="text-blue-900 dark:text-blue-100 font-medium">
+                              {contactList.contacts.length} contact{contactList.contacts.length !== 1 ? 's' : ''}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center text-muted-foreground py-8">
-                    No contacts in this list
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Description
+                      </Label>
+                      {isEditing ? (
+                        <Textarea
+                          id="description"
+                          value={formData.description || ''}
+                          onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                          placeholder="Enter description..."
+                          className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 min-h-[100px]"
+                        />
+                      ) : (
+                        <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border min-h-[100px]">
+                          <span className="text-gray-900 dark:text-gray-100">
+                            {contactList.description || 'No description provided'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <Separator className="my-6" />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>Created At</span>
+                        </Label>
+                        <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border">
+                          <span className="text-gray-900 dark:text-gray-100">
+                            {new Date(contactList.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>Updated At</span>
+                        </Label>
+                        <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border">
+                          <span className="text-gray-900 dark:text-gray-100">
+                            {new Date(contactList.updatedAt).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="contacts" className="flex-1 p-6 overflow-y-auto">
+              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 h-full">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded">
+                        <Users className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                      </div>
+                      <span>
+                        Contacts ({isEditing ? (formData.contactIds || []).length : contactList.contacts.length})
+                      </span>
+                    </div>
+                    {isEditing && (
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                        Edit Mode
+                      </Badge>
+                    )}
+                  </CardTitle>
+                  {isEditing && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Select contacts to keep in this list. Uncheck contacts to remove them.
+                    </p>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  {contactList.contacts.length > 0 ? (
+                    <ScrollArea className="h-[400px] pr-4">
+                      <div className="space-y-3">
+                        {contactList.contacts.map((contact) => (
+                          <div
+                            key={contact.id}
+                            className={`flex items-center justify-between p-4 border rounded-lg transition-all duration-200 ${
+                              isEditing
+                                ? 'hover:bg-gray-50 dark:hover:bg-gray-700/50 border-gray-200 dark:border-gray-600'
+                                : 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-4">
+                              {isEditing && (
+                                <Checkbox
+                                  checked={isContactSelected(contact.id)}
+                                  onCheckedChange={(checked) =>
+                                    handleContactToggle(contact.id, checked as boolean)
+                                  }
+                                  className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                                />
+                              )}
+                              <div className="flex-1">
+                                <div className="font-medium text-gray-900 dark:text-gray-100">
+                                  {contact.name}
+                                </div>
+                                <div className="text-sm text-gray-600 dark:text-gray-400 font-mono">
+                                  {contact.eid}
+                                </div>
+                              </div>
+                            </div>
+                            {isEditing && (
+                              <div className="ml-4">
+                                <Badge
+                                  variant={isContactSelected(contact.id) ? "default" : "secondary"}
+                                  className={isContactSelected(contact.id)
+                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                    : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+                                  }
+                                >
+                                  {isContactSelected(contact.id) ? 'Selected' : 'Removed'}
+                                </Badge>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <Users className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        No contacts in this list
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        This contact list is empty.
+                      </p>
+                    </div>
+                  )}
+
+                  {isEditing && contactList.contacts.length > 0 && (
+                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-start space-x-3">
+                        <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                        <div className="text-sm text-blue-800 dark:text-blue-200">
+                          <strong>Note:</strong> Changes will be saved when you click the Save button.
+                          Uncheck contacts to remove them from this list.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
 
         {canDelete && (
-          <div className="flex justify-end pt-4 border-t">
+          <div className="flex justify-end p-6 border-t bg-gray-50 dark:bg-gray-800/50">
             <Button
               variant="destructive"
               size="sm"
               onClick={handleDelete}
+              className="hover:bg-red-700"
             >
+              <Trash2 className="h-4 w-4 mr-2" />
               Delete Contact List
             </Button>
           </div>

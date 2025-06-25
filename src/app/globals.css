@@ -37,6 +37,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-nav-background: var(--nav-background);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -65,7 +66,7 @@
 
 :root {
   --radius: 0.5rem;
-  --background: oklch(1 0 0);
+  --background: oklch(0.9612 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
@@ -107,6 +108,8 @@
   --status-sent-foreground: oklch(0.4 0.2 260);
   --status-failed: oklch(0.95 0.01 0);
   --status-failed-foreground: oklch(0.4 0.01 0);
+
+  --nav-background: oklch(0.9577 0.0203 243.42);
 }
 
 .dark {
@@ -116,7 +119,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.546 0.245 262.881);
+  --primary: oklch(0.7 0.1209 236.12);
   --primary-foreground: oklch(0.379 0.146 265.522);
   --secondary: oklch(0.274 0.006 286.033);
   --secondary-foreground: oklch(0.985 0 0);
@@ -152,6 +155,8 @@
   --status-sent-foreground: oklch(0.9 0.1 260);
   --status-failed: oklch(0.2 0.01 0);
   --status-failed-foreground: oklch(0.9 0.01 0);
+
+  --nav-background: oklch(0.3 0.0148 32.82);
 }
 
 @layer base {

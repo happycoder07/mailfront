@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS, ContactResponseDto, ContactListDto, UpdateContactDto } from '@/lib/config';
-import { Eye, Pencil, Save, X, Loader2 } from 'lucide-react';
+import { Eye, Pencil, Save, X, Loader2, User, Calendar, Trash2, Users, Hash } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 
@@ -122,18 +122,31 @@ export function ContactDialog({ contact, open, onOpenChange, onContactUpdated, i
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+        <DialogHeader className="px-6 py-4 border-b bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
           <div className="flex items-center justify-between">
-            <DialogTitle>
-              {isEditing ? 'Edit Contact' : contact.name}
-            </DialogTitle>
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                <User className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  {isEditing ? 'Edit Contact' : contact.name}
+                </DialogTitle>
+                {!isEditing && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {contact.contactLists.length} contact list{contact.contactLists.length !== 1 ? 's' : ''}
+                  </p>
+                )}
+              </div>
+            </div>
             <div className="flex gap-2">
               {!isEditing && canEdit && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setIsEditing(true)}
+                  className="hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-950/30"
                 >
                   <Pencil className="h-4 w-4 mr-2" />
                   Edit
@@ -152,6 +165,7 @@ export function ContactDialog({ contact, open, onOpenChange, onContactUpdated, i
                         contactListIds: contact.contactLists.map(cl => cl.id),
                       });
                     }}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     <X className="h-4 w-4 mr-2" />
                     Cancel
@@ -160,6 +174,7 @@ export function ContactDialog({ contact, open, onOpenChange, onContactUpdated, i
                     size="sm"
                     onClick={handleSave}
                     disabled={isSaving}
+                    className="bg-green-600 hover:bg-green-700 text-white"
                   >
                     {isSaving ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -174,96 +189,193 @@ export function ContactDialog({ contact, open, onOpenChange, onContactUpdated, i
           </div>
         </DialogHeader>
 
-        <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="contact-lists">Contact Lists</TabsTrigger>
-          </TabsList>
+        <div className="flex-1 overflow-hidden">
+          <Tabs defaultValue="details" className="h-full flex flex-col">
+            <div className="px-6 pt-4">
+              <TabsList className="grid w-full grid-cols-2 bg-gray-100 dark:bg-gray-800">
+                <TabsTrigger value="details" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
+                  Details
+                </TabsTrigger>
+                <TabsTrigger value="contact-lists" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
+                  Contact Lists
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-          <TabsContent value="details" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Contact Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    {isEditing ? (
-                      <Input
-                        id="name"
-                        value={formData.name || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      />
-                    ) : (
-                      <div className="text-sm">{contact.name}</div>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="eid">EID</Label>
-                    {isEditing ? (
-                      <Input
-                        id="eid"
-                        value={formData.eid || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, eid: e.target.value }))}
-                      />
-                    ) : (
-                      <div className="text-sm">{contact.eid}</div>
-                    )}
-                  </div>
-                </div>
-                <Separator />
-                <div className="space-y-2">
-                  <Label>Created At</Label>
-                  <div className="text-sm">{new Date(contact.createdAt).toLocaleString()}</div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Updated At</Label>
-                  <div className="text-sm">{new Date(contact.updatedAt).toLocaleString()}</div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <TabsContent value="details" className="flex-1 p-6 overflow-y-auto">
+              <div className="space-y-6">
+                <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg flex items-center space-x-2">
+                      <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded">
+                        <Eye className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                      </div>
+                      <span>Contact Information</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
+                          <User className="h-4 w-4" />
+                          <span>Name</span>
+                        </Label>
+                        {isEditing ? (
+                          <Input
+                            id="name"
+                            value={formData.name || ''}
+                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                            className="border-gray-200 focus:border-green-500 focus:ring-green-500"
+                            placeholder="Enter contact name..."
+                          />
+                        ) : (
+                          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border">
+                            <span className="text-gray-900 dark:text-gray-100 font-medium">{contact.name}</span>
+                          </div>
+                        )}
+                      </div>
 
-          <TabsContent value="contact-lists" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Contact Lists</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {contact.contactLists.length > 0 ? (
-                  <div className="space-y-2">
-                    {contact.contactLists.map((list) => (
-                      <div
-                        key={list.id}
-                        className="flex items-center justify-between p-3 border rounded-lg"
-                      >
-                        <div>
-                          <div className="font-medium">{list.name}</div>
-                          {list.description && (
-                            <div className="text-sm text-muted-foreground">{list.description}</div>
-                          )}
+                      <div className="space-y-3">
+                        <Label htmlFor="eid" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
+                          <Hash className="h-4 w-4" />
+                          <span>EID</span>
+                        </Label>
+                        {isEditing ? (
+                          <Input
+                            id="eid"
+                            value={formData.eid || ''}
+                            onChange={(e) => setFormData(prev => ({ ...prev, eid: e.target.value }))}
+                            className="border-gray-200 focus:border-green-500 focus:ring-green-500 font-mono"
+                            placeholder="Enter EID..."
+                          />
+                        ) : (
+                          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border">
+                            <span className="text-gray-900 dark:text-gray-100 font-mono">{contact.eid}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Contact Lists Count
+                      </Label>
+                      <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                        <div className="flex items-center space-x-2">
+                          <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
+                          <span className="text-green-900 dark:text-green-100 font-medium">
+                            {contact.contactLists.length} contact list{contact.contactLists.length !== 1 ? 's' : ''}
+                          </span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center text-muted-foreground py-8">
-                    No contact lists assigned
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                    </div>
+
+                    <Separator className="my-6" />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>Created At</span>
+                        </Label>
+                        <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border">
+                          <span className="text-gray-900 dark:text-gray-100">
+                            {new Date(contact.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>Updated At</span>
+                        </Label>
+                        <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border">
+                          <span className="text-gray-900 dark:text-gray-100">
+                            {new Date(contact.updatedAt).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="contact-lists" className="flex-1 p-6 overflow-y-auto">
+              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 h-full">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg flex items-center space-x-2">
+                    <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded">
+                      <Users className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                    </div>
+                    <span>
+                      Contact Lists ({contact.contactLists.length})
+                    </span>
+                  </CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Contact lists this contact belongs to
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  {contact.contactLists.length > 0 ? (
+                    <ScrollArea className="h-[400px] pr-4">
+                      <div className="space-y-3">
+                        {contact.contactLists.map((list) => (
+                          <div
+                            key={list.id}
+                            className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                          >
+                            <div className="flex items-center space-x-4">
+                              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="font-medium text-gray-900 dark:text-gray-100">
+                                  {list.name}
+                                </div>
+                                {list.description && (
+                                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    {list.description}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                              Member
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <Users className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        No contact lists assigned
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        This contact is not part of any contact lists.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
 
         {canDelete && (
-          <div className="flex justify-end pt-4 border-t">
+          <div className="flex justify-end p-6 border-t bg-gray-50 dark:bg-gray-800/50">
             <Button
               variant="destructive"
               size="sm"
               onClick={handleDelete}
+              className="hover:bg-red-700"
             >
+              <Trash2 className="h-4 w-4 mr-2" />
               Delete Contact
             </Button>
           </div>

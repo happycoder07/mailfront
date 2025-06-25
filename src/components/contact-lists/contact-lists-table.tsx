@@ -6,19 +6,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { API_ENDPOINTS, PaginatedContactListResponseDto, ContactListResponseDto } from '@/lib/config';
-import { Loader2, Eye, Pencil, Trash } from 'lucide-react';
+import { Loader2, Eye, Pencil, Trash, Search } from 'lucide-react';
 import { ContactListDialog } from './contact-list-dialog';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { toast } from '@/components/ui/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export function ContactListsTable() {
   const [lists, setLists] = useState<ContactListResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedContactList, setSelectedContactList] = useState<ContactListResponseDto | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [contactListToDelete, setContactListToDelete] = useState<ContactListResponseDto | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 10,
@@ -34,7 +47,7 @@ export function ContactListsTable() {
     setLoading(true);
     try {
       const params = new URLSearchParams({
-        ...(search && { name: search }),
+        ...(searchQuery && { name: searchQuery }),
         page: pagination.page.toString(),
         pageSize: pagination.pageSize.toString(),
       });
@@ -58,7 +71,24 @@ export function ContactListsTable() {
 
   useEffect(() => {
     fetchLists();
-  }, [pagination.page, pagination.pageSize, search]);
+  }, [pagination.page, pagination.pageSize, searchQuery]);
+
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    setSearchQuery('');
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
 
   const handleView = (contactList: ContactListResponseDto) => {
     setSelectedContactList(contactList);
@@ -73,12 +103,15 @@ export function ContactListsTable() {
   };
 
   const handleDelete = async (contactList: ContactListResponseDto) => {
-    if (!confirm('Are you sure you want to delete this contact list?')) {
-      return;
-    }
+    setContactListToDelete(contactList);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!contactListToDelete) return;
 
     try {
-      const response = await fetch(API_ENDPOINTS.CONTACT_LISTS.DELETE(contactList.id), {
+      const response = await fetch(API_ENDPOINTS.CONTACT_LISTS.DELETE(contactListToDelete.id), {
         method: 'DELETE',
         headers: {
           'X-XSRF-TOKEN': getCSRFToken(),
@@ -103,6 +136,9 @@ export function ContactListsTable() {
         description: 'Failed to delete contact list',
         variant: 'destructive',
       });
+    } finally {
+      setDeleteDialogOpen(false);
+      setContactListToDelete(null);
     }
   };
 
@@ -120,19 +156,29 @@ export function ContactListsTable() {
           <div className="mb-4 flex gap-2">
             <Input
               placeholder="Search by name..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+              onKeyPress={handleKeyPress}
               className="max-w-xs"
             />
+            <Button onClick={handleSearch} size="sm">
+              <Search className="h-4 w-4 mr-2" />
+              Search
+            </Button>
+            {searchQuery && (
+              <Button onClick={handleClearSearch} variant="outline" size="sm">
+                Clear
+              </Button>
+            )}
           </div>
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Created At</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="w-2/7">Name</TableHead>
+                  <TableHead className="w-3/7">Description</TableHead>
+                  <TableHead className="w-1/7 hidden md:table-cell text-center">Created At</TableHead>
+                  <TableHead className="w-1/7 text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -151,9 +197,9 @@ export function ContactListsTable() {
                     <TableRow key={list.id}>
                       <TableCell>{list.name}</TableCell>
                       <TableCell>{list.description || '-'}</TableCell>
-                      <TableCell>{new Date(list.createdAt).toLocaleString()}</TableCell>
+                      <TableCell className="hidden md:table-cell text-center">{new Date(list.createdAt).toLocaleString()}</TableCell>
                       <TableCell>
-                        <div className="flex gap-1">
+                        <div className="flex gap-1 justify-center">
                           <Button
                             size="icon"
                             variant="ghost"
@@ -178,6 +224,7 @@ export function ContactListsTable() {
                               variant="ghost"
                               onClick={() => handleDelete(list)}
                               title="Delete contact list"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
                             >
                               <Trash className="h-4 w-4" />
                             </Button>
@@ -225,6 +272,23 @@ export function ContactListsTable() {
           initialEditMode={isEditMode}
         />
       )}
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Contact List</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{contactListToDelete?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

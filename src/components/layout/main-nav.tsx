@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Separator } from '@/components/ui/separator';
 import { Mail, Inbox, Activity, User, LogOut, Menu, AlertCircle } from 'lucide-react';
@@ -116,13 +116,6 @@ export function MainNav() {
       ],
     },
     {
-      title: 'Profile',
-      href: '/profile',
-      icon: User,
-      description: 'Manage your account settings',
-      permissions: [],
-    },
-    {
       title: 'Contacts',
       href: '/contacts',
       icon: User,
@@ -136,6 +129,14 @@ export function MainNav() {
       description: 'Manage contact lists',
       permissions: [PERMISSIONS.READ_CONTACT_LIST],
     },
+    {
+      title: 'Profile',
+      href: '/profile',
+      icon: User,
+      description: 'Manage your account settings',
+      permissions: [],
+    },
+    ,
   ];
 
   const handleLogout = async () => {
@@ -193,7 +194,7 @@ export function MainNav() {
   }
 
   return (
-    <div className="border-b bg-card text-card-foreground">
+    <div className="border-b bg-nav-background text-card-foreground">
       <div className="flex h-16 items-center px-4">
         <motion.div
           className="flex items-center space-x-2 font-bold text-xl"
@@ -275,6 +276,7 @@ export function MainNav() {
               </motion.div>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-card text-card-foreground">
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <motion.div
                 className="flex flex-col h-full"
                 variants={mobileMenuVariants}
