@@ -73,6 +73,7 @@ export function ContactDialog({ contact, open, onOpenChange, onContactUpdated, i
       });
       setIsEditing(false);
       onContactUpdated();
+      onOpenChange(false);
     } catch (error) {
       console.error('Error updating contact:', error);
       toast({
@@ -124,7 +125,7 @@ export function ContactDialog({ contact, open, onOpenChange, onContactUpdated, i
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
         <DialogHeader className="px-6 py-4 border-b bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between pr-8">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
                 <User className="h-5 w-5 text-green-600 dark:text-green-400" />
@@ -272,29 +273,16 @@ export function ContactDialog({ contact, open, onOpenChange, onContactUpdated, i
 
                     <Separator className="my-6" />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                          <Calendar className="h-4 w-4" />
-                          <span>Created At</span>
-                        </Label>
-                        <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border">
-                          <span className="text-gray-900 dark:text-gray-100">
-                            {new Date(contact.createdAt).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                          <Calendar className="h-4 w-4" />
-                          <span>Updated At</span>
-                        </Label>
-                        <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border">
-                          <span className="text-gray-900 dark:text-gray-100">
-                            {new Date(contact.updatedAt).toLocaleString()}
-                          </span>
-                        </div>
+                    <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center space-x-4">
+                        <span className="flex items-center space-x-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>Created: {new Date(contact.createdAt).toLocaleDateString()}</span>
+                        </span>
+                        <span className="flex items-center space-x-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>Updated: {new Date(contact.updatedAt).toLocaleDateString()}</span>
+                        </span>
                       </div>
                     </div>
                   </CardContent>
@@ -319,7 +307,7 @@ export function ContactDialog({ contact, open, onOpenChange, onContactUpdated, i
                 </CardHeader>
                 <CardContent>
                   {contact.contactLists.length > 0 ? (
-                    <ScrollArea className="h-[400px] pr-4">
+                    <ScrollArea className="h-[240px] pr-4">
                       <div className="space-y-3">
                         {contact.contactLists.map((list) => (
                           <div

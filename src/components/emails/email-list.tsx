@@ -478,7 +478,7 @@ export function EmailList() {
               <div className="relative w-full overflow-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow className='bg-background'>
                       <TableHead className="whitespace-nowrap text-center">From</TableHead>
                       <TableHead className="whitespace-nowrap text-center">Subject</TableHead>
                       <TableHead className="whitespace-nowrap text-center">Status</TableHead>

@@ -130,15 +130,28 @@ export function CreateContactListForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Enter contact list name"
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Enter contact list name"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Contact Count</Label>
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-blue-900 dark:text-blue-100 font-medium">
+                      {formData.contactIds?.length || 0} contact{(formData.contactIds?.length || 0) !== 1 ? 's' : ''} selected
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">

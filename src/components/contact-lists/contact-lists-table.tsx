@@ -174,7 +174,7 @@ export function ContactListsTable() {
           <div className="rounded-md border">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className='bg-background'>
                   <TableHead className="w-2/7">Name</TableHead>
                   <TableHead className="w-3/7">Description</TableHead>
                   <TableHead className="w-1/7 hidden md:table-cell text-center">Created At</TableHead>

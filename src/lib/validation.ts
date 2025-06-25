@@ -93,6 +93,17 @@ export const rejectEmailSchema = z.object({
   }),
 });
 
+// Contact validation schemas
+export const createContactSchema = z.object({
+  name: z.string().min(1, {
+    message: 'Name is required.',
+  }),
+  eid: z.string().email({
+    message: 'Please enter a valid email address.',
+  }),
+  contactListIds: z.array(z.number()).optional(),
+});
+
 // Types
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
@@ -102,3 +113,4 @@ export type RecipientFormData = z.infer<typeof recipientSchema>;
 export type AttachmentFormData = z.infer<typeof attachmentSchema>;
 export type CreateEmailFormData = z.infer<typeof createEmailSchema>;
 export type RejectEmailFormData = z.infer<typeof rejectEmailSchema>;
+export type CreateContactFormData = z.infer<typeof createContactSchema>;

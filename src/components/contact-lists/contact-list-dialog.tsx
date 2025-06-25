@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS, ContactListResponseDto, ContactDto, UpdateContactListDto } from '@/lib/config';
-import { Eye, Pencil, Save, X, Loader2, Users, Calendar, Trash2, AlertCircle } from 'lucide-react';
+import { Eye, Pencil, Save, X, Loader2, Users, Calendar, Trash2, AlertCircle, User } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -94,6 +94,7 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
       });
       setIsEditing(false);
       onContactListUpdated();
+      onOpenChange(false);
     } catch (error) {
       console.error('Error updating contact list:', error);
       toast({
@@ -145,7 +146,7 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
         <DialogHeader className="px-6 py-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between pr-8">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                 <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -293,29 +294,16 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
 
                     <Separator className="my-6" />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                          <Calendar className="h-4 w-4" />
-                          <span>Created At</span>
-                        </Label>
-                        <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border">
-                          <span className="text-gray-900 dark:text-gray-100">
-                            {new Date(contactList.createdAt).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                          <Calendar className="h-4 w-4" />
-                          <span>Updated At</span>
-                        </Label>
-                        <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border">
-                          <span className="text-gray-900 dark:text-gray-100">
-                            {new Date(contactList.updatedAt).toLocaleString()}
-                          </span>
-                        </div>
+                    <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center space-x-4">
+                        <span className="flex items-center space-x-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>Created: {new Date(contactList.createdAt).toLocaleDateString()}</span>
+                        </span>
+                        <span className="flex items-center space-x-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>Updated: {new Date(contactList.updatedAt).toLocaleDateString()}</span>
+                        </span>
                       </div>
                     </div>
                   </CardContent>
@@ -326,50 +314,31 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
             <TabsContent value="contacts" className="flex-1 p-6 overflow-y-auto">
               <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 h-full">
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-lg flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded">
-                        <Users className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                      </div>
-                      <span>
-                        Contacts ({isEditing ? (formData.contactIds || []).length : contactList.contacts.length})
-                      </span>
+                  <CardTitle className="text-lg flex items-center space-x-2">
+                    <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded">
+                      <Users className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                     </div>
-                    {isEditing && (
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                        Edit Mode
-                      </Badge>
-                    )}
+                    <span>
+                      Contacts ({contactList.contacts.length})
+                    </span>
                   </CardTitle>
-                  {isEditing && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Select contacts to keep in this list. Uncheck contacts to remove them.
-                    </p>
-                  )}
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Contacts in this list
+                  </p>
                 </CardHeader>
                 <CardContent>
                   {contactList.contacts.length > 0 ? (
-                    <ScrollArea className="h-[400px] pr-4">
+                    <ScrollArea className="h-[240px] pr-4">
                       <div className="space-y-3">
                         {contactList.contacts.map((contact) => (
                           <div
                             key={contact.id}
-                            className={`flex items-center justify-between p-4 border rounded-lg transition-all duration-200 ${
-                              isEditing
-                                ? 'hover:bg-gray-50 dark:hover:bg-gray-700/50 border-gray-200 dark:border-gray-600'
-                                : 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600'
-                            }`}
+                            className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
                           >
                             <div className="flex items-center space-x-4">
-                              {isEditing && (
-                                <Checkbox
-                                  checked={isContactSelected(contact.id)}
-                                  onCheckedChange={(checked) =>
-                                    handleContactToggle(contact.id, checked as boolean)
-                                  }
-                                  className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                                />
-                              )}
+                              <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                <User className="h-4 w-4 text-green-600 dark:text-green-400" />
+                              </div>
                               <div className="flex-1">
                                 <div className="font-medium text-gray-900 dark:text-gray-100">
                                   {contact.name}
@@ -379,19 +348,9 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                                 </div>
                               </div>
                             </div>
-                            {isEditing && (
-                              <div className="ml-4">
-                                <Badge
-                                  variant={isContactSelected(contact.id) ? "default" : "secondary"}
-                                  className={isContactSelected(contact.id)
-                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                                    : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-                                  }
-                                >
-                                  {isContactSelected(contact.id) ? 'Selected' : 'Removed'}
-                                </Badge>
-                              </div>
-                            )}
+                            <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                              Member
+                            </Badge>
                           </div>
                         ))}
                       </div>
@@ -407,18 +366,6 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                       <p className="text-gray-600 dark:text-gray-400">
                         This contact list is empty.
                       </p>
-                    </div>
-                  )}
-
-                  {isEditing && contactList.contacts.length > 0 && (
-                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <div className="flex items-start space-x-3">
-                        <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                        <div className="text-sm text-blue-800 dark:text-blue-200">
-                          <strong>Note:</strong> Changes will be saved when you click the Save button.
-                          Uncheck contacts to remove them from this list.
-                        </div>
-                      </div>
                     </div>
                   )}
                 </CardContent>

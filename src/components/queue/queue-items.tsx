@@ -324,7 +324,7 @@ export function QueueItems() {
                       <ScrollArea className="h-[400px]">
                         <Table>
                           <TableHeader>
-                            <TableRow>
+                            <TableRow className='bg-background'>
                               <TableHead>ID</TableHead>
                               <TableHead>Name</TableHead>
                               <TableHead>Status</TableHead>

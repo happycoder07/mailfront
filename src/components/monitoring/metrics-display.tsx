@@ -280,7 +280,7 @@ export function MetricsDisplay() {
                       <Separator />
                       <Table>
                         <TableHeader>
-                          <TableRow>
+                          <TableRow className='bg-background'>
                             <TableHead>Metric</TableHead>
                             <TableHead>Labels</TableHead>
                             <TableHead className="text-right">Value</TableHead>

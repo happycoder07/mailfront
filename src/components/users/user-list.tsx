@@ -214,12 +214,12 @@ export function UserList() {
       <motion.div className="rounded-md border" variants={itemVariants}>
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className='bg-background'>
               <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className='text-center'>Email</TableHead>
+              <TableHead className='text-center'>Role</TableHead>
+              <TableHead className='text-center'>Created At</TableHead>
+              <TableHead className="text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -268,8 +268,8 @@ export function UserList() {
                     <TableCell className="font-medium">
                       {user.firstName} {user.lastName}
                     </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
+                    <TableCell className='text-center'>{user.email}</TableCell>
+                    <TableCell className='text-center'>
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -278,8 +278,8 @@ export function UserList() {
                         <Badge variant="outline">{user.role.name}</Badge>
                       </motion.div>
                     </TableCell>
-                    <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right space-x-2">
+                    <TableCell className='text-center'>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-center space-x-2">
                       {canEditUsers && (
                         <motion.div
                           variants={buttonVariants}
