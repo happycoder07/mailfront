@@ -261,7 +261,7 @@ export function MainNav() {
                 <KeyboardShortcutsHelp />
               </motion.div>
             </TooltipTrigger>
-            <TooltipContent>Keyboard Shortcuts (Ctrl + ?)</TooltipContent>
+            <TooltipContent>Keyboard Shortcuts (Alt + K)</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>

@@ -28,20 +28,19 @@ const shortcuts: Shortcut[] = [
   { key: 'Ctrl + 5', description: 'Go to Monitoring', category: 'Navigation' },
   { key: 'Ctrl + 6', description: 'Go to Users', category: 'Navigation' },
   { key: 'Ctrl + 7', description: 'Go to Profile', category: 'Navigation' },
-  { key: 'Ctrl + H', description: 'Go to Home', category: 'Navigation' },
-  { key: 'Ctrl + B', description: 'Toggle Sidebar', category: 'Navigation' },
+  { key: 'Alt + H', description: 'Go to Home', category: 'Navigation' },
 
   // Actions
-  { key: 'Ctrl + N', description: 'Create New Email', category: 'Actions' },
-  { key: 'Ctrl + S', description: 'Focus Search Input', category: 'Actions' },
-  { key: 'Ctrl + R', description: 'Refresh Page', category: 'Actions' },
-  { key: 'Ctrl + L', description: 'Logout', category: 'Actions' },
+  { key: 'Alt + N', description: 'Create New Email', category: 'Actions' },
+  { key: 'Ctrl + F', description: 'Focus Search Input', category: 'Actions' },
+  { key: 'Alt + R', description: 'Refresh Page', category: 'Actions' },
+  { key: 'Ctrl + Q', description: 'Logout', category: 'Actions' },
 
   // Email Management
-  { key: 'Ctrl + A', description: 'Approve Email (first pending)', category: 'Email Management' },
-  { key: 'Ctrl + R', description: 'Reject Email (first pending)', category: 'Email Management' },
-  { key: 'Ctrl + S', description: 'Sign Email (first pending)', category: 'Email Management' },
-  { key: 'Ctrl + V', description: 'View Email (first in list)', category: 'Email Management' },
+  { key: 'Alt + A', description: 'Approve Email (first pending)', category: 'Email Management' },
+  { key: 'Alt + R', description: 'Reject Email (first pending)', category: 'Email Management' },
+  { key: 'Alt + S', description: 'Sign Email (first pending)', category: 'Email Management' },
+  { key: 'Alt + V', description: 'View Email (first in list)', category: 'Email Management' },
 
   // Table Navigation
   { key: 'Ctrl + →', description: 'Next Page', category: 'Table Navigation' },
@@ -52,11 +51,11 @@ const shortcuts: Shortcut[] = [
   // Forms
   { key: 'Ctrl + Enter', description: 'Submit Form', category: 'Forms' },
   { key: 'Escape', description: 'Cancel Form / Close Dialog', category: 'Forms' },
-  { key: 'Ctrl + S', description: 'Save Form', category: 'Forms' },
+  { key: 'Alt + S', description: 'Save Form', category: 'Forms' },
 
   // General
   { key: 'Escape', description: 'Close Dialog/Modal', category: 'General' },
-  { key: 'Ctrl + ?', description: 'Show Keyboard Shortcuts', category: 'General' },
+  { key: 'Alt + K', description: 'Show Keyboard Shortcuts', category: 'General' },
 ];
 
 const categories = ['Navigation', 'Actions', 'Email Management', 'Table Navigation', 'Forms', 'General'];
@@ -129,7 +128,7 @@ export function KeyboardShortcutsHelp() {
         </div>
         <div className="mt-6 pt-4 border-t">
           <p className="text-xs text-muted-foreground text-center">
-            💡 Tip: Use Ctrl + ? anytime to show this help dialog
+            💡 Tip: Use Alt + K anytime to show this help dialog
           </p>
         </div>
       </DialogContent>

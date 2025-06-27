@@ -113,13 +113,13 @@ export function useGlobalShortcuts() {
     },
     {
       key: 'n',
-      ctrlKey: true,
+      altKey: true,
       action: () => router.push('/emails/new'),
       description: 'Create New Email',
       global: true,
     },
     {
-      key: 's',
+      key: 'f',
       ctrlKey: true,
       action: () => {
         // Focus search input if available
@@ -134,7 +134,7 @@ export function useGlobalShortcuts() {
     },
     {
       key: 'r',
-      ctrlKey: true,
+      altKey: true,
       action: () => {
         // Trigger refresh for current page
         window.location.reload();
@@ -144,13 +144,13 @@ export function useGlobalShortcuts() {
     },
     {
       key: 'h',
-      ctrlKey: true,
-      action: () => router.push('/'),
+      altKey: true,
+      action: () => router.push('/emails'),
       description: 'Go to Home',
       global: true,
     },
     {
-      key: 'l',
+      key: 'q',
       ctrlKey: true,
       action: async () => {
         try {
@@ -177,8 +177,8 @@ export function useGlobalShortcuts() {
       global: true,
     },
     {
-      key: '?',
-      ctrlKey: true,
+      key: 'k',
+      altKey: true,
       action: () => {
         // Show keyboard shortcuts help
         showKeyboardShortcutsHelp();
@@ -201,25 +201,25 @@ export function useEmailShortcuts(
   const emailShortcuts: KeyboardShortcut[] = [
     {
       key: 'a',
-      ctrlKey: true,
+      altKey: true,
       action: () => onApprove?.(),
       description: 'Approve Email',
     },
     {
       key: 'r',
-      ctrlKey: true,
+      altKey: true,
       action: () => onReject?.(),
       description: 'Reject Email',
     },
     {
       key: 's',
-      ctrlKey: true,
+      altKey: true,
       action: () => onSign?.(),
       description: 'Sign Email',
     },
     {
       key: 'v',
-      ctrlKey: true,
+      altKey: true,
       action: () => onView?.(),
       description: 'View Email',
     },
@@ -285,7 +285,7 @@ export function useFormShortcuts(
     },
     {
       key: 's',
-      ctrlKey: true,
+      altKey: true,
       action: () => onSave?.(),
       description: 'Save Form',
     },
