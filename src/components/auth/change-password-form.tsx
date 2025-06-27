@@ -69,60 +69,89 @@ export function ChangePasswordForm() {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="currentPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Current Password</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    type="password"
-                    className="pl-10"
-                    autoComplete="current-password"
-                    {...field}
-                  />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="newPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>New Password</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                  <Input type="password" className="pl-10" autoComplete="new-password" {...field} />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button
-          type="submit"
-          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-          disabled={isLoading}
+    <div role="main" aria-labelledby="change-password-form-title">
+      <h1 id="change-password-form-title" className="sr-only">Change your password</h1>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4"
+          aria-label="Change password form"
+          noValidate
         >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Changing password...
-            </>
-          ) : (
-            'Change Password'
-          )}
-        </Button>
-      </form>
-    </Form>
+          <FormField
+            control={form.control}
+            name="currentPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="currentPassword">Current Password</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Lock
+                      className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                    <Input
+                      id="currentPassword"
+                      type="password"
+                      className="pl-10"
+                      autoComplete="current-password"
+                      {...field}
+                      aria-describedby={form.formState.errors.currentPassword ? `currentPassword-error` : undefined}
+                      aria-invalid={!!form.formState.errors.currentPassword}
+                      required
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage id="currentPassword-error" />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="newPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="newPassword">New Password</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Lock
+                      className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                    <Input
+                      id="newPassword"
+                      type="password"
+                      className="pl-10"
+                      autoComplete="new-password"
+                      {...field}
+                      aria-describedby={form.formState.errors.newPassword ? `newPassword-error` : undefined}
+                      aria-invalid={!!form.formState.errors.newPassword}
+                      required
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage id="newPassword-error" />
+              </FormItem>
+            )}
+          />
+          <Button
+            type="submit"
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+            disabled={isLoading}
+            aria-describedby={isLoading ? "loading-description" : undefined}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                <span id="loading-description" className="sr-only">Changing password, please wait</span>
+                Changing password...
+              </>
+            ) : (
+              'Change Password'
+            )}
+          </Button>
+        </form>
+      </Form>
+    </div>
   );
 }

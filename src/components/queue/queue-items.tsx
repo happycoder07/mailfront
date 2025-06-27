@@ -29,6 +29,8 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Loader2, RefreshCw, Play, Pause, Trash2 } from 'lucide-react';
+import { useTableShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
 type QueueItem = {
   id: string;
@@ -139,9 +141,44 @@ export function QueueItems() {
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const { hasPermission, getCSRFToken } = useAuth();
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+    totalItems: 0,
+    totalPages: 0,
+  });
 
   // Check if user has permission to manage queue
   const canManageQueue = hasPermission(PERMISSIONS.MANAGE_QUEUE);
+
+  // Table navigation shortcuts
+  useTableShortcuts(
+    // onNextPage
+    () => {
+      if (pagination.page < pagination.totalPages) {
+        setPagination(prev => ({ ...prev, page: prev.page + 1 }));
+      }
+    },
+    // onPrevPage
+    () => {
+      if (pagination.page > 1) {
+        setPagination(prev => ({ ...prev, page: prev.page - 1 }));
+      }
+    },
+    // onFirstPage
+    () => {
+      if (pagination.page > 1) {
+        setPagination(prev => ({ ...prev, page: 1 }));
+      }
+    },
+    // onLastPage
+    () => {
+      if (pagination.page < pagination.totalPages) {
+        setPagination(prev => ({ ...prev, page: prev.totalPages }));
+      }
+    }
+  );
 
   const fetchQueueItems = async () => {
     try {
@@ -262,155 +299,178 @@ export function QueueItems() {
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible">
-      <motion.div variants={cardVariants}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Queue Management</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs value={selectedStatus} onValueChange={setSelectedStatus}>
-              <motion.div variants={containerVariants}>
-                <TabsList className="grid w-full grid-cols-5">
-                  {[
-                    { value: 'all', label: 'All', count: statusCounts.all },
-                    { value: 'waiting', label: 'Waiting', count: statusCounts.waiting },
-                    { value: 'active', label: 'Active', count: statusCounts.active },
-                    { value: 'completed', label: 'Completed', count: statusCounts.completed },
-                    { value: 'failed', label: 'Failed', count: statusCounts.failed },
-                  ].map((tab, index) => (
-                    <motion.div key={tab.value} variants={tabVariants} custom={index}>
-                      <TabsTrigger value={tab.value} className="flex items-center gap-2">
-                        {tab.label}
-                        <Badge variant="secondary" className="ml-1">
-                          {tab.count}
-                        </Badge>
-                      </TabsTrigger>
-                    </motion.div>
-                  ))}
-                </TabsList>
-              </motion.div>
+    <motion.div
+      className="space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      role="main"
+      aria-labelledby="queue-items-title"
+    >
+      <h1 id="queue-items-title" className="sr-only">Email Queue Management</h1>
 
-              <AnimatePresence>
-                <TabsContent key={selectedStatus} value={selectedStatus}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {loading ? (
-                      <div className="space-y-4">
-                        {[...Array(5)].map((_, i) => (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                          >
-                            <Skeleton className="h-12 w-full" />
-                          </motion.div>
-                        ))}
-                      </div>
-                    ) : filteredItems.length === 0 ? (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="text-center py-8"
-                      >
-                        <p className="text-muted-foreground">No queue items found</p>
-                      </motion.div>
-                    ) : (
-                      <ScrollArea className="h-[400px]">
-                        <Table>
-                          <TableHeader>
-                            <TableRow className='bg-background'>
-                              <TableHead>ID</TableHead>
-                              <TableHead>Name</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead>Progress</TableHead>
-                              <TableHead>Attempts</TableHead>
-                              <TableHead>Created</TableHead>
-                              <TableHead>Actions</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            <AnimatePresence>
-                              {filteredItems.map((item, index) => (
-                                <motion.tr
-                                  key={item.id}
-                                  variants={tableRowVariants}
-                                  initial="hidden"
-                                  animate="visible"
-                                  custom={index}
-                                  whileHover="hover"
-                                  exit="exit"
-                                  className="cursor-pointer"
-                                >
-                                  <TableCell className="font-mono text-sm">
-                                    {item.id.slice(0, 8)}...
-                                  </TableCell>
-                                  <TableCell>{item.name}</TableCell>
-                                  <TableCell>
-                                    <Badge
-                                      variant={
-                                        item.status === 'completed'
-                                          ? 'default'
-                                          : item.status === 'failed'
-                                            ? 'destructive'
-                                            : item.status === 'active'
-                                              ? 'secondary'
-                                              : 'outline'
-                                      }
-                                    >
-                                      {item.status}
-                                    </Badge>
-                                  </TableCell>
-                                  <TableCell>
-                                    <div className="w-full bg-secondary rounded-full h-2">
-                                      <motion.div
-                                        className="bg-primary h-2 rounded-full"
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${item.progress || 0}%` }}
-                                        transition={{ duration: 0.5, delay: 0.2 }}
-                                      />
-                                    </div>
-                                  </TableCell>
-                                  <TableCell>
-                                    {item.attemptsMade} / {item.opts.attempts}
-                                  </TableCell>
-                                  <TableCell>
-                                    {formatDate(new Date(item.timestamp).toISOString())}
-                                  </TableCell>
-                                  <TableCell>
-                                    <motion.div
-                                      variants={buttonVariants}
-                                      whileHover="hover"
-                                      whileTap="tap"
-                                    >
-                                      <Button
-                                        size="sm"
-                                        onClick={() => handleProcess(item.id)}
-                                        disabled={item.status === 'completed'}
-                                      >
-                                        Process
-                                      </Button>
-                                    </motion.div>
-                                  </TableCell>
-                                </motion.tr>
-                              ))}
-                            </AnimatePresence>
-                          </TableBody>
-                        </Table>
-                      </ScrollArea>
-                    )}
-                  </motion.div>
-                </TabsContent>
-              </AnimatePresence>
-            </Tabs>
-          </CardContent>
-        </Card>
-      </motion.div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Queue Items</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={selectedStatus} onValueChange={setSelectedStatus} aria-label="Queue status tabs">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="all" aria-label="Show all queue items">All</TabsTrigger>
+              <TabsTrigger value="waiting" aria-label="Show waiting queue items">Waiting</TabsTrigger>
+              <TabsTrigger value="active" aria-label="Show active queue items">Active</TabsTrigger>
+              <TabsTrigger value="completed" aria-label="Show completed queue items">Completed</TabsTrigger>
+              <TabsTrigger value="failed" aria-label="Show failed queue items">Failed</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="all" className="mt-6">
+              <QueueTable items={items} onProcess={handleProcess} canManageQueue={canManageQueue} loading={loading} formatDate={formatDate} />
+            </TabsContent>
+            <TabsContent value="waiting" className="mt-6">
+              <QueueTable
+                items={items.filter(item => item.status === 'waiting')}
+                onProcess={handleProcess}
+                canManageQueue={canManageQueue}
+                loading={loading}
+                formatDate={formatDate}
+              />
+            </TabsContent>
+            <TabsContent value="active" className="mt-6">
+              <QueueTable
+                items={items.filter(item => item.status === 'active')}
+                onProcess={handleProcess}
+                canManageQueue={canManageQueue}
+                loading={loading}
+                formatDate={formatDate}
+              />
+            </TabsContent>
+            <TabsContent value="completed" className="mt-6">
+              <QueueTable
+                items={items.filter(item => item.status === 'completed')}
+                onProcess={handleProcess}
+                canManageQueue={canManageQueue}
+                loading={loading}
+                formatDate={formatDate}
+              />
+            </TabsContent>
+            <TabsContent value="failed" className="mt-6">
+              <QueueTable
+                items={items.filter(item => item.status === 'failed')}
+                onProcess={handleProcess}
+                canManageQueue={canManageQueue}
+                loading={loading}
+                formatDate={formatDate}
+              />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </motion.div>
+  );
+}
+
+// QueueTable component
+function QueueTable({
+  items,
+  onProcess,
+  canManageQueue,
+  loading,
+  formatDate
+}: {
+  items: QueueItem[];
+  onProcess: (id: string) => void;
+  canManageQueue: boolean;
+  loading: boolean;
+  formatDate: (dateString: string | undefined | null) => string;
+}) {
+  if (loading) {
+    return (
+      <div className="space-y-4" aria-label="Loading queue items">
+        {[...Array(5)].map((_, i) => (
+          <Skeleton key={i} className="h-12 w-full" />
+        ))}
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-8" role="alert">
+        <p className="text-muted-foreground">No queue items found</p>
+      </div>
+    );
+  }
+
+  return (
+    <ScrollArea className="h-[400px]">
+      <Table role="table" aria-label="Queue items table">
+        <TableHeader>
+          <TableRow className='bg-background'>
+            <TableHead scope="col">ID</TableHead>
+            <TableHead scope="col">Name</TableHead>
+            <TableHead scope="col">Status</TableHead>
+            <TableHead scope="col">Progress</TableHead>
+            <TableHead scope="col">Attempts</TableHead>
+            <TableHead scope="col">Created</TableHead>
+            <TableHead scope="col">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {items.map((item, index) => (
+            <TableRow
+              key={item.id}
+              className="cursor-pointer"
+              role="row"
+              aria-label={`Queue item ${item.name} with status ${item.status}`}
+            >
+              <TableCell className="font-mono text-sm">
+                {item.id.slice(0, 8)}...
+              </TableCell>
+              <TableCell>{item.name}</TableCell>
+              <TableCell>
+                <Badge
+                  variant={
+                    item.status === 'completed'
+                      ? 'default'
+                      : item.status === 'failed'
+                        ? 'destructive'
+                        : item.status === 'active'
+                          ? 'secondary'
+                          : 'outline'
+                  }
+                  aria-label={`Status: ${item.status}`}
+                >
+                  {item.status}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <div className="w-full bg-secondary rounded-full h-2" role="progressbar" aria-valuenow={item.progress || 0} aria-valuemin={0} aria-valuemax={100}>
+                  <div
+                    className="bg-primary h-2 rounded-full"
+                    style={{ width: `${item.progress || 0}%` }}
+                  />
+                </div>
+              </TableCell>
+              <TableCell>
+                {item.attemptsMade} / {item.opts.attempts}
+              </TableCell>
+              <TableCell>
+                {formatDate(new Date(item.timestamp).toISOString())}
+              </TableCell>
+              <TableCell>
+                <Button
+                  size="sm"
+                  onClick={() => onProcess(item.id)}
+                  disabled={item.status === 'completed'}
+                  aria-label={`Process queue item ${item.name}`}
+                >
+                  Process
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </ScrollArea>
   );
 }

@@ -8,11 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Separator } from '@/components/ui/separator';
-import { Mail, Inbox, Activity, User, LogOut, Menu, AlertCircle } from 'lucide-react';
+import { Mail, Inbox, Activity, User, LogOut, Menu, AlertCircle, HelpCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { KeyboardShortcutsHelp } from '@/components/ui/keyboard-shortcuts-help';
 
 const navItemVariants = {
   hidden: { opacity: 0, x: -20 },
@@ -159,7 +160,7 @@ export function MainNav() {
   // If user doesn't have any navigation permissions, show a message
   if (!hasAnyNavPermission) {
     return (
-      <div className="border-b bg-primary text-primary-foreground">
+      <header className="border-b bg-primary text-primary-foreground" role="banner">
         <div className="flex h-16 items-center px-4">
           <motion.div
             className="flex items-center space-x-2 font-bold text-xl"
@@ -167,7 +168,7 @@ export function MainNav() {
             initial="hidden"
             animate="visible"
           >
-            <Mail className="h-6 w-6" />
+            <Mail className="h-6 w-6" aria-hidden="true" />
             <span>NCCC Mail Manager</span>
           </motion.div>
           <div className="ml-auto">
@@ -179,8 +180,9 @@ export function MainNav() {
                     size="icon"
                     className="text-primary-foreground hover:bg-primary-foreground/20"
                     onClick={handleLogout}
+                    aria-label="Logout from the application"
                   >
-                    <LogOut className="h-5 w-5" />
+                    <LogOut className="h-5 w-5" aria-hidden="true" />
                   </Button>
                 </motion.div>
               </TooltipTrigger>
@@ -188,12 +190,12 @@ export function MainNav() {
             </Tooltip>
           </div>
         </div>
-      </div>
+      </header>
     );
   }
 
   return (
-    <div className="border-b bg-nav-background text-card-foreground">
+    <header className="border-b bg-nav-background text-card-foreground" role="banner">
       <div className="flex h-16 items-center px-4">
         <motion.div
           className="flex items-center space-x-2 font-bold text-xl"
@@ -201,11 +203,11 @@ export function MainNav() {
           initial="hidden"
           animate="visible"
         >
-          <Mail className="h-6 w-6" />
+          <Mail className="h-6 w-6" aria-hidden="true" />
           <span>NCCC Mail Manager</span>
         </motion.div>
         <div className="ml-auto flex items-center space-x-4">
-          <nav className="hidden md:flex items-center space-x-3">
+          <nav className="hidden md:flex items-center space-x-3" role="navigation" aria-label="Main navigation">
             {navItems.map((item, index) => {
               const Icon = item.icon;
               const hasRequiredPermission: boolean =
@@ -213,6 +215,8 @@ export function MainNav() {
                 item.permissions.some(permission => hasPermission(permission));
 
               if (!hasRequiredPermission) return null;
+
+              const isActive = pathname === item.href;
 
               return (
                 <Tooltip key={item.href}>
@@ -228,17 +232,21 @@ export function MainNav() {
                         href={item.href}
                         className={cn(
                           'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                          pathname === item.href
+                          isActive
                             ? 'bg-primary text-primary-foreground'
                             : 'text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground'
                         )}
+                        aria-current={isActive ? 'page' : undefined}
+                        aria-describedby={`nav-${item.href.replace('/', '')}-description`}
                       >
-                        <Icon className="h-4 w-4 mr-2" />
+                        <Icon className="h-4 w-4 mr-2" aria-hidden="true" />
                         {item.title}
                       </Link>
                     </motion.div>
                   </TooltipTrigger>
-                  <TooltipContent>{item.description}</TooltipContent>
+                  <TooltipContent id={`nav-${item.href.replace('/', '')}-description`}>
+                    {item.description}
+                  </TooltipContent>
                 </Tooltip>
               );
             })}
@@ -250,13 +258,22 @@ export function MainNav() {
           <Tooltip>
             <TooltipTrigger asChild>
               <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                <KeyboardShortcutsHelp />
+              </motion.div>
+            </TooltipTrigger>
+            <TooltipContent>Keyboard Shortcuts (Ctrl + ?)</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
                 <Button
                   variant="ghost"
                   size="icon"
                   className="text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground"
                   onClick={handleLogout}
+                  aria-label="Logout from the application"
                 >
-                  <LogOut className="h-5 w-5" />
+                  <LogOut className="h-5 w-5" aria-hidden="true" />
                 </Button>
               </motion.div>
             </TooltipTrigger>
@@ -269,8 +286,9 @@ export function MainNav() {
                   variant="ghost"
                   size="icon"
                   className="md:hidden text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground"
+                  aria-label="Open mobile navigation menu"
                 >
-                  <Menu className="h-5 w-5" />
+                  <Menu className="h-5 w-5" aria-hidden="true" />
                 </Button>
               </motion.div>
             </SheetTrigger>
@@ -288,10 +306,10 @@ export function MainNav() {
                   initial="hidden"
                   animate="visible"
                 >
-                  <Mail className="h-6 w-6" />
+                  <Mail className="h-6 w-6" aria-hidden="true" />
                   <span>NCCC Mail Manager</span>
                 </motion.div>
-                <nav className="flex flex-col space-y-2">
+                <nav className="flex flex-col space-y-2" role="navigation" aria-label="Mobile navigation">
                   {navItems.map((item, index) => {
                     const Icon = item.icon;
                     const hasRequiredPermission: boolean =
@@ -299,6 +317,8 @@ export function MainNav() {
                       item.permissions.some(permission => hasPermission(permission));
 
                     if (!hasRequiredPermission) return null;
+
+                    const isActive = pathname === item.href;
 
                     return (
                       <motion.div
@@ -314,12 +334,13 @@ export function MainNav() {
                           href={item.href}
                           className={cn(
                             'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                            pathname === item.href
+                            isActive
                               ? 'bg-primary text-primary-foreground'
                               : 'text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground'
                           )}
+                          aria-current={isActive ? 'page' : undefined}
                         >
-                          <Icon className="h-4 w-4 mr-2" />
+                          <Icon className="h-4 w-4 mr-2" aria-hidden="true" />
                           {item.title}
                         </Link>
                       </motion.div>
@@ -339,8 +360,9 @@ export function MainNav() {
                     variant="ghost"
                     className="w-full justify-start text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground"
                     onClick={handleLogout}
+                    aria-label="Logout from the application"
                   >
-                    <LogOut className="h-4 w-4 mr-2" />
+                    <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
                     Logout
                   </Button>
                 </motion.div>
@@ -349,6 +371,6 @@ export function MainNav() {
           </Sheet>
         </div>
       </div>
-    </div>
+    </header>
   );
 }

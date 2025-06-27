@@ -17,6 +17,7 @@ import { Eye, Pencil, Save, X, Loader2, Users, Calendar, Trash2, AlertCircle, Us
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useFormShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
 interface ContactListDialogProps {
   contactList: ContactListResponseDto;
@@ -40,6 +41,30 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
 
   const canEdit = hasPermission(PERMISSIONS.UPDATE_CONTACT_LIST);
   const canDelete = hasPermission(PERMISSIONS.DELETE_CONTACT_LIST);
+
+  // Form shortcuts
+  useFormShortcuts(
+    // onSubmit
+    () => {
+      if (isEditing) {
+        handleSave();
+      }
+    },
+    // onCancel
+    () => {
+      if (isEditing) {
+        setIsEditing(false);
+      } else {
+        onOpenChange(false);
+      }
+    },
+    // onSave
+    () => {
+      if (isEditing) {
+        handleSave();
+      }
+    }
+  );
 
   // Fetch all available contacts
   const fetchAllContacts = async () => {

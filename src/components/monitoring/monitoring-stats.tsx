@@ -170,14 +170,14 @@ export function MonitoringStats() {
   // If user doesn't have permission to view monitoring stats, show a message
   if (!canViewMonitoring) {
     return (
-      <motion.div variants={alertVariants} initial="hidden" animate="visible">
+      <motion.div variants={alertVariants} initial="hidden" animate="visible" role="alert" aria-live="polite">
         <Card>
           <CardHeader>
             <CardTitle>Access Denied</CardTitle>
           </CardHeader>
           <CardContent>
             <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4" aria-hidden="true" />
               <AlertTitle>Permission Required</AlertTitle>
               <AlertDescription>
                 You do not have permission to view monitoring statistics. Please contact your
@@ -197,6 +197,7 @@ export function MonitoringStats() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
+        aria-label="Loading monitoring statistics"
       >
         {[...Array(4)].map((_, i) => (
           <motion.div key={i} variants={cardVariants} custom={i}>

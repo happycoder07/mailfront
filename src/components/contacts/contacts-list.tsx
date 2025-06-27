@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useTableShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
 export function ContactsList() {
   const [contacts, setContacts] = useState<ContactResponseDto[]>([]);
@@ -42,6 +43,34 @@ export function ContactsList() {
 
   const canUpdate = hasPermission(PERMISSIONS.UPDATE_CONTACT);
   const canDelete = hasPermission(PERMISSIONS.DELETE_CONTACT);
+
+  // Table navigation shortcuts
+  useTableShortcuts(
+    // onNextPage
+    () => {
+      if (pagination.page < pagination.totalPages) {
+        setPagination(prev => ({ ...prev, page: prev.page + 1 }));
+      }
+    },
+    // onPrevPage
+    () => {
+      if (pagination.page > 1) {
+        setPagination(prev => ({ ...prev, page: prev.page - 1 }));
+      }
+    },
+    // onFirstPage
+    () => {
+      if (pagination.page > 1) {
+        setPagination(prev => ({ ...prev, page: 1 }));
+      }
+    },
+    // onLastPage
+    () => {
+      if (pagination.page < pagination.totalPages) {
+        setPagination(prev => ({ ...prev, page: prev.totalPages }));
+      }
+    }
+  );
 
   const fetchContacts = async () => {
     setLoading(true);
@@ -160,41 +189,45 @@ export function ContactsList() {
               onChange={e => setSearchInput(e.target.value)}
               onKeyPress={handleKeyPress}
               className="max-w-xs"
+              aria-label="Search contacts by name"
             />
             <Button onClick={handleSearch} size="sm">
-              <Search className="h-4 w-4 mr-2" />
+              <Search className="h-4 w-4 mr-2" aria-hidden="true" />
               Search
             </Button>
             {searchQuery && (
-              <Button onClick={handleClearSearch} variant="outline" size="sm">
+              <Button onClick={handleClearSearch} variant="outline" size="sm" aria-label="Clear search">
                 Clear
               </Button>
             )}
           </div>
           <div className="rounded-md border">
-            <Table>
+            <Table role="table" aria-label="Contacts list">
               <TableHeader>
                 <TableRow className='bg-background'>
-                  <TableHead className="w-2/7">Name</TableHead>
-                  <TableHead className="w-3/7">Email Address</TableHead>
-                  <TableHead className="w-1/7 hidden md:table-cell text-center">Created At</TableHead>
-                  <TableHead className="w-1/7 text-center">Actions</TableHead>
+                  <TableHead className="w-2/7" scope="col">Name</TableHead>
+                  <TableHead className="w-3/7" scope="col">Email Address</TableHead>
+                  <TableHead className="w-1/7 hidden md:table-cell text-center" scope="col">Created At</TableHead>
+                  <TableHead className="w-1/7 text-center" scope="col">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center">
-                      <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                      <Loader2 className="mx-auto h-6 w-6 animate-spin" aria-hidden="true" />
+                      <span className="sr-only">Loading contacts</span>
                     </TableCell>
                   </TableRow>
                 ) : contacts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center">No contacts found</TableCell>
+                    <TableCell colSpan={4} className="text-center" role="alert">
+                      No contacts found
+                    </TableCell>
                   </TableRow>
                 ) : (
                   contacts.map(contact => (
-                    <TableRow key={contact.id}>
+                    <TableRow key={contact.id} role="row" aria-label={`Contact ${contact.name} with email ${contact.eid}`}>
                       <TableCell>{contact.name}</TableCell>
                       <TableCell>{contact.eid}</TableCell>
                       <TableCell className="hidden md:table-cell text-center">{new Date(contact.createdAt).toLocaleString()}</TableCell>

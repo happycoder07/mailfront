@@ -20,6 +20,7 @@ import { Search, Loader2, Pencil, Trash } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { UserDialog } from './user-dialog';
 import type { User, UserListResponse } from '@/lib/config';
+import { useTableShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
 
 const containerVariants = {
@@ -91,18 +92,52 @@ const buttonVariants = {
 export function UserList() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [selectedUser, setSelectedUser] = useState<User | undefined>();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+    totalItems: 0,
+    totalPages: 0,
+  });
   const { hasPermission, getCSRFToken } = useAuth();
 
   const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
   const canEditUsers = hasPermission(PERMISSIONS.EDIT_USERS);
   const canDeleteUsers = hasPermission(PERMISSIONS.DELETE_USERS);
 
+  // Table navigation shortcuts
+  useTableShortcuts(
+    // onNextPage
+    () => {
+      if (pagination.page < pagination.totalPages) {
+        setPagination(prev => ({ ...prev, page: prev.page + 1 }));
+      }
+    },
+    // onPrevPage
+    () => {
+      if (pagination.page > 1) {
+        setPagination(prev => ({ ...prev, page: prev.page - 1 }));
+      }
+    },
+    // onFirstPage
+    () => {
+      if (pagination.page > 1) {
+        setPagination(prev => ({ ...prev, page: 1 }));
+      }
+    },
+    // onLastPage
+    () => {
+      if (pagination.page < pagination.totalPages) {
+        setPagination(prev => ({ ...prev, page: prev.totalPages }));
+      }
+    }
+  );
+
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${API_ENDPOINTS.AUTH.USERS}?search=${search}`, {
+      const response = await fetch(`${API_ENDPOINTS.AUTH.USERS}?search=${searchQuery}`, {
         headers: {
           'Content-Type': 'application/json',
           'X-XSRF-TOKEN': getCSRFToken(),
@@ -174,7 +209,7 @@ export function UserList() {
 
   useEffect(() => {
     fetchUsers();
-  }, [search]);
+  }, [searchQuery]);
 
   if (!canManageUsers) {
     return (
@@ -205,8 +240,8 @@ export function UserList() {
           <Input
             placeholder="Search users..."
             className="pl-9"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
           />
         </motion.div>
       </motion.div>
@@ -292,7 +327,7 @@ export function UserList() {
                             size="sm"
                             onClick={() => {
                               setSelectedUser(user);
-                              setIsDialogOpen(true);
+                              setDialogOpen(true);
                             }}
                             className="h-8 w-8 p-0"
                           >
@@ -329,8 +364,8 @@ export function UserList() {
       {selectedUser && (
         <UserDialog
           user={selectedUser}
-          open={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
           onSuccess={fetchUsers}
         />
       )}

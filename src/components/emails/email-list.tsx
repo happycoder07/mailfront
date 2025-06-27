@@ -65,6 +65,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { useEmailShortcuts, useTableShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
 export function EmailList() {
   const router = useRouter();
@@ -97,6 +98,65 @@ export function EmailList() {
   const [selectedEmailForRejection, setSelectedEmailForRejection] =
     useState<EmailResponseDto | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
+
+  // Email-specific keyboard shortcuts
+  useEmailShortcuts(
+    // onApprove - approve the first pending email
+    () => {
+      const pendingEmail = emails.find(email => email.status === 'PENDING');
+      if (pendingEmail) {
+        handleApprove(pendingEmail.id);
+      }
+    },
+    // onReject - reject the first pending email
+    () => {
+      const pendingEmail = emails.find(email => email.status === 'PENDING');
+      if (pendingEmail) {
+        openRejectDialog(pendingEmail);
+      }
+    },
+    // onSign - sign the first pending email
+    () => {
+      const pendingEmail = emails.find(email => email.status === 'PENDING');
+      if (pendingEmail) {
+        handleSign(pendingEmail.id);
+      }
+    },
+    // onView - view the first email
+    () => {
+      if (emails.length > 0) {
+        handleView(emails[0]);
+      }
+    }
+  );
+
+  // Table navigation shortcuts
+  useTableShortcuts(
+    // onNextPage
+    () => {
+      if (pagination.page < pagination.totalPages) {
+        handlePageChange(pagination.page + 1);
+      }
+    },
+    // onPrevPage
+    () => {
+      if (pagination.page > 1) {
+        handlePageChange(pagination.page - 1);
+      }
+    },
+    // onFirstPage
+    () => {
+      if (pagination.page > 1) {
+        handlePageChange(1);
+      }
+    },
+    // onLastPage
+    () => {
+      if (pagination.page < pagination.totalPages) {
+        handlePageChange(pagination.totalPages);
+      }
+    }
+  );
 
   const handleFilterChange = (key: keyof typeof filters, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -403,12 +463,13 @@ export function EmailList() {
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="relative">
-                <Search className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                <Search className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" aria-hidden="true" />
                 <Input
                   placeholder="Search by subject..."
                   className="pl-10"
                   value={filters.subject}
                   onChange={e => handleFilterChange('subject', e.target.value)}
+                  aria-label="Search emails by subject"
                 />
               </div>
               <div className="relative">
@@ -416,6 +477,7 @@ export function EmailList() {
                   placeholder="Filter by sender..."
                   value={filters.from}
                   onChange={e => handleFilterChange('from', e.target.value)}
+                  aria-label="Filter emails by sender"
                 />
               </div>
               <div className="relative">
@@ -423,6 +485,7 @@ export function EmailList() {
                   placeholder="Filter by recipient..."
                   value={filters.to}
                   onChange={e => handleFilterChange('to', e.target.value)}
+                  aria-label="Filter emails by recipient"
                 />
               </div>
             </div>
@@ -433,6 +496,7 @@ export function EmailList() {
                   date={filters.startDate ? new Date(filters.startDate) : undefined}
                   onSelect={date => handleDateChange('startDate', date)}
                   placeholder="Start date"
+                  aria-label="Select start date for email filter"
                 />
               </div>
               <div className="w-full">
@@ -440,11 +504,12 @@ export function EmailList() {
                   date={filters.endDate ? new Date(filters.endDate) : undefined}
                   onSelect={date => handleDateChange('endDate', date)}
                   placeholder="End date"
+                  aria-label="Select end date for email filter"
                 />
               </div>
               <div className="w-full">
                 <Select value={filters.status} onValueChange={handleStatusChange}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full" aria-label="Filter by email status">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -458,15 +523,21 @@ export function EmailList() {
                 </Select>
               </div>
               <div className="w-full">
-                <Button onClick={handleSearch} disabled={searching} className="w-full">
+                <Button
+                  onClick={handleSearch}
+                  disabled={searching}
+                  className="w-full"
+                  aria-describedby={searching ? "searching-description" : undefined}
+                >
                   {searching ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                      <span id="searching-description" className="sr-only">Searching emails, please wait</span>
                       Searching...
                     </>
                   ) : (
                     <>
-                      <Search className="mr-2 h-4 w-4" />
+                      <Search className="mr-2 h-4 w-4" aria-hidden="true" />
                       Search
                     </>
                   )}
@@ -476,29 +547,30 @@ export function EmailList() {
 
             <div className="rounded-md border">
               <div className="relative w-full overflow-auto">
-                <Table>
+                <Table role="table" aria-label="Email list">
                   <TableHeader>
                     <TableRow className='bg-background'>
-                      <TableHead className="whitespace-nowrap text-center">From</TableHead>
-                      <TableHead className="whitespace-nowrap text-center">Subject</TableHead>
-                      <TableHead className="whitespace-nowrap text-center">Status</TableHead>
-                      <TableHead className="whitespace-nowrap text-center">Signed</TableHead>
-                      <TableHead className="whitespace-nowrap text-center">Created At</TableHead>
-                      <TableHead className="whitespace-nowrap text-center">Actions</TableHead>
+                      <TableHead className="whitespace-nowrap text-center" scope="col">From</TableHead>
+                      <TableHead className="whitespace-nowrap text-center" scope="col">Subject</TableHead>
+                      <TableHead className="whitespace-nowrap text-center" scope="col">Status</TableHead>
+                      <TableHead className="whitespace-nowrap text-center" scope="col">Signed</TableHead>
+                      <TableHead className="whitespace-nowrap text-center" scope="col">Created At</TableHead>
+                      <TableHead className="whitespace-nowrap text-center" scope="col">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {loading ? (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center">
-                          <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                          <Loader2 className="mx-auto h-6 w-6 animate-spin" aria-hidden="true" />
+                          <span className="sr-only">Loading emails</span>
                         </TableCell>
                       </TableRow>
                     ) : emails.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center">
-                          <Alert>
-                            <AlertCircle className="h-4 w-4" />
+                          <Alert role="alert">
+                            <AlertCircle className="h-4 w-4" aria-hidden="true" />
                             <AlertTitle>No emails found</AlertTitle>
                             <AlertDescription>
                               Try adjusting your search or filter criteria
@@ -512,6 +584,8 @@ export function EmailList() {
                           key={email.id}
                           className="cursor-pointer hover:bg-muted/50"
                           onClick={() => handleView(email)}
+                          role="row"
+                          aria-label={`Email from ${email.from} with subject ${email.subject}`}
                         >
                           <TableCell className="max-w-[200px] truncate text-center">
                             <Tooltip>
@@ -538,6 +612,7 @@ export function EmailList() {
                                         ? 'bg-[var(--status-sent)] text-[var(--status-sent-foreground)]'
                                         : 'bg-[var(--status-failed)] text-[var(--status-failed-foreground)]'
                               }`}
+                              aria-label={`Email status: ${email.status}`}
                             >
                               {email.status}
                             </span>
@@ -546,12 +621,12 @@ export function EmailList() {
                             {email.signedContent ? (
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <FileSignature className="h-4 w-4 text-green-500" />
+                                  <FileSignature className="h-4 w-4 text-green-500" aria-hidden="true" />
                                 </TooltipTrigger>
                                 <TooltipContent>Email is signed</TooltipContent>
                               </Tooltip>
                             ) : (
-                              <span className="text-muted-foreground">-</span>
+                              <span className="text-muted-foreground" aria-label="Email is not signed">-</span>
                             )}
                           </TableCell>
                           <TableCell className="whitespace-nowrap text-center">
@@ -564,32 +639,36 @@ export function EmailList() {
                             >
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <MoreHorizontal className="h-4 w-4" />
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    aria-label={`Actions for email from ${email.from}`}
+                                  >
+                                    <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
+                                <DropdownMenuContent align="end" aria-label="Email actions">
                                   <DropdownMenuItem onClick={() => handleView(email)}>
-                                    <Eye className="mr-2 h-4 w-4" />
+                                    <Eye className="mr-2 h-4 w-4" aria-hidden="true" />
                                     View
                                   </DropdownMenuItem>
                                   {email.status === 'PENDING' && (
                                     <>
                                       {canApprove && (
                                         <DropdownMenuItem onClick={() => handleApprove(email.id)}>
-                                          <Check className="mr-2 h-4 w-4" />
+                                          <Check className="mr-2 h-4 w-4" aria-hidden="true" />
                                           Approve
                                         </DropdownMenuItem>
                                       )}
                                       {canReject && (
                                         <DropdownMenuItem onClick={() => openRejectDialog(email)}>
-                                          <X className="mr-2 h-4 w-4" />
+                                          <X className="mr-2 h-4 w-4" aria-hidden="true" />
                                           Reject
                                         </DropdownMenuItem>
                                       )}
                                       {canSign && (
                                         <DropdownMenuItem onClick={() => handleSign(email.id)}>
-                                          <FileText className="mr-2 h-4 w-4" />
+                                          <FileText className="mr-2 h-4 w-4" aria-hidden="true" />
                                           Sign
                                         </DropdownMenuItem>
                                       )}

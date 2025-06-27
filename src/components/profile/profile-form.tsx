@@ -48,7 +48,7 @@ export function ProfileForm() {
             'X-XSRF-TOKEN': getCSRFToken(),
           },
           credentials: 'include',
-          
+
         });
 
         if (!response.ok) {
@@ -145,153 +145,169 @@ export function ProfileForm() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex justify-center items-center h-64" aria-label="Loading profile information">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
+        <span className="sr-only">Loading profile information</span>
       </div>
     );
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <User className="h-5 w-5" />
-          Profile Information
-        </CardTitle>
-        <CardDescription>View and update your profile information</CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <Input id="email" value={profile?.email || ''} disabled className="bg-muted" />
-              </div>
-              <p className="text-xs text-muted-foreground">Email cannot be changed</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <Input id="role" value={profile?.role || ''} disabled className="bg-muted" />
-              </div>
-              <p className="text-xs text-muted-foreground">Role cannot be changed</p>
-            </div>
-          </div>
-
-          {profile?.firstName && profile?.lastName && (
+    <div role="main" aria-labelledby="profile-form-title">
+      <h1 id="profile-form-title" className="sr-only">Profile Information</h1>
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" aria-hidden="true" />
+            Profile Information
+          </CardTitle>
+          <CardDescription>View and update your profile information</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit} aria-label="Profile update form" noValidate>
+          <CardContent className="space-y-6 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  disabled
-                  className="bg-muted"
-                />
+                <Label htmlFor="email">Email</Label>
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <Input
+                    id="email"
+                    value={profile?.email || ''}
+                    disabled
+                    className="bg-muted"
+                    aria-describedby="email-description"
+                  />
+                </div>
+                <p id="email-description" className="text-xs text-muted-foreground">Email cannot be changed</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  disabled
-                  className="bg-muted"
-                />
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-4 pt-4 border-t">
-            <h3 className="text-lg font-medium flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              Permissions
-            </h3>
-            <p className="text-sm text-muted-foreground">Your account permissions</p>
-
-            <div className="flex flex-wrap gap-2">
-              {profile?.permissions?.map((permission, index) => (
-                <Badge key={index} variant="outline" className="bg-primary/10">
-                  {permission}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4 pt-4 border-t">
-            <h3 className="text-lg font-medium">Change Password</h3>
-            <p className="text-sm text-muted-foreground">
-              Leave these fields empty if you don&apos;t want to change your password
-            </p>
-
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword">Current Password</Label>
-              <div className="flex items-center gap-2">
-                <Lock className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="currentPassword"
-                  name="currentPassword"
-                  type="password"
-                  value={formData.currentPassword}
-                  onChange={handleChange}
-                  placeholder="Enter your current password"
-                />
+                <Label htmlFor="role">Role</Label>
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <Input
+                    id="role"
+                    value={profile?.role || ''}
+                    disabled
+                    className="bg-muted"
+                    aria-describedby="role-description"
+                  />
+                </div>
+                <p id="role-description" className="text-xs text-muted-foreground">Role cannot be changed</p>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
-              <div className="flex items-center gap-2">
-                <Lock className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="newPassword"
-                  name="newPassword"
-                  type="password"
-                  value={formData.newPassword}
-                  onChange={handleChange}
-                  placeholder="Enter your new password"
-                />
-              </div>
-            </div>
+            {profile?.firstName && profile?.lastName && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    name="firstName"
+                    value={formData.firstName}
+                    disabled
+                    className="bg-muted"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
-              <div className="flex items-center gap-2">
-                <Lock className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="Confirm your new password"
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    name="lastName"
+                    value={formData.lastName}
+                    disabled
+                    className="bg-muted"
+                  />
+                </div>
               </div>
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button type="submit" disabled={saving}>
-            {saving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Save Password
-              </>
             )}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-lg font-medium flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Permissions
+              </h3>
+              <p className="text-sm text-muted-foreground">Your account permissions</p>
+
+              <div className="flex flex-wrap gap-2">
+                {profile?.permissions?.map((permission, index) => (
+                  <Badge key={index} variant="outline" className="bg-primary/10">
+                    {permission}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-lg font-medium">Change Password</h3>
+              <p className="text-sm text-muted-foreground">
+                Leave these fields empty if you don&apos;t want to change your password
+              </p>
+
+              <div className="space-y-2">
+                <Label htmlFor="currentPassword">Current Password</Label>
+                <div className="flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="currentPassword"
+                    name="currentPassword"
+                    type="password"
+                    value={formData.currentPassword}
+                    onChange={handleChange}
+                    placeholder="Enter your current password"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">New Password</Label>
+                <div className="flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="newPassword"
+                    name="newPassword"
+                    type="password"
+                    value={formData.newPassword}
+                    onChange={handleChange}
+                    placeholder="Enter your new password"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <div className="flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="Confirm your new password"
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-end">
+            <Button type="submit" disabled={saving}>
+              {saving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Password
+                </>
+              )}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
   );
 }
