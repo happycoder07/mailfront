@@ -16,7 +16,7 @@ import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, Pencil, Trash } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { UserDialog } from './user-dialog';
 import type { User, UserListResponse } from '@/lib/config';
@@ -288,14 +288,15 @@ export function UserList() {
                           className="inline-block"
                         >
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => {
                               setSelectedUser(user);
                               setIsDialogOpen(true);
                             }}
+                            className="h-8 w-8 p-0"
                           >
-                            Edit
+                            <Pencil className="h-4 w-4" />
                           </Button>
                         </motion.div>
                       )}
@@ -307,11 +308,12 @@ export function UserList() {
                           className="inline-block"
                         >
                           <Button
-                            variant="destructive"
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleDeleteUser(user.id)}
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                           >
-                            Delete
+                            <Trash className="h-4 w-4" />
                           </Button>
                         </motion.div>
                       )}
