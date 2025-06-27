@@ -289,7 +289,7 @@ export function QueueItems() {
             <CardTitle>Access Denied</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
+            <p className="text-destructive">
               You do not have permission to manage the queue. Please contact your administrator.
             </p>
           </CardContent>

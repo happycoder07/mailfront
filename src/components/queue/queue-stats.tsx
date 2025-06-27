@@ -52,7 +52,7 @@ export function QueueStats() {
     return (
       <div className="p-6 text-center">
         <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
-        <p className="text-muted-foreground">
+        <p className="text-destructive">
           You do not have permission to view queue statistics. Please contact your administrator.
         </p>
       </div>

@@ -220,7 +220,7 @@ export function UserList() {
         animate="visible"
       >
         <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
-        <p className="text-muted-foreground">
+        <p className="text-destructive">
           You do not have permission to manage users. Please contact your administrator.
         </p>
       </motion.div>

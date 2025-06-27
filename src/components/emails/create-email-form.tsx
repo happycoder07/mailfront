@@ -169,7 +169,7 @@ export function CreateEmailForm() {
           <CardTitle className="text-xl font-semibold mb-2">Access Denied</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
+          <p className="text-destructive">
             You do not have permission to send emails. Please contact your administrator.
           </p>
         </CardContent>
