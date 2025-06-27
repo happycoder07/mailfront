@@ -205,7 +205,7 @@ export function MainNav() {
           <span>NCCC Mail Manager</span>
         </motion.div>
         <div className="ml-auto flex items-center space-x-4">
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="hidden md:flex items-center space-x-3">
             {navItems.map((item, index) => {
               const Icon = item.icon;
               const hasRequiredPermission: boolean =

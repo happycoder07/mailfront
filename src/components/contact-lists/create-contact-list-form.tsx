@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS, CreateContactListDto, ContactDto } from '@/lib/config';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Users } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import Link from 'next/link';
@@ -124,29 +124,35 @@ export function CreateContactListForm() {
         </Link>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Create New Contact List</CardTitle>
+      <Card className="border-0 shadow-sm bg-gradient-to-br from-card to-card/80">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg flex items-center space-x-2">
+            <div className="p-1.5 bg-list-primary/10 dark:bg-list-primary/20 rounded-lg">
+              <Users className="h-4 w-4 text-list-primary" />
+            </div>
+            <span>Create New Contact List</span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Name *</Label>
+                <Label htmlFor="name" className="text-foreground">Name *</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Enter contact list name"
+                  className="border-input focus:border-list-primary focus:ring-list-primary/20"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Contact Count</Label>
-                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <Label className="text-foreground">Contact Count</Label>
+                <div className="p-3 bg-list-primary/5 dark:bg-list-primary/10 rounded-lg border border-list-primary/20 shadow-sm">
                   <div className="flex items-center space-x-2">
-                    <span className="text-blue-900 dark:text-blue-100 font-medium">
+                    <span className="text-list-primary font-medium">
                       {formData.contactIds?.length || 0} contact{(formData.contactIds?.length || 0) !== 1 ? 's' : ''} selected
                     </span>
                   </div>
@@ -155,29 +161,31 @@ export function CreateContactListForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-foreground">Description</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Enter description (optional)"
+                className="border-input focus:border-list-primary focus:ring-list-primary/20"
                 rows={3}
               />
             </div>
 
             <div className="space-y-4">
-              <Label>Contacts</Label>
-              <div className="space-y-2 max-h-60 overflow-y-auto border rounded-md p-4">
+              <Label className="text-foreground">Contacts</Label>
+              <div className="space-y-2 max-h-60 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
                 {contacts.length > 0 ? (
                   contacts.map((contact) => (
-                    <div key={contact.id} className="flex items-center space-x-2">
+                    <div key={contact.id} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
                       <Checkbox
                         id={`contact-${contact.id}`}
                         checked={formData.contactIds?.includes(contact.id) || false}
                         onCheckedChange={() => handleContactToggle(contact.id)}
+                        className="text-list-primary border-border focus:ring-list-primary/20"
                       />
                       <Label htmlFor={`contact-${contact.id}`} className="flex-1 cursor-pointer">
-                        <div className="font-medium">{contact.name}</div>
+                        <div className="font-medium text-foreground">{contact.name}</div>
                         <div className="text-sm text-muted-foreground">{contact.eid}</div>
                       </Label>
                     </div>
@@ -194,7 +202,7 @@ export function CreateContactListForm() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1"
+                className="flex-1 bg-list-primary hover:bg-list-primary/90 text-list-primary-foreground"
               >
                 {isSubmitting ? (
                   <>
@@ -206,7 +214,7 @@ export function CreateContactListForm() {
                 )}
               </Button>
               <Link href="/contact-lists">
-                <Button type="button" variant="outline">
+                <Button type="button" variant="outline" className="hover:bg-accent">
                   Cancel
                 </Button>
               </Link>

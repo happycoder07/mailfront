@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS, ContactListDto } from '@/lib/config';
 import { createContactSchema, CreateContactFormData } from '@/lib/validation';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, User } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import Link from 'next/link';
@@ -125,9 +125,14 @@ export function CreateContactForm() {
         </Link>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Create New Contact</CardTitle>
+      <Card className="border-0 shadow-sm bg-gradient-to-br from-card to-card/80">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg flex items-center space-x-2">
+            <div className="p-1.5 bg-contact-primary/10 dark:bg-contact-primary/20 rounded-lg">
+              <User className="h-4 w-4 text-contact-primary" />
+            </div>
+            <span>Create New Contact</span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -138,10 +143,11 @@ export function CreateContactForm() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name *</FormLabel>
+                      <FormLabel className="text-foreground">Name *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Enter contact name"
+                          className="border-input focus:border-contact-primary focus:ring-contact-primary/20"
                           {...field}
                         />
                       </FormControl>
@@ -154,10 +160,11 @@ export function CreateContactForm() {
                   name="eid"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email Address *</FormLabel>
+                      <FormLabel className="text-foreground">Email Address *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Enter email address"
+                          className="border-input focus:border-contact-primary focus:ring-contact-primary/20 font-mono"
                           {...field}
                         />
                       </FormControl>
@@ -168,18 +175,19 @@ export function CreateContactForm() {
               </div>
 
               <div className="space-y-4">
-                <FormLabel>Contact Lists</FormLabel>
-                <div className="space-y-2 max-h-60 overflow-y-auto border rounded-md p-4">
+                <FormLabel className="text-foreground">Contact Lists</FormLabel>
+                <div className="space-y-2 max-h-60 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
                   {contactLists.length > 0 ? (
                     contactLists.map((list) => (
-                      <div key={list.id} className="flex items-center space-x-2">
+                      <div key={list.id} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
                         <Checkbox
                           id={`list-${list.id}`}
                           checked={form.watch('contactListIds')?.includes(list.id) || false}
                           onCheckedChange={() => handleContactListToggle(list.id)}
+                          className="text-contact-primary border-border focus:ring-contact-primary/20"
                         />
                         <label htmlFor={`list-${list.id}`} className="flex-1 cursor-pointer">
-                          <div className="font-medium">{list.name}</div>
+                          <div className="font-medium text-foreground">{list.name}</div>
                           {list.description && (
                             <div className="text-sm text-muted-foreground">{list.description}</div>
                           )}
@@ -198,7 +206,7 @@ export function CreateContactForm() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1"
+                  className="flex-1 bg-contact-primary hover:bg-contact-primary/90 text-contact-primary-foreground"
                 >
                   {isSubmitting ? (
                     <>
@@ -210,7 +218,7 @@ export function CreateContactForm() {
                   )}
                 </Button>
                 <Link href="/contacts">
-                  <Button type="button" variant="outline">
+                  <Button type="button" variant="outline" className="hover:bg-accent">
                     Cancel
                   </Button>
                 </Link>
