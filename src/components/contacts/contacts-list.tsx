@@ -144,7 +144,6 @@ export function ContactsList() {
         method: 'DELETE',
         headers: {
           'X-XSRF-TOKEN': getCSRFToken(),
-          'Content-Type': 'application/json',
         },
         credentials: 'include',
       });

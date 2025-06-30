@@ -139,7 +139,6 @@ export function UserList() {
     try {
       const response = await fetch(`${API_ENDPOINTS.AUTH.USERS}?search=${searchQuery}`, {
         headers: {
-          'Content-Type': 'application/json',
           'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
@@ -181,7 +180,6 @@ export function UserList() {
       const response = await fetch(API_ENDPOINTS.AUTH.USER(userId.toString()), {
         method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json',
           'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',

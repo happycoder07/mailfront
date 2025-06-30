@@ -100,10 +100,21 @@ export function CreateEmailForm() {
       // Add recipients as a JSON string array
       formData.append('recipients', JSON.stringify(data.recipients));
 
-      // Add attachments
-      attachments.forEach(file => {
-        formData.append('attachments', file);
+      // Add attachments - IMPORTANT: Use the correct field name
+      attachments.forEach((file, index) => {
+        // Use 'attachments' as the field name to match server expectation
+        formData.append('attachments', file, file.name);
       });
+
+      console.log('Sending request to:', API_ENDPOINTS.MAIL.CREATE);
+      console.log('FormData entries:');
+      for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(`${key}: File: ${value.name} (${value.size} bytes, type: ${value.type})`);
+        } else {
+          console.log(`${key}:`, value);
+        }
+      }
 
       const response = await fetch(API_ENDPOINTS.MAIL.CREATE, {
         method: 'POST',
@@ -114,8 +125,10 @@ export function CreateEmailForm() {
         body: formData,
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         let errorMessage = 'Failed to create email';
 
         if (response.status === 401) {
@@ -131,20 +144,17 @@ export function CreateEmailForm() {
         throw new Error(errorMessage);
       }
 
-      if (response.status === 200 || response.status === 201) {
-        toast({
-          title: 'Success',
-          description: 'Email created successfully',
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description: 'Failed to create email',
-        });
-      }
+      const result = await response.json();
+      console.log('Success response:', result);
+
+      toast({
+        title: 'Success',
+        description: 'Email created successfully',
+      });
 
       router.push('/emails');
     } catch (error) {
+      console.error('Error creating email:', error);
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to create email',

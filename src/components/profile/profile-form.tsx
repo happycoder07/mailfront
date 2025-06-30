@@ -44,8 +44,7 @@ export function ProfileForm() {
       try {
         const response = await fetch(API_ENDPOINTS.AUTH.PROFILE, {
           headers: {
-            'Content-Type': 'application/json',
-            'X-XSRF-TOKEN': getCSRFToken(),
+            'X-XSRF-TOKEN': getCSRFToken()
           },
           credentials: 'include',
 

@@ -146,8 +146,7 @@ export function ContactDialog({ contact, open, onOpenChange, onContactUpdated, i
       const response = await fetch(API_ENDPOINTS.CONTACTS.DELETE(contact.id), {
         method: 'DELETE',
         headers: {
-          'X-XSRF-TOKEN': getCSRFToken(),
-          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getCSRFToken()
         },
         credentials: 'include',
       });

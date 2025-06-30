@@ -184,7 +184,6 @@ export function QueueItems() {
     try {
       const response = await fetch(API_ENDPOINTS.QUEUE.ITEMS, {
         headers: {
-          'Content-Type': 'application/json',
           'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
@@ -232,8 +231,7 @@ export function QueueItems() {
       const response = await fetch(API_ENDPOINTS.QUEUE.PROCESS(id), {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getCSRFToken(),
+          'X-XSRF-TOKEN': getCSRFToken()
         },
         credentials: 'include',
       });

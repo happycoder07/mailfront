@@ -72,7 +72,6 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
       try {
         const response = await fetch(API_ENDPOINTS.AUTH.ROLES, {
           headers: {
-            'Content-Type': 'application/json',
             'X-XSRF-TOKEN': getCSRFToken(),
           },
           credentials: 'include',

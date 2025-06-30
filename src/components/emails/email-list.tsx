@@ -204,8 +204,7 @@ export function EmailList() {
 
       const response = await fetch(url, {
         headers: {
-          'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getCSRFToken(),
+          'X-XSRF-TOKEN': getCSRFToken()
         },
         credentials: 'include', // Include cookies in the request
       });
@@ -260,8 +259,7 @@ export function EmailList() {
       const response = await fetch(API_ENDPOINTS.MAIL.APPROVE(id.toString()), {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getCSRFToken(),
+          'X-XSRF-TOKEN': getCSRFToken()
         },
         credentials: 'include',
       });
@@ -337,8 +335,8 @@ export function EmailList() {
       const response = await fetch(API_ENDPOINTS.MAIL.SIGN(id.toString()), {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getCSRFToken(),
+
+          'X-XSRF-TOKEN': getCSRFToken()
         },
         credentials: 'include',
       });

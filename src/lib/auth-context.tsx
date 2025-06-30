@@ -79,7 +79,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           method: 'GET',
           credentials: 'include',
           headers: {
-            'Content-Type': 'application/json',
             'X-XSRF-TOKEN': csrfToken,
           },
         });

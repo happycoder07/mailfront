@@ -103,7 +103,6 @@ export function MonitoringStats() {
       // Fetch basic health status
       const basicResponse = await fetch(API_ENDPOINTS.MONITORING.HEALTH, {
         headers: {
-          'Content-Type': 'application/json',
           'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
@@ -118,7 +117,6 @@ export function MonitoringStats() {
       // Fetch detailed terminus health status
       const terminusResponse = await fetch(API_ENDPOINTS.MONITORING.TERMINUS_HEALTH, {
         headers: {
-          'Content-Type': 'application/json',
           'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
@@ -133,7 +131,6 @@ export function MonitoringStats() {
       // Fetch system status for CPU and memory information
       const systemResponse = await fetch(API_ENDPOINTS.MONITORING.SYSTEM_STATUS, {
         headers: {
-          'Content-Type': 'application/json',
           'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',

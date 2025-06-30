@@ -91,7 +91,6 @@ export function UserDialog({ user, open, onOpenChange, onSuccess }: UserDialogPr
       try {
         const response = await fetch(API_ENDPOINTS.AUTH.ROLES, {
           headers: {
-            'Content-Type': 'application/json',
             'X-XSRF-TOKEN': getCSRFToken(),
           },
           credentials: 'include',
