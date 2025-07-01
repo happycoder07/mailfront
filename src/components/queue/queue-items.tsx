@@ -404,13 +404,13 @@ function QueueTable({
       <Table role="table" aria-label="Queue items table">
         <TableHeader>
           <TableRow className='bg-background'>
-            <TableHead scope="col">ID</TableHead>
-            <TableHead scope="col">Name</TableHead>
-            <TableHead scope="col">Status</TableHead>
-            <TableHead scope="col">Progress</TableHead>
-            <TableHead scope="col">Attempts</TableHead>
-            <TableHead scope="col">Created</TableHead>
-            <TableHead scope="col">Actions</TableHead>
+            <TableHead scope="col" className="w-40 text-center">ID</TableHead>
+            {/* <TableHead scope="col">Name</TableHead> */}
+            <TableHead scope="col" className="text-center">Status</TableHead>
+            <TableHead scope="col" className="text-center">Progress</TableHead>
+            <TableHead scope="col" className="text-center">Attempts</TableHead>
+            <TableHead scope="col" className="w-50 text-center">Created</TableHead>
+            <TableHead scope="col" className="text-center">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -421,11 +421,11 @@ function QueueTable({
               role="row"
               aria-label={`Queue item ${item.name} with status ${item.status}`}
             >
-              <TableCell className="font-mono text-sm">
-                {item.id.slice(0, 8)}...
+              <TableCell className="font-mono text-sm w-40 text-center">
+                {item.id}
               </TableCell>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>
+              {/* <TableCell>{item.name}</TableCell> */}
+              <TableCell className="text-center">
                 <Badge
                   variant={
                     item.status === 'completed'
@@ -441,7 +441,7 @@ function QueueTable({
                   {item.status}
                 </Badge>
               </TableCell>
-              <TableCell>
+              <TableCell className="text-center">
                 <div className="w-full bg-secondary rounded-full h-2" role="progressbar" aria-valuenow={item.progress || 0} aria-valuemin={0} aria-valuemax={100}>
                   <div
                     className="bg-primary h-2 rounded-full"
@@ -449,13 +449,13 @@ function QueueTable({
                   />
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell className="text-center">
                 {item.attemptsMade} / {item.opts.attempts}
               </TableCell>
-              <TableCell>
+              <TableCell className="w-50 text-center">
                 {formatDate(new Date(item.timestamp).toISOString())}
               </TableCell>
-              <TableCell>
+              <TableCell className="text-center">
                 <Button
                   size="sm"
                   onClick={() => onProcess(item.id, item.data.emailId)}
