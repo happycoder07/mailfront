@@ -71,9 +71,6 @@ export const attachmentSchema = z.object({
 });
 
 export const createEmailSchema = z.object({
-  from: z.string().email({
-    message: 'Please enter a valid sender email address.',
-  }),
   recipients: z.array(recipientSchema).min(1, {
     message: 'At least one recipient is required.',
   }),

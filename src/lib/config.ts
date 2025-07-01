@@ -180,6 +180,11 @@ export type CreateEmailDto = {
 
 export type EmailStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SENT' | 'FAILED';
 
+export type UserNameDto = {
+  firstName: string;
+  lastName: string;
+};
+
 export type EmailResponseDto = {
   id: number;
   from: string;
@@ -188,9 +193,9 @@ export type EmailResponseDto = {
   status: EmailStatus;
   signedContent?: string;
   rejectionReason?: string;
-  approvedBy?: number;
+  approvedBy?: UserNameDto;
   approvedAt?: string;
-  rejectedBy?: number;
+  rejectedBy?: UserNameDto;
   rejectedAt?: string;
   attachments: AttachmentDto[];
   recipients: EmailRecipientDto[];

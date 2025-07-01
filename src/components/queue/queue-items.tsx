@@ -217,7 +217,7 @@ export function QueueItems() {
     fetchQueueItems();
   }, []);
 
-  const handleProcess = async (id: string) => {
+  const handleProcess = async (id: string, emailId: number) => {
     if (!canManageQueue) {
       toast({
         title: 'Error',
@@ -228,12 +228,12 @@ export function QueueItems() {
     }
 
     try {
-      const response = await fetch(API_ENDPOINTS.QUEUE.PROCESS(id), {
+      const response = await fetch(API_ENDPOINTS.QUEUE.PROCESS(emailId.toString()), {
         method: 'POST',
         headers: {
           'X-XSRF-TOKEN': getCSRFToken()
         },
-        credentials: 'include',
+        credentials: 'include'
       });
       if (!response.ok) {
         throw new Error('Failed to process queue item');
@@ -376,7 +376,7 @@ function QueueTable({
   formatDate
 }: {
   items: QueueItem[];
-  onProcess: (id: string) => void;
+  onProcess: (id: string, emailId: number) => void;
   canManageQueue: boolean;
   loading: boolean;
   formatDate: (dateString: string | undefined | null) => string;
@@ -458,7 +458,7 @@ function QueueTable({
               <TableCell>
                 <Button
                   size="sm"
-                  onClick={() => onProcess(item.id)}
+                  onClick={() => onProcess(item.id, item.data.emailId)}
                   disabled={item.status === 'completed'}
                   aria-label={`Process queue item ${item.name}`}
                 >

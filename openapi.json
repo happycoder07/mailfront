@@ -1647,10 +1647,6 @@
       "CreateEmailSchemaDto": {
         "type": "object",
         "properties": {
-          "from": {
-            "type": "string",
-            "example": "sender@example.com"
-          },
           "recipients": {
             "type": "string",
             "example": "[{\"address\":\"recipient1@example.com\",\"type\":\"TO\"},{\"address\":\"recipient2@example.com\",\"type\":\"CC\"}]",
@@ -1679,10 +1675,28 @@
           }
         },
         "required": [
-          "from",
           "recipients",
           "subject",
           "content"
+        ]
+      },
+      "UserNameDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "example": "John",
+            "description": "First name of the user"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Doe",
+            "description": "Last name of the user"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName"
         ]
       },
       "AttachmentDto": {
@@ -1837,27 +1851,33 @@
             "example": "Content violates policy",
             "description": "Reason for rejection if the email was rejected"
           },
-          "approvedBy": {
-            "type": "number",
-            "example": 1,
-            "description": "ID of the user who approved the email"
-          },
           "approvedAt": {
             "format": "date-time",
             "type": "string",
             "example": "2024-03-20T10:00:00Z",
             "description": "Timestamp when the email was approved"
           },
-          "rejectedBy": {
-            "type": "number",
-            "example": 1,
-            "description": "ID of the user who rejected the email"
-          },
           "rejectedAt": {
             "format": "date-time",
             "type": "string",
             "example": "2024-03-20T10:00:00Z",
             "description": "Timestamp when the email was rejected"
+          },
+          "approvedBy": {
+            "description": "User who approved the email",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserNameDto"
+              }
+            ]
+          },
+          "rejectedBy": {
+            "description": "User who rejected the email",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserNameDto"
+              }
+            ]
           },
           "attachments": {
             "description": "List of attachments in the email",
@@ -1943,10 +1963,6 @@
       "CreateEmailDto": {
         "type": "object",
         "properties": {
-          "from": {
-            "type": "string",
-            "example": "sender@example.com"
-          },
           "recipients": {
             "type": "string",
             "example": "[{\"address\":\"recipient1@example.com\",\"type\":\"TO\"},{\"address\":\"recipient2@example.com\",\"type\":\"CC\"}]",
@@ -1969,11 +1985,11 @@
             "items": {
               "type": "string",
               "format": "binary"
-            }
+            },
+            "description": "List of uploaded files (populated by controller from request.files)"
           }
         },
         "required": [
-          "from",
           "recipients",
           "subject",
           "content"

@@ -42,7 +42,6 @@ export function CreateEmailForm() {
 
   const defaultValues = useMemo(
     () => ({
-      from: '',
       recipients: [{ address: '', type: 'TO' as const }],
       subject: '',
       content: '',
@@ -89,7 +88,6 @@ export function CreateEmailForm() {
       const formData = new FormData();
 
       // Add email data
-      formData.append('from', data.from);
       formData.append('subject', data.subject);
       formData.append('content', data.content);
 
@@ -195,30 +193,6 @@ export function CreateEmailForm() {
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Sender Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="from"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>From</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                        <Input placeholder="sender@example.com" className="pl-10" {...field} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Recipients</CardTitle>

@@ -598,22 +598,34 @@ export function EmailList() {
                             </Tooltip>
                           </TableCell>
                           <TableCell className="text-center">
-                            <span
-                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                email.status === 'PENDING'
-                                  ? 'bg-[var(--status-pending)] text-[var(--status-pending-foreground)]'
-                                  : email.status === 'APPROVED'
-                                    ? 'bg-[var(--status-approved)] text-[var(--status-approved-foreground)]'
-                                    : email.status === 'REJECTED'
-                                      ? 'bg-[var(--status-rejected)] text-[var(--status-rejected-foreground)]'
-                                      : email.status === 'SENT'
-                                        ? 'bg-[var(--status-sent)] text-[var(--status-sent-foreground)]'
-                                        : 'bg-[var(--status-failed)] text-[var(--status-failed-foreground)]'
-                              }`}
-                              aria-label={`Email status: ${email.status}`}
-                            >
-                              {email.status}
-                            </span>
+                            <div className="flex flex-col items-center gap-1">
+                              <span
+                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                  email.status === 'PENDING'
+                                    ? 'bg-[var(--status-pending)] text-[var(--status-pending-foreground)]'
+                                    : email.status === 'APPROVED'
+                                      ? 'bg-[var(--status-approved)] text-[var(--status-approved-foreground)]'
+                                      : email.status === 'REJECTED'
+                                        ? 'bg-[var(--status-rejected)] text-[var(--status-rejected-foreground)]'
+                                        : email.status === 'SENT'
+                                          ? 'bg-[var(--status-sent)] text-[var(--status-sent-foreground)]'
+                                          : 'bg-[var(--status-failed)] text-[var(--status-failed-foreground)]'
+                                }`}
+                                aria-label={`Email status: ${email.status}`}
+                              >
+                                {email.status}
+                              </span>
+                              {email.approvedBy && (
+                                <span className="text-xs text-muted-foreground">
+                                  {email.signedContent ? 'Signed by' : 'Approved by'}: {email.approvedBy.firstName} {email.approvedBy.lastName}
+                                </span>
+                              )}
+                              {email.rejectedBy && (
+                                <span className="text-xs text-muted-foreground">
+                                  Rejected by: {email.rejectedBy.firstName} {email.rejectedBy.lastName}
+                                </span>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell className="text-center">
                             {email.signedContent ? (

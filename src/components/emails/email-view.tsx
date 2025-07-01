@@ -22,9 +22,15 @@ interface Email {
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SENT' | 'FAILED';
   signedContent?: string;
   rejectionReason?: string;
-  approvedBy?: number;
+  approvedBy?: {
+    firstName: string;
+    lastName: string;
+  };
   approvedAt?: string;
-  rejectedBy?: number;
+  rejectedBy?: {
+    firstName: string;
+    lastName: string;
+  };
   rejectedAt?: string;
   attachments: {
     id: number;
@@ -375,6 +381,42 @@ export function EmailView({ id }: { id: string }) {
               <div>
                 <h3 className="text-sm font-medium mb-2">Rejection Reason</h3>
                 <p className="text-destructive">{email.rejectionReason}</p>
+              </div>
+            )}
+
+            {(email.approvedBy || email.rejectedBy) && (
+              <div>
+                <h3 className="text-sm font-medium mb-2">Action Details</h3>
+                <div className="space-y-2">
+                  {email.approvedBy && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        {email.signedContent ? 'Signed by' : 'Approved by'}:
+                      </span>
+                      <span className="text-sm font-medium">
+                        {email.approvedBy.firstName} {email.approvedBy.lastName}
+                      </span>
+                      {email.approvedAt && (
+                        <span className="text-sm text-muted-foreground">
+                          on {format(new Date(email.approvedAt), 'PPpp')}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {email.rejectedBy && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Rejected by:</span>
+                      <span className="text-sm font-medium">
+                        {email.rejectedBy.firstName} {email.rejectedBy.lastName}
+                      </span>
+                      {email.rejectedAt && (
+                        <span className="text-sm text-muted-foreground">
+                          on {format(new Date(email.rejectedAt), 'PPpp')}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
