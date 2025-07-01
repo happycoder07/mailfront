@@ -99,7 +99,7 @@ export function EmailView({ id }: { id: string }) {
       const response = await fetch(API_ENDPOINTS.MAIL.APPROVE(id), {
         method: 'POST',
         headers: {
-          'X-XSRF-TOKEN': getCSRFToken()
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -200,6 +200,7 @@ export function EmailView({ id }: { id: string }) {
   const handleDownloadAttachment = async (attachment: Email['attachments'][0]) => {
     try {
       const response = await fetch(API_ENDPOINTS.FILE.GET(attachment.minioKey), {
+        method: 'GET',
         headers: {
           'X-XSRF-TOKEN': getCSRFToken(),
         },
@@ -231,6 +232,7 @@ export function EmailView({ id }: { id: string }) {
   const handleViewAttachment = async (attachment: Email['attachments'][0]) => {
     try {
       const response = await fetch(API_ENDPOINTS.FILE.GET(attachment.minioKey), {
+        method: 'GET',
         headers: {
           'X-XSRF-TOKEN': getCSRFToken(),
         },

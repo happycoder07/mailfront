@@ -86,7 +86,7 @@ export function LoginForm() {
       if (result.success) {
         toast({
           title: 'Success',
-          description: result.message || 'You have been logged in successfully.',
+          description: 'You have been logged in successfully.',
           variant: 'default',
           duration: 500,
         });
@@ -126,7 +126,9 @@ export function LoginForm() {
           aria-label="Login form"
           noValidate
         >
-          <h1 id="login-form-title" className="sr-only">Sign in to your account</h1>
+          <h1 id="login-form-title" className="sr-only">
+            Sign in to your account
+          </h1>
 
           <motion.div variants={itemVariants}>
             <FormField
@@ -186,7 +188,9 @@ export function LoginForm() {
                         type="password"
                         className="pl-10"
                         {...field}
-                        aria-describedby={form.formState.errors.password ? `password-error` : undefined}
+                        aria-describedby={
+                          form.formState.errors.password ? `password-error` : undefined
+                        }
                         aria-invalid={!!form.formState.errors.password}
                         autoComplete="current-password"
                         required
@@ -204,12 +208,14 @@ export function LoginForm() {
               type="submit"
               className="w-full bg-primary hover:bg-primary/90"
               disabled={isLoading}
-              aria-describedby={isLoading ? "loading-description" : undefined}
+              aria-describedby={isLoading ? 'loading-description' : undefined}
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                  <span id="loading-description" className="sr-only">Signing in, please wait</span>
+                  <span id="loading-description" className="sr-only">
+                    Signing in, please wait
+                  </span>
                   Signing in...
                 </>
               ) : (
