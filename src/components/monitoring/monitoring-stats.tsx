@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useId } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -86,6 +86,7 @@ export function MonitoringStats() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { hasPermission, getCSRFToken } = useAuth();
+  const autoRefreshId = useId();
 
   // Check if user has permission to view monitoring stats
   const canViewMonitoring =
@@ -285,11 +286,12 @@ export function MonitoringStats() {
 
       <div className="flex items-center space-x-2">
         <Checkbox
-          id="auto-refresh"
+          id={autoRefreshId}
           checked={autoRefresh}
           onCheckedChange={checked => setAutoRefresh(checked as boolean)}
+          aria-label="Auto-refresh monitoring data"
         />
-        <Label htmlFor="auto-refresh">Auto-refresh every 10 seconds</Label>
+        <Label htmlFor={autoRefreshId}>Auto-refresh every 10 seconds</Label>
       </div>
 
       <motion.div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" variants={containerVariants}>

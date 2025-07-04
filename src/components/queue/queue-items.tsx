@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useId } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Table,
@@ -148,6 +148,7 @@ export function QueueItems() {
     totalItems: 0,
     totalPages: 0,
   });
+  const queueTitleId = useId();
 
   // Check if user has permission to manage queue
   const canManageQueue = hasPermission(PERMISSIONS.MANAGE_QUEUE);
@@ -303,9 +304,9 @@ export function QueueItems() {
       initial="hidden"
       animate="visible"
       role="main"
-      aria-labelledby="queue-items-title"
+      aria-labelledby={queueTitleId}
     >
-      <h1 id="queue-items-title" className="sr-only">Email Queue Management</h1>
+      <h1 id={queueTitleId} className="sr-only">Email Queue Management</h1>
 
       <Card>
         <CardHeader>
@@ -383,7 +384,7 @@ function QueueTable({
 }) {
   if (loading) {
     return (
-      <div className="space-y-4" aria-label="Loading queue items">
+      <div className="space-y-4" role="region" aria-label="Loading queue items">
         {[...Array(5)].map((_, i) => (
           <Skeleton key={i} className="h-12 w-full" />
         ))}
@@ -461,6 +462,7 @@ function QueueTable({
                   onClick={() => onProcess(item.id, item.data.emailId)}
                   disabled={item.status === 'completed'}
                   aria-label={`Process queue item ${item.name}`}
+                  title={`Process queue item ${item.name}`}
                 >
                   Process
                 </Button>

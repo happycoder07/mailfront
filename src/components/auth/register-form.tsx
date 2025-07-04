@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -27,11 +27,24 @@ import { registerSchema, RegisterFormData } from '@/lib/validation';
 import { Mail, Lock, User, UserCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
+import { motion } from 'framer-motion';
 
 export function RegisterForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { hasPermission, getCSRFToken } = useAuth();
+  const emailId = useId();
+  const firstNameId = useId();
+  const lastNameId = useId();
+  const passwordId = useId();
+  const confirmPasswordId = useId();
+  const roleId = useId();
+  const emailErrorId = useId();
+  const firstNameErrorId = useId();
+  const lastNameErrorId = useId();
+  const passwordErrorId = useId();
+  const confirmPasswordErrorId = useId();
+  const loadingDescId = useId();
 
   // Check if user has permission to register users
   const canRegisterUsers = hasPermission(PERMISSIONS.REGISTER_USERS);
@@ -126,27 +139,32 @@ export function RegisterForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor="email">Email</FormLabel>
+                <FormLabel htmlFor={emailId}>Email</FormLabel>
                 <FormControl>
-                  <div className="relative">
+                  <motion.div
+                    className="relative"
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <Mail
                       className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"
                       aria-hidden="true"
                     />
                     <Input
-                      id="email"
+                      id={emailId}
                       type="email"
                       placeholder="name@example.com"
                       className="pl-10"
                       {...field}
-                      aria-describedby={form.formState.errors.email ? `email-error` : undefined}
+                      aria-describedby={form.formState.errors.email ? emailErrorId : undefined}
                       aria-invalid={!!form.formState.errors.email}
                       autoComplete="email"
                       required
+                      aria-label="Email address"
                     />
-                  </div>
+                  </motion.div>
                 </FormControl>
-                <FormMessage id="email-error" />
+                <FormMessage id={emailErrorId} />
               </FormItem>
             )}
           />
@@ -156,26 +174,31 @@ export function RegisterForm() {
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="firstName">First Name</FormLabel>
+                  <FormLabel htmlFor={firstNameId}>First Name</FormLabel>
                   <FormControl>
-                    <div className="relative">
+                    <motion.div
+                      className="relative"
+                      whileFocus={{ scale: 1.02 }}
+                      transition={{ duration: 0.2 }}
+                    >
                       <User
                         className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"
                         aria-hidden="true"
                       />
                       <Input
-                        id="firstName"
+                        id={firstNameId}
                         placeholder="John"
                         className="pl-10"
                         {...field}
-                        aria-describedby={form.formState.errors.firstName ? `firstName-error` : undefined}
+                        aria-describedby={form.formState.errors.firstName ? firstNameErrorId : undefined}
                         aria-invalid={!!form.formState.errors.firstName}
                         autoComplete="given-name"
                         required
+                        aria-label="First name"
                       />
-                    </div>
+                    </motion.div>
                   </FormControl>
-                  <FormMessage id="firstName-error" />
+                  <FormMessage id={firstNameErrorId} />
                 </FormItem>
               )}
             />
@@ -184,26 +207,31 @@ export function RegisterForm() {
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="lastName">Last Name</FormLabel>
+                  <FormLabel htmlFor={lastNameId}>Last Name</FormLabel>
                   <FormControl>
-                    <div className="relative">
+                    <motion.div
+                      className="relative"
+                      whileFocus={{ scale: 1.02 }}
+                      transition={{ duration: 0.2 }}
+                    >
                       <User
                         className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"
                         aria-hidden="true"
                       />
                       <Input
-                        id="lastName"
+                        id={lastNameId}
                         placeholder="Doe"
                         className="pl-10"
                         {...field}
-                        aria-describedby={form.formState.errors.lastName ? `lastName-error` : undefined}
+                        aria-describedby={form.formState.errors.lastName ? lastNameErrorId : undefined}
                         aria-invalid={!!form.formState.errors.lastName}
                         autoComplete="family-name"
                         required
+                        aria-label="Last name"
                       />
-                    </div>
+                    </motion.div>
                   </FormControl>
-                  <FormMessage id="lastName-error" />
+                  <FormMessage id={lastNameErrorId} />
                 </FormItem>
               )}
             />
@@ -213,26 +241,31 @@ export function RegisterForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor="password">Password</FormLabel>
+                <FormLabel htmlFor={passwordId}>Password</FormLabel>
                 <FormControl>
-                  <div className="relative">
+                  <motion.div
+                    className="relative"
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <Lock
                       className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"
                       aria-hidden="true"
                     />
                     <Input
-                      id="password"
+                      id={passwordId}
                       type="password"
                       className="pl-10"
                       {...field}
-                      aria-describedby={form.formState.errors.password ? `password-error` : undefined}
+                      aria-describedby={form.formState.errors.password ? passwordErrorId : undefined}
                       aria-invalid={!!form.formState.errors.password}
                       autoComplete="new-password"
                       required
+                      aria-label="Password"
                     />
-                  </div>
+                  </motion.div>
                 </FormControl>
-                <FormMessage id="password-error" />
+                <FormMessage id={passwordErrorId} />
               </FormItem>
             )}
           />
@@ -241,17 +274,13 @@ export function RegisterForm() {
             name="roleId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor="role">Role</FormLabel>
+                <FormLabel htmlFor={roleId}>Role</FormLabel>
                 <Select
                   onValueChange={value => field.onChange(parseInt(value, 10))}
                   defaultValue={field.value.toString()}
                 >
                   <FormControl>
-                    <SelectTrigger id="role" className="pl-10">
-                      <UserCircle
-                        className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"
-                        aria-hidden="true"
-                      />
+                    <SelectTrigger id={roleId} className="pl-10" aria-label="Select user role">
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
                   </FormControl>
@@ -268,16 +297,20 @@ export function RegisterForm() {
             type="submit"
             className="w-full bg-primary hover:bg-primary/90"
             disabled={isLoading}
-            aria-describedby={isLoading ? "loading-description" : undefined}
+            aria-describedby={isLoading ? loadingDescId : undefined}
+            aria-label="Create new user account"
+            title="Create new user account"
           >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                <span id="loading-description" className="sr-only">Creating account, please wait</span>
+                <span id={loadingDescId} className="sr-only">
+                  Creating account, please wait
+                </span>
                 Creating account...
               </>
             ) : (
-              'Create account'
+              'Create Account'
             )}
           </Button>
         </form>

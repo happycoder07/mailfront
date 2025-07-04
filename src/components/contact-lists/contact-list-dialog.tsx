@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,6 +38,8 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
     contactIds: contactList.contacts.map(c => c.id),
   });
   const { hasPermission, getCSRFToken } = useAuth();
+  const nameId = useId();
+  const descriptionId = useId();
 
   const canEdit = hasPermission(PERMISSIONS.UPDATE_CONTACT_LIST);
   const canDelete = hasPermission(PERMISSIONS.DELETE_CONTACT_LIST);
@@ -220,8 +222,10 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                   size="sm"
                   onClick={() => setIsEditing(true)}
                   className="hover:bg-list-primary/10 hover:border-list-primary/30 hover:text-list-primary transition-colors"
+                  aria-label="Edit contact list"
+                  title="Edit contact list"
                 >
-                  <Pencil className="h-4 w-4 mr-2" />
+                  <Pencil className="h-4 w-4 mr-2" aria-hidden="true" />
                   Edit
                 </Button>
               )}
@@ -239,8 +243,10 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                       });
                     }}
                     className="hover:bg-accent"
+                    aria-label="Cancel editing"
+                    title="Cancel editing"
                   >
-                    <X className="h-4 w-4 mr-2" />
+                    <X className="h-4 w-4 mr-2" aria-hidden="true" />
                     Cancel
                   </Button>
                   <Button
@@ -248,15 +254,35 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                     onClick={handleSave}
                     disabled={isSaving}
                     className="bg-list-primary hover:bg-list-primary/90 text-list-primary-foreground"
+                    aria-label="Save contact list changes"
+                    title="Save contact list changes"
                   >
                     {isSaving ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
+                        Saving...
+                      </>
                     ) : (
-                      <Save className="h-4 w-4 mr-2" />
+                      <>
+                        <Save className="h-4 w-4 mr-2" aria-hidden="true" />
+                        Save
+                      </>
                     )}
-                    Save
                   </Button>
                 </>
+              )}
+              {!isEditing && canDelete && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDelete}
+                  className="hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive transition-colors"
+                  aria-label="Delete contact list"
+                  title="Delete contact list"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
+                  Delete
+                </Button>
               )}
             </div>
           </div>
@@ -289,22 +315,14 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-3">
-                        <Label htmlFor="name" className="text-sm font-medium text-foreground">
-                          Name
-                        </Label>
-                        {isEditing ? (
-                          <Input
-                            id="name"
-                            value={formData.name || ''}
-                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            className="border-input focus:border-list-primary focus:ring-list-primary/20"
-                            placeholder="Enter contact list name..."
-                          />
-                        ) : (
-                          <div className="p-3 bg-muted/50 rounded-lg border border-border/50">
-                            <span className="text-foreground font-medium">{contactList.name}</span>
-                          </div>
-                        )}
+                        <Label htmlFor={nameId}>Name</Label>
+                        <Input
+                          id={nameId}
+                          value={formData.name}
+                          onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                          placeholder="Enter contact list name"
+                          aria-label="Contact list name"
+                        />
                       </div>
 
                       <div className="space-y-3">
@@ -322,25 +340,18 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                       </div>
                     </div>
 
-                    <div className="space-y-3">
-                      <Label htmlFor="description" className="text-sm font-medium text-foreground">
-                        Description
-                      </Label>
-                      {isEditing ? (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor={descriptionId}>Description</Label>
                         <Textarea
-                          id="description"
-                          value={formData.description || ''}
-                          onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                          placeholder="Enter description..."
-                          className="border-input focus:border-list-primary focus:ring-list-primary/20 min-h-[100px]"
+                          id={descriptionId}
+                          value={formData.description}
+                          onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                          placeholder="Enter contact list description"
+                          className="min-h-[100px]"
+                          aria-label="Contact list description"
                         />
-                      ) : (
-                        <div className="p-3 bg-muted/50 rounded-lg border border-border/50 min-h-[100px]">
-                          <span className="text-foreground">
-                            {contactList.description || 'No description provided'}
-                          </span>
-                        </div>
-                      )}
+                      </div>
                     </div>
 
                     <Separator className="my-6" />
@@ -486,20 +497,6 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
             </TabsContent>
           </Tabs>
         </div>
-
-        {canDelete && (
-          <div className="flex justify-end p-6 border-t bg-gradient-to-r from-muted/30 to-muted/50">
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleDelete}
-              className="hover:bg-destructive/90"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete Contact List
-            </Button>
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   );

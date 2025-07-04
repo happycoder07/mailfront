@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,7 @@ export function ContactsList() {
     totalPages: 0,
   });
   const { hasPermission, getCSRFToken } = useAuth();
+  const searchId = useId();
 
   const canUpdate = hasPermission(PERMISSIONS.UPDATE_CONTACT);
   const canDelete = hasPermission(PERMISSIONS.DELETE_CONTACT);
@@ -183,6 +184,7 @@ export function ContactsList() {
         <CardContent>
           <div className="mb-4 flex gap-2">
             <Input
+              id={searchId}
               placeholder="Search by name..."
               value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
@@ -190,12 +192,12 @@ export function ContactsList() {
               className="max-w-xs"
               aria-label="Search contacts by name"
             />
-            <Button onClick={handleSearch} size="sm">
+            <Button onClick={handleSearch} size="sm" aria-label="Search contacts" title="Search contacts">
               <Search className="h-4 w-4 mr-2" aria-hidden="true" />
               Search
             </Button>
             {searchQuery && (
-              <Button onClick={handleClearSearch} variant="outline" size="sm" aria-label="Clear search">
+              <Button onClick={handleClearSearch} variant="outline" size="sm" aria-label="Clear search" title="Clear search">
                 Clear
               </Button>
             )}
@@ -237,8 +239,9 @@ export function ContactsList() {
                             variant="ghost"
                             onClick={() => handleView(contact)}
                             title="View contact"
+                            aria-label={`View contact ${contact.name}`}
                           >
-                            <Eye className="h-4 w-4" />
+                            <Eye className="h-4 w-4" aria-hidden="true" />
                           </Button>
                           {canUpdate && (
                             <Button
@@ -246,8 +249,9 @@ export function ContactsList() {
                               variant="ghost"
                               onClick={() => handleEdit(contact)}
                               title="Edit contact"
+                              aria-label={`Edit contact ${contact.name}`}
                             >
-                              <Pencil className="h-4 w-4" />
+                              <Pencil className="h-4 w-4" aria-hidden="true" />
                             </Button>
                           )}
                           {canDelete && (
@@ -256,9 +260,9 @@ export function ContactsList() {
                               variant="ghost"
                               onClick={() => handleDelete(contact)}
                               title="Delete contact"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              aria-label={`Delete contact ${contact.name}`}
                             >
-                              <Trash className="h-4 w-4" />
+                              <Trash className="h-4 w-4" aria-hidden="true" />
                             </Button>
                           )}
                         </div>

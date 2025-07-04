@@ -15,6 +15,11 @@ import {
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <DropdownMenu modal={false}>
@@ -34,7 +39,13 @@ export function ThemeToggle() {
             aria-hidden="true"
           />
           <span id="theme-description" className="sr-only">
-            {theme === 'dark' ? 'Switch to light mode' : theme === 'light' ? 'Switch to dark mode' : 'Switch theme'}
+            {mounted
+              ? theme === 'dark'
+                ? 'Switch to light mode'
+                : theme === 'light'
+                ? 'Switch to dark mode'
+                : 'Switch theme'
+              : 'Switch theme'}
           </span>
         </Button>
       </DropdownMenuTrigger>

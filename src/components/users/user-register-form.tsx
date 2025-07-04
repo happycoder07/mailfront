@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -52,6 +52,12 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
   const { hasPermission, getCSRFToken } = useAuth();
+  const firstNameId = useId();
+  const lastNameId = useId();
+  const emailId = useId();
+  const passwordId = useId();
+  const confirmPasswordId = useId();
+  const roleId = useId();
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -161,9 +167,9 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
             name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First Name</FormLabel>
+                <FormLabel htmlFor={firstNameId}>First Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="John" {...field} />
+                  <Input id={firstNameId} placeholder="John" {...field} aria-label="First name" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -174,9 +180,9 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
             name="lastName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Last Name</FormLabel>
+                <FormLabel htmlFor={lastNameId}>Last Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Doe" {...field} />
+                  <Input id={lastNameId} placeholder="Doe" {...field} aria-label="Last name" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -189,9 +195,9 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel htmlFor={emailId}>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="john@example.com" {...field} />
+                <Input id={emailId} type="email" placeholder="john@example.com" {...field} aria-label="Email address" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -203,9 +209,9 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel htmlFor={passwordId}>Password</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <Input id={passwordId} type="password" {...field} aria-label="Password" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -217,9 +223,9 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
+              <FormLabel htmlFor={confirmPasswordId}>Confirm Password</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <Input id={confirmPasswordId} type="password" {...field} aria-label="Confirm password" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -231,13 +237,13 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
           name="roleId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Role</FormLabel>
+              <FormLabel htmlFor={roleId}>Role</FormLabel>
               <Select
                 onValueChange={value => field.onChange(Number(value))}
                 defaultValue={field.value.toString()}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger id={roleId} aria-label="Select user role">
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                 </FormControl>
@@ -254,7 +260,7 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button type="submit" disabled={loading} className="w-full" aria-label="Register new user" title="Register new user">
           {loading ? 'Registering...' : 'Register User'}
         </Button>
       </form>

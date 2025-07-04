@@ -15,6 +15,7 @@ interface AuthContextType {
   ) => Promise<{ success: boolean; user?: any; message?: string }>;
   logout: () => Promise<void>;
   getCSRFToken: () => string;
+  mounted: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,6 +24,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<Role | null>(null);
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [csrfToken, setCsrfToken] = useState<string>('');
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch by waiting for client mount
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const getCSRFToken = useCallback((): string => {
     return csrfToken;
@@ -99,6 +106,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const hasPermission = (permission: Permission): boolean => {
+    // Return false during SSR to prevent hydration mismatch
+    if (!mounted) {
+      return false;
+    }
+
     if (!permission || role === ROLES.ADMIN) {
       return true;
     }
@@ -115,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         getCSRFToken,
+        mounted,
       }}
     >
       {children}

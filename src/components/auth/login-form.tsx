@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -68,6 +68,11 @@ export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const emailId = useId();
+  const passwordId = useId();
+  const emailErrorId = useId();
+  const passwordErrorId = useId();
+  const loadingDescId = useId();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -136,7 +141,7 @@ export function LoginForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="email">Email</FormLabel>
+                  <FormLabel htmlFor={emailId}>Email</FormLabel>
                   <FormControl>
                     <motion.div
                       className="relative"
@@ -148,19 +153,20 @@ export function LoginForm() {
                         aria-hidden="true"
                       />
                       <Input
-                        id="email"
+                        id={emailId}
                         type="email"
                         placeholder="name@example.com"
                         className="pl-10"
                         {...field}
-                        aria-describedby={form.formState.errors.email ? `email-error` : undefined}
+                        aria-describedby={form.formState.errors.email ? emailErrorId : undefined}
                         aria-invalid={!!form.formState.errors.email}
                         autoComplete="email"
                         required
+                        aria-label="Email address"
                       />
                     </motion.div>
                   </FormControl>
-                  <FormMessage id="email-error" />
+                  <FormMessage id={emailErrorId} />
                 </FormItem>
               )}
             />
@@ -172,7 +178,7 @@ export function LoginForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="password">Password</FormLabel>
+                  <FormLabel htmlFor={passwordId}>Password</FormLabel>
                   <FormControl>
                     <motion.div
                       className="relative"
@@ -184,20 +190,19 @@ export function LoginForm() {
                         aria-hidden="true"
                       />
                       <Input
-                        id="password"
+                        id={passwordId}
                         type="password"
                         className="pl-10"
                         {...field}
-                        aria-describedby={
-                          form.formState.errors.password ? `password-error` : undefined
-                        }
+                        aria-describedby={form.formState.errors.password ? passwordErrorId : undefined}
                         aria-invalid={!!form.formState.errors.password}
                         autoComplete="current-password"
                         required
+                        aria-label="Password"
                       />
                     </motion.div>
                   </FormControl>
-                  <FormMessage id="password-error" />
+                  <FormMessage id={passwordErrorId} />
                 </FormItem>
               )}
             />
@@ -208,12 +213,14 @@ export function LoginForm() {
               type="submit"
               className="w-full bg-primary hover:bg-primary/90"
               disabled={isLoading}
-              aria-describedby={isLoading ? 'loading-description' : undefined}
+              aria-describedby={isLoading ? loadingDescId : undefined}
+              aria-label="Sign in to your account"
+              title="Sign in to your account"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                  <span id="loading-description" className="sr-only">
+                  <span id={loadingDescId} className="sr-only">
                     Signing in, please wait
                   </span>
                   Signing in...

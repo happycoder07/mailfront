@@ -451,7 +451,13 @@ export function EmailList() {
                 />
                 <Label htmlFor="auto-refresh">Auto-refresh</Label>
               </div>
-              <Button variant="ghost" size="icon" onClick={fetchEmails} disabled={loading}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={fetchEmails}
+                disabled={loading}
+                aria-label="Refresh email list"
+              >
                 <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               </Button>
             </div>

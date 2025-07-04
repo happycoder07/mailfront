@@ -9,7 +9,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/s
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Separator } from '@/components/ui/separator';
 import { Mail, Inbox, Activity, User, LogOut, Menu, AlertCircle, HelpCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useId, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -75,6 +75,13 @@ export function MainNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { hasPermission, logout } = useAuth();
+  const mobileMenuId = useId();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch by waiting for client mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Define navigation items with their required permissions
   const navItems = [
@@ -176,9 +183,9 @@ export function MainNav() {
               <TooltipTrigger asChild>
                 <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
                   <Button
-                    variant="ghost"
+                    variant="outline"
+                    className="hover:bg-primary-foreground/20"
                     size="icon"
-                    className="text-primary-foreground hover:bg-primary-foreground/20"
                     onClick={handleLogout}
                     aria-label="Logout from the application"
                   >
@@ -188,6 +195,43 @@ export function MainNav() {
               </TooltipTrigger>
               <TooltipContent>Logout</TooltipContent>
             </Tooltip>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  // Show loading state during hydration to prevent mismatch
+  if (!mounted) {
+    return (
+      <header className="border-b bg-nav-background text-card-foreground" role="banner">
+        <div className="flex h-16 items-center px-4">
+          <motion.div
+            className="flex items-center space-x-2 font-bold text-xl"
+            variants={logoVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <Mail className="h-6 w-6" aria-hidden="true" />
+            <span>NCCC Mail Manager</span>
+          </motion.div>
+          <div className="ml-auto flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-3">
+              {/* Placeholder navigation items during hydration */}
+              {navItems.slice(0, 3).map((item, index) => (
+                <div
+                  key={item.href}
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-secondary-foreground"
+                >
+                  <div className="h-4 w-4 mr-2 bg-muted rounded" />
+                  {item.title}
+                </div>
+              ))}
+            </div>
+            <div className="h-8 w-8 bg-muted rounded" />
+            <div className="h-8 w-8 bg-muted rounded" />
+            <div className="h-8 w-8 bg-muted rounded" />
+            <div className="h-8 w-8 bg-muted rounded md:hidden" />
           </div>
         </div>
       </header>
@@ -238,6 +282,7 @@ export function MainNav() {
                         )}
                         aria-current={isActive ? 'page' : undefined}
                         aria-describedby={`nav-${item.href.replace('/', '')}-description`}
+                        aria-label={`Navigate to ${item.title}`}
                       >
                         <Icon className="h-4 w-4 mr-2" aria-hidden="true" />
                         {item.title}
@@ -269,9 +314,10 @@ export function MainNav() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground"
+                  className="text-foreground hover:bg-muted"
                   onClick={handleLogout}
                   aria-label="Logout from the application"
+                  title="Logout from the application"
                 >
                   <LogOut className="h-5 w-5" aria-hidden="true" />
                 </Button>
@@ -281,16 +327,15 @@ export function MainNav() {
           </Tooltip>
           <Sheet>
             <SheetTrigger asChild>
-              <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="md:hidden text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground"
-                  aria-label="Open mobile navigation menu"
-                >
-                  <Menu className="h-5 w-5" aria-hidden="true" />
-                </Button>
-              </motion.div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                aria-label="Open mobile navigation menu"
+                title="Open mobile navigation menu"
+              >
+                <Menu className="h-5 w-5" aria-hidden="true" />
+              </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-card text-card-foreground">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
@@ -339,6 +384,7 @@ export function MainNav() {
                               : 'text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground'
                           )}
                           aria-current={isActive ? 'page' : undefined}
+                          aria-label={`Navigate to ${item.title}`}
                         >
                           <Icon className="h-4 w-4 mr-2" aria-hidden="true" />
                           {item.title}
@@ -358,9 +404,11 @@ export function MainNav() {
                 >
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground"
+                    size="sm"
                     onClick={handleLogout}
+                    className="w-full justify-start"
                     aria-label="Logout from the application"
+                    title="Logout from the application"
                   >
                     <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
                     Logout

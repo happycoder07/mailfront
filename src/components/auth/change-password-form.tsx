@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -18,10 +18,16 @@ import { API_ENDPOINTS } from '@/lib/config';
 import { changePasswordSchema, ChangePasswordFormData } from '@/lib/validation';
 import { Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { motion } from 'framer-motion';
 
 export function ChangePasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { getCSRFToken } = useAuth();
+  const currentPasswordId = useId();
+  const newPasswordId = useId();
+  const currentPasswordErrorId = useId();
+  const newPasswordErrorId = useId();
+  const loadingDescId = useId();
 
   const form = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordSchema),
@@ -83,26 +89,31 @@ export function ChangePasswordForm() {
             name="currentPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor="currentPassword">Current Password</FormLabel>
+                <FormLabel htmlFor={currentPasswordId}>Current Password</FormLabel>
                 <FormControl>
-                  <div className="relative">
+                  <motion.div
+                    className="relative"
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <Lock
                       className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"
                       aria-hidden="true"
                     />
                     <Input
-                      id="currentPassword"
+                      id={currentPasswordId}
                       type="password"
                       className="pl-10"
-                      autoComplete="current-password"
                       {...field}
-                      aria-describedby={form.formState.errors.currentPassword ? `currentPassword-error` : undefined}
+                      aria-describedby={form.formState.errors.currentPassword ? currentPasswordErrorId : undefined}
                       aria-invalid={!!form.formState.errors.currentPassword}
+                      autoComplete="current-password"
                       required
+                      aria-label="Current password"
                     />
-                  </div>
+                  </motion.div>
                 </FormControl>
-                <FormMessage id="currentPassword-error" />
+                <FormMessage id={currentPasswordErrorId} />
               </FormItem>
             )}
           />
@@ -111,39 +122,48 @@ export function ChangePasswordForm() {
             name="newPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor="newPassword">New Password</FormLabel>
+                <FormLabel htmlFor={newPasswordId}>New Password</FormLabel>
                 <FormControl>
-                  <div className="relative">
+                  <motion.div
+                    className="relative"
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <Lock
                       className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"
                       aria-hidden="true"
                     />
                     <Input
-                      id="newPassword"
+                      id={newPasswordId}
                       type="password"
                       className="pl-10"
-                      autoComplete="new-password"
                       {...field}
-                      aria-describedby={form.formState.errors.newPassword ? `newPassword-error` : undefined}
+                      aria-describedby={form.formState.errors.newPassword ? newPasswordErrorId : undefined}
                       aria-invalid={!!form.formState.errors.newPassword}
+                      autoComplete="new-password"
                       required
+                      aria-label="New password"
                     />
-                  </div>
+                  </motion.div>
                 </FormControl>
-                <FormMessage id="newPassword-error" />
+                <FormMessage id={newPasswordErrorId} />
               </FormItem>
             )}
           />
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+            className="w-full bg-primary hover:bg-primary/90"
             disabled={isLoading}
-            aria-describedby={isLoading ? "loading-description" : undefined}
+            aria-describedby={isLoading ? loadingDescId : undefined}
+            aria-label="Change your password"
+            title="Change your password"
           >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                <span id="loading-description" className="sr-only">Changing password, please wait</span>
+                <span id={loadingDescId} className="sr-only">
+                  Changing password, please wait
+                </span>
                 Changing password...
               </>
             ) : (
