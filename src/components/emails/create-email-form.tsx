@@ -93,6 +93,9 @@ export function CreateEmailForm() {
   const [modalSearch, setModalSearch] = useState('');
   const [modalType, setModalType] = useState<'contact' | 'contactList'>('contact');
   const [isSearching, setIsSearching] = useState(false);
+  const [allContacts, setAllContacts] = useState<Contact[]>([]);
+  const [allContactLists, setAllContactLists] = useState<ContactList[]>([]);
+  const searchTimeoutRef = useRef<number | undefined>(undefined);
 
   // Check if user has permission to send emails
   const canSendEmail = hasPermission(PERMISSIONS.SEND_EMAIL);
@@ -123,14 +126,14 @@ export function CreateEmailForm() {
   const CONTACTS_KEY = 'mailfront_contacts_cache';
   const CONTACT_LISTS_KEY = 'mailfront_contactlists_cache';
 
-  const saveToLocalStorage = (key: string, data: any) => {
+  const saveToSessionStorage = (key: string, data: any) => {
     try {
-      localStorage.setItem(key, JSON.stringify(data));
+      sessionStorage.setItem(key, JSON.stringify(data));
     } catch {}
   };
-  const loadFromLocalStorage = (key: string) => {
+  const loadFromSessionStorage = (key: string) => {
     try {
-      const raw = localStorage.getItem(key);
+      const raw = sessionStorage.getItem(key);
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
@@ -139,24 +142,43 @@ export function CreateEmailForm() {
 
   // Load contacts and contact lists on mount (from cache or API)
   useEffect(() => {
-    const cachedContacts = loadFromLocalStorage(CONTACTS_KEY);
-    if (cachedContacts) setContacts(cachedContacts);
-    else loadContacts();
-    const cachedLists = loadFromLocalStorage(CONTACT_LISTS_KEY);
-    if (cachedLists) setContactLists(cachedLists);
-    else loadContactLists();
+    const cachedContacts = loadFromSessionStorage(CONTACTS_KEY);
+    if (cachedContacts) {
+      setContacts(cachedContacts);
+      setAllContacts(cachedContacts);
+    } else {
+      loadContacts();
+    }
+    const cachedLists = loadFromSessionStorage(CONTACT_LISTS_KEY);
+    if (cachedLists) {
+      setContactLists(cachedLists);
+      setAllContactLists(cachedLists);
+    } else {
+      loadContactLists();
+    }
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
   }, []);
 
   const loadContacts = async () => {
     try {
-      const response = await fetch(API_ENDPOINTS.CONTACTS.LIST, {
+      const response = await fetch(API_ENDPOINTS.MAIL.CONTACTS, {
         headers: { 'X-XSRF-TOKEN': getCSRFToken() },
         credentials: 'include',
       });
       if (response.ok) {
         const data = await response.json();
-        setContacts(data.items || []);
-        saveToLocalStorage(CONTACTS_KEY, data.items || []);
+        const contactsData = data.items || data || [];
+        setContacts(contactsData);
+        setAllContacts(contactsData);
+        saveToSessionStorage(CONTACTS_KEY, contactsData);
       }
     } catch (error) {
       console.error('Error loading contacts:', error);
@@ -164,14 +186,16 @@ export function CreateEmailForm() {
   };
   const loadContactLists = async () => {
     try {
-      const response = await fetch(API_ENDPOINTS.CONTACT_LISTS.LIST, {
+      const response = await fetch(API_ENDPOINTS.MAIL.CONTACT_LISTS, {
         headers: { 'X-XSRF-TOKEN': getCSRFToken() },
         credentials: 'include',
       });
       if (response.ok) {
         const data = await response.json();
-        setContactLists(data.items || []);
-        saveToLocalStorage(CONTACT_LISTS_KEY, data.items || []);
+        const contactListsData = data.items || data || [];
+        setContactLists(contactListsData);
+        setAllContactLists(contactListsData);
+        saveToSessionStorage(CONTACT_LISTS_KEY, contactListsData);
       }
     } catch (error) {
       console.error('Error loading contact lists:', error);
@@ -325,11 +349,11 @@ export function CreateEmailForm() {
               }]
             );
           }
-          // Keep progress visible for 2 seconds then remove
-          setTimeout(() => setUploadProgress(prev => {
+          // Remove from progress immediately for instant UI update
+          setUploadProgress(prev => {
             const { [sessionId]: _, ...rest } = prev;
             return rest;
-          }), 2000);
+          });
         } else if (progress.status === 'error') {
           clearInterval(pollInterval);
           toast({
@@ -385,7 +409,7 @@ export function CreateEmailForm() {
         throw new Error(errorData.message || 'Failed to delete attachment');
       }
       setUploadedAttachments(prev => prev.filter(att => att.id !== id));
-      toast({ title: 'Attachment Deleted', description: 'Draft attachment deleted successfully.' });
+      toast({ title: 'Attachment Deleted', description: 'Draft attachment deleted successfully.',duration:1000 });
     } catch (error) {
       toast({ title: 'Delete Error', description: error instanceof Error ? error.message : 'Failed to delete attachment', variant: 'destructive' });
     }
@@ -416,36 +440,54 @@ export function CreateEmailForm() {
     );
   }, [modalSearch, contactLists]);
 
-  // Search API functionality
+  // Search API functionality - now using client-side filtering
   const searchItems = async (searchTerm: string) => {
     if (!searchTerm.trim()) return;
 
     setIsSearching(true);
     try {
       if (modalType === 'contact') {
-        const response = await fetch(`${API_ENDPOINTS.MAIL.CONTACTS}?search=${encodeURIComponent(searchTerm)}`, {
-          headers: { 'X-XSRF-TOKEN': getCSRFToken() },
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setContacts(data.items || data || []);
-        }
+        // Use client-side filtering instead of API call
+        const filtered = allContacts.filter(c =>
+          c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          c.eid.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setContacts(filtered);
       } else {
-        const response = await fetch(`${API_ENDPOINTS.MAIL.CONTACT_LISTS}?search=${encodeURIComponent(searchTerm)}`, {
-          headers: { 'X-XSRF-TOKEN': getCSRFToken() },
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setContactLists(data.items || data || []);
-        }
+        // Use client-side filtering instead of API call
+        const filtered = allContactLists.filter(cl =>
+          cl.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (cl.description || '').toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setContactLists(filtered);
       }
     } catch (error) {
-      console.error('Error searching items:', error);
+      console.error('Error filtering items:', error);
     } finally {
       setIsSearching(false);
     }
+  };
+
+  // Debounced search function
+  const debouncedSearch = (searchTerm: string) => {
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced search
+    searchTimeoutRef.current = window.setTimeout(() => {
+      if (searchTerm.length >= 1) {
+        searchItems(searchTerm);
+      } else if (searchTerm.length === 0) {
+        // Reset to all data when search is cleared
+        if (modalType === 'contact') {
+          setContacts(allContacts);
+        } else {
+          setContactLists(allContactLists);
+        }
+      }
+    }, 200); // Reduced debounce delay since we're not making API calls
   };
 
   // Modal handlers
@@ -463,9 +505,7 @@ export function CreateEmailForm() {
 
   const handleModalSearch = (searchTerm: string) => {
     setModalSearch(searchTerm);
-    if (searchTerm.length >= 2) {
-      searchItems(searchTerm);
-    }
+    debouncedSearch(searchTerm);
   };
 
   const addContactRecipient = (contact: Contact, type: 'TO' | 'CC' | 'BCC') => {
@@ -591,6 +631,7 @@ export function CreateEmailForm() {
                   variant="outline"
                   size="sm"
                   onClick={openContactModal}
+                  className="bg-primary/50 hover:bg-primary"
                 >
                   <Users className="mr-2 h-4 w-4" />
                   Add Contact
@@ -600,6 +641,7 @@ export function CreateEmailForm() {
                   variant="outline"
                   size="sm"
                   onClick={openContactListModal}
+                  className="bg-primary/50 hover:bg-primary"
                 >
                   <List className="mr-2 h-4 w-4" />
                   Add Contact List
@@ -609,6 +651,7 @@ export function CreateEmailForm() {
                   variant="outline"
                   size="sm"
                   onClick={() => append({ address: '', type: 'TO' })}
+                  className="bg-primary/50 hover:bg-primary"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Email
@@ -619,23 +662,11 @@ export function CreateEmailForm() {
               {/* Direct Email Recipients */}
               {fields.map((field, index) => (
                 <div key={field.id} className="flex items-end space-x-2">
-                  <FormField
-                    control={form.control}
-                    name={`recipients.${index}.address`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <Input placeholder="recipient@example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
+                   <FormField
                     control={form.control}
                     name={`recipients.${index}.type`}
                     render={({ field }) => (
-                      <FormItem className="w-[120px]">
+                      <FormItem>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -652,13 +683,26 @@ export function CreateEmailForm() {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name={`recipients.${index}.address`}
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Input placeholder="recipient@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
                     onClick={() => remove(index)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
               ))}
@@ -713,7 +757,7 @@ export function CreateEmailForm() {
 
           {/* Contact Selection Modal */}
           <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
-            <DialogContent className="max-w-2xl max-h-[80vh]">
+            <DialogContent className="max-w-2xl max-h-[85vh] bg-card border border-primary/30 shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
@@ -736,8 +780,15 @@ export function CreateEmailForm() {
                   )}
                 </div>
 
+                {/* Status indicator */}
+                {modalSearch && !isSearching && (
+                  <div className="text-xs text-muted-foreground">
+                    {filteredModalContacts.length} found
+                  </div>
+                )}
+
                 {/* Results */}
-                <ScrollArea className="h-[400px]">
+                <ScrollArea className="h-[450px] max-h-[60vh]">
                   {filteredModalContacts.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       {modalSearch ? 'No contacts found' : 'Start typing to search contacts'}
@@ -790,7 +841,7 @@ export function CreateEmailForm() {
 
           {/* Contact List Selection Modal */}
           <Dialog open={isContactListModalOpen} onOpenChange={setIsContactListModalOpen}>
-            <DialogContent className="max-w-2xl max-h-[80vh]">
+            <DialogContent className="max-w-2xl max-h-[85vh] bg-card border border-primary/30 shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <List className="h-5 w-5" />
@@ -813,8 +864,15 @@ export function CreateEmailForm() {
                   )}
                 </div>
 
+                {/* Status indicator */}
+                {modalSearch && !isSearching && (
+                  <div className="text-xs text-muted-foreground">
+                    {filteredModalContactLists.length} found
+                  </div>
+                )}
+
                 {/* Results */}
-                <ScrollArea className="h-[400px]">
+                <ScrollArea className="h-[450px] max-h-[60vh]">
                   {filteredModalContactLists.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       {modalSearch ? 'No contact lists found' : 'Start typing to search contact lists'}
@@ -893,11 +951,18 @@ export function CreateEmailForm() {
                   <FormItem>
                     <FormLabel>Content</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Email content"
-                        className="min-h-[200px]"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <ScrollArea className="h-[300px] border rounded-md">
+                          <Textarea
+                            placeholder="Email content"
+                            className="min-h-[400px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                            {...field}
+                          />
+                        </ScrollArea>
+                        <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
+                          {field.value?.length || 0} characters
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -911,11 +976,18 @@ export function CreateEmailForm() {
                   <FormItem>
                     <FormLabel>HTML Content (Optional)</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="HTML content"
-                        className="min-h-[200px]"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <ScrollArea className="h-[100px] border rounded-md">
+                          <Textarea
+                            placeholder="HTML content"
+                            className="min-h-[400px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                            {...field}
+                          />
+                        </ScrollArea>
+                        <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
+                          {field.value?.length || 0} characters
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -949,65 +1021,61 @@ export function CreateEmailForm() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Upload Progress */}
-              {Object.entries(uploadProgress).map(([sessionId, progress]) => (
-                <div key={sessionId} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{progress.filename}</span>
-                    <span className="text-sm text-muted-foreground">{progress.progress}%</span>
-                  </div>
-                  <Progress value={progress.progress} className="w-full" />
-                  <p className="text-xs text-muted-foreground">{progress.message}</p>
-                </div>
-              ))}
-
-              {/* Pending Attachments */}
-              {attachments.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Pending Upload</h4>
-                  {attachments.map((file, index) => (
-                    <div
-                      key={file.name + index}
-                      className="flex items-center justify-between p-2 border rounded-md bg-muted/50"
-                    >
-                      <span className="text-sm font-medium">{file.name}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeAttachment(index)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+              {Object.entries(uploadProgress)
+                .filter(([sessionId, progress]) => !uploadedAttachments.some(att => att.filename === progress.filename))
+                .map(([sessionId, progress]) => (
+                  <div key={sessionId} className="flex items-center justify-between p-2 border rounded-md bg-muted/50 mb-2">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{progress.filename}</span>
+                        <span className="text-xs text-muted-foreground">{progress.progress}%</span>
+                      </div>
+                      <Progress value={progress.progress} className="w-full mt-2" />
+                      <p className="text-xs text-muted-foreground mt-1">{progress.message}</p>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        // Cancel upload if possible
+                        if (uploadAbortControllers.current[sessionId]) {
+                          uploadAbortControllers.current[sessionId].abort();
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
 
               {/* Uploaded Attachments */}
               {uploadedAttachments.length > 0 && (
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">Uploaded</h4>
-                  {uploadedAttachments.map((attachment) => (
-                    <div
-                      key={attachment.id}
-                      className="flex items-center justify-between p-2 border rounded-md bg-green-50"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">{attachment.filename}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {(attachment.size / 1024 / 1024).toFixed(2)} MB
-                        </Badge>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeUploadedAttachment(attachment.id)}
+                  {uploadedAttachments
+                    .filter(att => !Object.values(uploadProgress).some(progress => progress.filename === att.filename))
+                    .map((attachment) => (
+                      <div
+                        key={attachment.id}
+                        className="flex items-center justify-between p-2 border rounded-md bg-green-50 dark:bg-green-500 dark:text-white"
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-medium">{attachment.filename}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {(attachment.size / 1024 / 1024).toFixed(2)} MB
+                          </Badge>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeUploadedAttachment(attachment.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
                 </div>
               )}
 
