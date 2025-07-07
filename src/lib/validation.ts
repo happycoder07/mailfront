@@ -71,9 +71,15 @@ export const attachmentSchema = z.object({
 });
 
 export const createEmailSchema = z.object({
-  recipients: z.array(recipientSchema).min(1, {
-    message: 'At least one recipient is required.',
-  }),
+  recipients: z.array(recipientSchema).optional(),
+  contactRecipients: z.array(z.object({
+    contactId: z.number(),
+    type: z.enum(['TO', 'CC', 'BCC']),
+  })).optional(),
+  contactListRecipients: z.array(z.object({
+    contactListId: z.number(),
+    type: z.enum(['TO', 'CC', 'BCC']),
+  })).optional(),
   subject: z.string().min(1, {
     message: 'Subject is required.',
   }),
@@ -82,6 +88,16 @@ export const createEmailSchema = z.object({
   }),
   html: z.string().optional(),
   attachments: z.array(z.instanceof(File)).optional(),
+}).refine((data) => {
+  // At least one type of recipient is required
+  const hasDirectRecipients = data.recipients && data.recipients.length > 0;
+  const hasContactRecipients = data.contactRecipients && data.contactRecipients.length > 0;
+  const hasContactListRecipients = data.contactListRecipients && data.contactListRecipients.length > 0;
+
+  return hasDirectRecipients || hasContactRecipients || hasContactListRecipients;
+}, {
+  message: 'At least one recipient is required (direct email, contact, or contact list).',
+  path: ['recipients'], // This will show the error on the recipients field
 });
 
 export const rejectEmailSchema = z.object({

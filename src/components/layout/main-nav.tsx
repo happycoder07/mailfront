@@ -303,7 +303,7 @@ export function MainNav() {
           <Tooltip>
             <TooltipTrigger asChild>
               <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                <KeyboardShortcutsHelp />
+                <KeyboardShortcutsHelp  />
               </motion.div>
             </TooltipTrigger>
             <TooltipContent>Keyboard Shortcuts (Alt + K)</TooltipContent>

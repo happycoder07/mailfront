@@ -15,36 +15,328 @@
         ]
       }
     },
+    "/api/mail/attachments": {
+      "post": {
+        "description": "Uploads a file as a draft attachment and returns a UUID that can be used when creating emails.\n\n**File Limits:**\n- Maximum file size: 50MB per file\n- Maximum total size: 100MB per email\n- Maximum files per request: 10\n\n**Supported File Types:**\n- PDF documents (application/pdf)\n- Images: JPEG, PNG (image/jpeg, image/png)\n- Documents: DOC, DOCX (application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document)\n- Text files (text/plain)\n- Binary files (application/octet-stream)\n\n**Usage:**\n1. Upload file using this endpoint\n2. Receive UUID in response\n3. Use UUID in attachmentIds array when creating emails\n\n**Progress Tracking:**\n- Add ?track-progress=true query parameter to enable progress tracking\n- Use the returned sessionId to monitor progress via /upload-progress/{sessionId}\n\n**Security:**\n- Requires authentication (JWT cookie)\n- Requires CSRF token (X-XSRF-TOKEN header)\n- Requires SEND_EMAIL permission",
+        "operationId": "MailController_uploadAttachment",
+        "parameters": [
+          {
+            "name": "track-progress",
+            "required": false,
+            "in": "query",
+            "description": "Enable progress tracking for this upload",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File to upload. Must be one of the supported file types and under 50MB."
+                  }
+                }
+              },
+              "examples": {
+                "Upload PDF": {
+                  "summary": "Upload a PDF document",
+                  "value": {
+                    "file": "(binary)"
+                  }
+                },
+                "Upload Image": {
+                  "summary": "Upload an image file",
+                  "value": {
+                    "file": "(binary)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Draft attachment uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftAttachmentResponseDto"
+                },
+                "examples": {
+                  "Success Response": {
+                    "summary": "File uploaded successfully",
+                    "value": {
+                      "id": "123e4567-e89b-12d3-a456-426614174000",
+                      "filename": "document.pdf",
+                      "contentType": "application/pdf",
+                      "size": 1024000,
+                      "createdAt": "2024-03-20T10:00:00Z"
+                    }
+                  },
+                  "Success with Progress Tracking": {
+                    "summary": "File uploaded with progress tracking",
+                    "value": {
+                      "id": "123e4567-e89b-12d3-a456-426614174000",
+                      "filename": "document.pdf",
+                      "contentType": "application/pdf",
+                      "size": 1024000,
+                      "createdAt": "2024-03-20T10:00:00Z",
+                      "sessionId": "1701234567890-abc123def",
+                      "progressUrl": "/api/mail/upload-progress/1701234567890-abc123def"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid file type, size, or format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadAttachmentErrorResponseDto"
+                },
+                "examples": {
+                  "File Too Large": {
+                    "summary": "File exceeds size limit",
+                    "value": {
+                      "message": "File size (75.5MB) exceeds maximum limit of 50.00MB",
+                      "error": "Bad Request",
+                      "statusCode": 400
+                    }
+                  },
+                  "Invalid File Type": {
+                    "summary": "Unsupported file type",
+                    "value": {
+                      "message": "Unsupported file type: application/zip. Allowed types: application/pdf, image/jpeg, image/png, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                      "error": "Bad Request",
+                      "statusCode": 400
+                    }
+                  },
+                  "No File Uploaded": {
+                    "summary": "No file provided",
+                    "value": {
+                      "message": "No file uploaded",
+                      "error": "Bad Request",
+                      "statusCode": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing JWT token",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Unauthorized": {
+                    "summary": "Authentication required",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Missing CSRF token or insufficient permissions",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Forbidden": {
+                    "summary": "Insufficient permissions",
+                    "value": {
+                      "message": "Forbidden resource",
+                      "statusCode": 403
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Upload a draft attachment",
+        "tags": [
+          "mail"
+        ]
+      }
+    },
+    "/api/mail/upload-progress/{sessionId}": {
+      "get": {
+        "description": "Retrieves the current progress of a file upload session",
+        "operationId": "MailController_getUploadProgress",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "description": "Upload session ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Upload progress information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadProgressDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Upload session not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Session Not Found": {
+                    "summary": "Session expired or not found",
+                    "value": {
+                      "error": "Session not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Get upload progress",
+        "tags": [
+          "mail"
+        ]
+      }
+    },
+    "/api/mail/upload-progress/{sessionId}/stream": {
+      "get": {
+        "description": "Streams real-time upload progress updates using Server-Sent Events (SSE)",
+        "operationId": "MailController_streamUploadProgress",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "description": "Upload session ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Server-Sent Events stream of progress updates",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "example": "data: {\"sessionId\":\"123\",\"progress\":50,\"status\":\"uploading\",\"message\":\"Uploading... 50%\"}\n\n"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Stream upload progress (Server-Sent Events)",
+        "tags": [
+          "mail"
+        ]
+      }
+    },
     "/api/mail": {
       "post": {
-        "description": "Creates a new email with optional attachments and recipients. Recipients should be provided as a JSON string array of objects with address and type fields.",
+        "description": "Creates a new email with optional attachments and recipients. Recipients can be provided as direct email addresses, contact IDs, or contact list IDs. Attachments should be uploaded separately using the /attachments endpoint.",
         "operationId": "MailController_createEmail",
         "parameters": [],
         "requestBody": {
           "required": true,
-          "description": "Email data with optional attachments",
+          "description": "Email data with attachment UUIDs",
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateEmailSchemaDto"
+                "$ref": "#/components/schemas/CreateEmailDto"
               },
               "examples": {
-                "Basic Email": {
+                "Basic Email with Direct Recipients": {
                   "value": {
-                    "from": "sender@example.com",
                     "recipients": "[{\"address\":\"recipient1@example.com\",\"type\":\"TO\"},{\"address\":\"recipient2@example.com\",\"type\":\"CC\"}]",
                     "subject": "Test Subject",
                     "content": "This is the email content",
                     "html": "\u003Cp\u003EThis is HTML content\u003C/p\u003E"
                   }
                 },
+                "Email with Contact Recipients": {
+                  "value": {
+                    "contactRecipients": "[{\"contactId\":1,\"type\":\"TO\"},{\"contactId\":2,\"type\":\"CC\"}]",
+                    "subject": "Email to Contacts",
+                    "content": "This email is sent to specific contacts"
+                  }
+                },
+                "Email with Contact List Recipients": {
+                  "value": {
+                    "contactListRecipients": "[{\"contactListId\":1,\"type\":\"TO\"},{\"contactListId\":2,\"type\":\"BCC\"}]",
+                    "subject": "Newsletter",
+                    "content": "This is a newsletter sent to contact lists"
+                  }
+                },
                 "Email with Attachments": {
                   "value": {
-                    "from": "sender@example.com",
                     "recipients": "[{\"address\":\"recipient@example.com\",\"type\":\"TO\"}]",
                     "subject": "Email with Attachments",
                     "content": "Please find attached files",
-                    "attachments": []
+                    "attachmentIds": [
+                      "123e4567-e89b-12d3-a456-426614174000",
+                      "987fcdeb-51a2-43d1-b789-123456789abc"
+                    ]
                   }
                 }
               }
@@ -207,6 +499,86 @@
           }
         ],
         "summary": "Get all emails",
+        "tags": [
+          "mail"
+        ]
+      }
+    },
+    "/api/mail/contacts": {
+      "get": {
+        "description": "Retrieves a list of contacts that can be used as email recipients",
+        "operationId": "MailController_getContacts",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search contacts by name or email",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns list of contacts"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Get all contacts for email composition",
+        "tags": [
+          "mail"
+        ]
+      }
+    },
+    "/api/mail/contact-lists": {
+      "get": {
+        "description": "Retrieves a list of contact lists that can be used as email recipients",
+        "operationId": "MailController_getContactLists",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search contact lists by name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns list of contact lists"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Get all contact lists for email composition",
         "tags": [
           "mail"
         ]
@@ -429,6 +801,204 @@
           }
         ],
         "summary": "Sign and approve email",
+        "tags": [
+          "mail"
+        ]
+      }
+    },
+    "/api/mail/test": {
+      "post": {
+        "description": "Simple test endpoint to debug validation issues",
+        "operationId": "MailController_testEndpoint",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Test endpoint for debugging",
+        "tags": [
+          "mail"
+        ]
+      }
+    },
+    "/api/mail/cleanup/draft-attachments": {
+      "post": {
+        "description": "Immediately cleans up draft attachments older than 2 hours. This is also done automatically every hour.",
+        "operationId": "MailController_manualCleanup",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Cleanup completed successfully",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Cleanup Success": {
+                    "summary": "Cleanup completed with results",
+                    "value": {
+                      "deletedCount": 5,
+                      "totalSizeFreed": 10485760,
+                      "errors": [],
+                      "message": "Cleanup completed successfully"
+                    }
+                  },
+                  "No Cleanup Needed": {
+                    "summary": "No old attachments found",
+                    "value": {
+                      "deletedCount": 0,
+                      "totalSizeFreed": 0,
+                      "errors": [],
+                      "message": "No old draft attachments found to clean up"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Manually trigger cleanup of unused draft attachments",
+        "tags": [
+          "mail"
+        ]
+      }
+    },
+    "/api/mail/cleanup/stats": {
+      "get": {
+        "description": "Returns statistics about draft attachments and cleanup status",
+        "operationId": "MailController_getCleanupStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Cleanup statistics",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Statistics": {
+                    "summary": "Current cleanup statistics",
+                    "value": {
+                      "totalDraftAttachments": 10,
+                      "oldDraftAttachments": 3,
+                      "totalSize": 52428800,
+                      "oldSize": 15728640,
+                      "nextCleanupTime": "2024-03-20T11:00:00Z",
+                      "message": "Cleanup statistics retrieved successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Get draft attachment cleanup statistics",
+        "tags": [
+          "mail"
+        ]
+      }
+    },
+    "/api/mail/attachments/{id}": {
+      "delete": {
+        "description": "Deletes a draft attachment by UUID. This will remove the file from storage and the database record.",
+        "operationId": "MailController_deleteDraftAttachment",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Draft attachment UUID",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Draft attachment deleted successfully",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Success": {
+                    "summary": "Attachment deleted successfully",
+                    "value": {
+                      "message": "Draft attachment deleted successfully",
+                      "deletedId": "123e4567-e89b-12d3-a456-426614174000",
+                      "filename": "document.pdf",
+                      "size": 1024000
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Draft attachment not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Not Found": {
+                    "summary": "Attachment not found",
+                    "value": {
+                      "message": "Draft attachment not found",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Delete a draft attachment",
         "tags": [
           "mail"
         ]
@@ -1644,13 +2214,142 @@
       }
     },
     "schemas": {
-      "CreateEmailSchemaDto": {
+      "DraftAttachmentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "description": "UUID of the uploaded draft attachment. Use this ID when creating emails with attachments."
+          },
+          "filename": {
+            "type": "string",
+            "example": "document.pdf",
+            "description": "Original filename of the uploaded file"
+          },
+          "contentType": {
+            "type": "string",
+            "example": "application/pdf",
+            "description": "MIME type of the uploaded file"
+          },
+          "size": {
+            "type": "number",
+            "example": 1024000,
+            "description": "Size of the uploaded file in bytes"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-03-20T10:00:00Z",
+            "description": "Timestamp when the draft attachment was created"
+          }
+        },
+        "required": [
+          "id",
+          "filename",
+          "contentType",
+          "size",
+          "createdAt"
+        ]
+      },
+      "UploadAttachmentErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "File size exceeds maximum limit",
+            "description": "Error message describing what went wrong"
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request",
+            "description": "HTTP status text"
+          },
+          "statusCode": {
+            "type": "number",
+            "example": 400,
+            "description": "HTTP status code"
+          }
+        },
+        "required": [
+          "message",
+          "error",
+          "statusCode"
+        ]
+      },
+      "UploadProgressDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "example": "2b2bcc0f-611c-4acd-be6c-42ca54d8aa99",
+            "description": "Upload session ID for tracking progress"
+          },
+          "progress": {
+            "type": "number",
+            "example": 50,
+            "description": "Upload progress percentage (0-100)"
+          },
+          "bytesUploaded": {
+            "type": "number",
+            "example": 1024000,
+            "description": "Bytes uploaded so far"
+          },
+          "totalBytes": {
+            "type": "number",
+            "example": 2048000,
+            "description": "Total file size in bytes"
+          },
+          "status": {
+            "type": "string",
+            "example": "uploading",
+            "description": "Current status: uploading, processing, completed, error"
+          },
+          "filename": {
+            "type": "string",
+            "example": "document.pdf",
+            "description": "Filename being uploaded"
+          },
+          "message": {
+            "type": "string",
+            "example": "Uploading file...",
+            "description": "Status message"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-03-20T10:00:00Z",
+            "description": "Timestamp of the progress update"
+          }
+        },
+        "required": [
+          "sessionId",
+          "progress",
+          "bytesUploaded",
+          "totalBytes",
+          "status",
+          "filename",
+          "message",
+          "timestamp"
+        ]
+      },
+      "CreateEmailDto": {
         "type": "object",
         "properties": {
           "recipients": {
             "type": "string",
             "example": "[{\"address\":\"recipient1@example.com\",\"type\":\"TO\"},{\"address\":\"recipient2@example.com\",\"type\":\"CC\"}]",
-            "description": "JSON string array of recipients"
+            "description": "JSON string array of direct email recipients"
+          },
+          "contactRecipients": {
+            "type": "string",
+            "example": "[{\"contactId\":1,\"type\":\"TO\"},{\"contactId\":2,\"type\":\"CC\"}]",
+            "description": "JSON string array of contact recipients"
+          },
+          "contactListRecipients": {
+            "type": "string",
+            "example": "[{\"contactListId\":1,\"type\":\"TO\"},{\"contactListId\":2,\"type\":\"BCC\"}]",
+            "description": "JSON string array of contact list recipients"
           },
           "subject": {
             "type": "string",
@@ -1664,18 +2363,20 @@
             "type": "string",
             "example": "\u003Cp\u003EThis is HTML content\u003C/p\u003E"
           },
-          "attachments": {
+          "attachmentIds": {
             "type": "array",
             "items": {
               "type": "string",
-              "format": "binary"
+              "format": "uuid"
             },
-            "description": "Email attachments",
-            "nullable": true
+            "description": "Array of draft attachment UUIDs to associate with this email. \n    \n**Usage:**\n1. Upload files using POST /api/mail/attachments\n2. Get UUIDs from the response\n3. Include UUIDs in this array when creating the email\n\n**Limits:**\n- Maximum 10 attachments per email\n- Total size of all attachments must not exceed 100MB\n- Each attachment must be a valid UUID from a previous upload\n\n**Example:** [\"123e4567-e89b-12d3-a456-426614174000\", \"987fcdeb-51a2-43d1-b789-123456789abc\"]",
+            "example": [
+              "123e4567-e89b-12d3-a456-426614174000",
+              "987fcdeb-51a2-43d1-b789-123456789abc"
+            ]
           }
         },
         "required": [
-          "recipients",
           "subject",
           "content"
         ]
@@ -1958,41 +2659,6 @@
         "required": [
           "items",
           "meta"
-        ]
-      },
-      "CreateEmailDto": {
-        "type": "object",
-        "properties": {
-          "recipients": {
-            "type": "string",
-            "example": "[{\"address\":\"recipient1@example.com\",\"type\":\"TO\"},{\"address\":\"recipient2@example.com\",\"type\":\"CC\"}]",
-            "description": "JSON string array of recipients"
-          },
-          "subject": {
-            "type": "string",
-            "example": "Test Subject"
-          },
-          "content": {
-            "type": "string",
-            "example": "This is the email content"
-          },
-          "html": {
-            "type": "string",
-            "example": "\u003Cp\u003EThis is HTML content\u003C/p\u003E"
-          },
-          "attachments": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "binary"
-            },
-            "description": "List of uploaded files (populated by controller from request.files)"
-          }
-        },
-        "required": [
-          "recipients",
-          "subject",
-          "content"
         ]
       },
       "RejectEmailDto": {

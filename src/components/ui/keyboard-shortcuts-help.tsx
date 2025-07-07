@@ -86,7 +86,7 @@ export function KeyboardShortcutsHelp() {
         <Button
           variant="ghost"
           size="icon"
-          className="text-muted-foreground hover:text-foreground"
+          className="text-foreground"
           aria-label="Show keyboard shortcuts"
         >
           <HelpCircle className="h-4 w-4" />
@@ -98,7 +98,7 @@ export function KeyboardShortcutsHelp() {
             <Keyboard className="h-5 w-5" />
             Keyboard Shortcuts
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-foreground">
             Use these keyboard shortcuts to navigate and perform actions quickly. Shortcuts are context-aware and may not work when typing in input fields.
           </DialogDescription>
         </DialogHeader>
