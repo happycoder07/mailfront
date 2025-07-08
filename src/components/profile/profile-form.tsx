@@ -17,6 +17,7 @@ import { API_ENDPOINTS } from '@/lib/config';
 import { User, Mail, Lock, Save, Loader2, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/lib/auth-context';
+import { PERMISSIONS } from '@/lib/permissions';
 
 type Profile = {
   id: number;
@@ -38,7 +39,9 @@ export function ProfileForm() {
     newPassword: '',
     confirmPassword: '',
   });
-  const { getCSRFToken } = useAuth();
+  const { getCSRFToken, hasPermission } = useAuth();
+  const canReadProfile = hasPermission(PERMISSIONS.READ_PROFILE);
+  const canUpdateProfile = hasPermission(PERMISSIONS.UPDATE_PROFILE);
   const emailId = useId();
   const roleId = useId();
   const firstNameId = useId();
@@ -152,6 +155,14 @@ export function ProfileForm() {
     }
   };
 
+  if (!canReadProfile) {
+    return (
+      <div className="text-center text-destructive p-8">
+        You do not have permission to view your profile.
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64" role="region" aria-label="Loading profile information">
@@ -216,9 +227,10 @@ export function ProfileForm() {
                     id={firstNameId}
                     name="firstName"
                     value={formData.firstName}
-                    disabled
+                    onChange={canUpdateProfile ? handleChange : undefined}
+                    disabled={!canUpdateProfile}
                     className="bg-muted"
-                    aria-label="First name (read-only)"
+                    aria-label="First name"
                   />
                 </div>
 
@@ -228,9 +240,10 @@ export function ProfileForm() {
                     id={lastNameId}
                     name="lastName"
                     value={formData.lastName}
-                    disabled
+                    onChange={canUpdateProfile ? handleChange : undefined}
+                    disabled={!canUpdateProfile}
                     className="bg-muted"
-                    aria-label="Last name (read-only)"
+                    aria-label="Last name"
                   />
                 </div>
               </div>
@@ -252,63 +265,70 @@ export function ProfileForm() {
               </div>
             </div>
 
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="text-lg font-medium">Change Password</h3>
-              <p className="text-sm text-muted-foreground">
-                Leave these fields empty if you don&apos;t want to change your password
-              </p>
+            {canUpdateProfile && (
+              <div className="space-y-4 pt-4 border-t">
+                <h3 className="text-lg font-medium">Change Password</h3>
+                <p className="text-sm text-muted-foreground">
+                  Leave these fields empty if you don&apos;t want to change your password
+                </p>
 
-              <div className="space-y-2">
-                <Label htmlFor={currentPasswordId}>Current Password</Label>
-                <div className="flex items-center gap-2">
-                  <Lock className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id={currentPasswordId}
-                    name="currentPassword"
-                    type="password"
-                    value={formData.currentPassword}
-                    onChange={handleChange}
-                    placeholder="Enter your current password"
-                    aria-label="Current password"
-                  />
+                <div className="space-y-2">
+                  <Label htmlFor={currentPasswordId}>Current Password</Label>
+                  <div className="flex items-center gap-2">
+                    <Lock className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id={currentPasswordId}
+                      name="currentPassword"
+                      type="password"
+                      value={formData.currentPassword}
+                      onChange={handleChange}
+                      placeholder="Enter your current password"
+                      aria-label="Current password"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={newPasswordId}>New Password</Label>
+                  <div className="flex items-center gap-2">
+                    <Lock className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id={newPasswordId}
+                      name="newPassword"
+                      type="password"
+                      value={formData.newPassword}
+                      onChange={handleChange}
+                      placeholder="Enter your new password"
+                      aria-label="New password"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={confirmPasswordId}>Confirm New Password</Label>
+                  <div className="flex items-center gap-2">
+                    <Lock className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id={confirmPasswordId}
+                      name="confirmPassword"
+                      type="password"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      placeholder="Confirm your new password"
+                      aria-label="Confirm new password"
+                    />
+                  </div>
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor={newPasswordId}>New Password</Label>
-                <div className="flex items-center gap-2">
-                  <Lock className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id={newPasswordId}
-                    name="newPassword"
-                    type="password"
-                    value={formData.newPassword}
-                    onChange={handleChange}
-                    placeholder="Enter your new password"
-                    aria-label="New password"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor={confirmPasswordId}>Confirm New Password</Label>
-                <div className="flex items-center gap-2">
-                  <Lock className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id={confirmPasswordId}
-                    name="confirmPassword"
-                    type="password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="Confirm your new password"
-                    aria-label="Confirm new password"
-                  />
-                </div>
-              </div>
-            </div>
+            )}
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button type="submit" disabled={saving} aria-label="Save password changes" title="Save password changes">
+            <Button
+              type="submit"
+              disabled={saving || !canUpdateProfile}
+              aria-label="Save password changes"
+              title="Save password changes"
+            >
               {saving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />

@@ -12,7 +12,6 @@ export const API_ENDPOINTS = {
     USERS: `${API_BASE_URL}/auth/users`,
     USER: (id: string) => `${API_BASE_URL}/auth/users/${id}`,
     ROLES: `${API_BASE_URL}/auth/roles`,
-    CSRF_TOKEN: `${API_BASE_URL}/auth/csrf-token`,
   },
 
   // Mail endpoints

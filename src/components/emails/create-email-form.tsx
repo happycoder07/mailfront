@@ -99,6 +99,8 @@ export function CreateEmailForm() {
 
   // Check if user has permission to send emails
   const canSendEmail = hasPermission(PERMISSIONS.SEND_EMAIL);
+  const canViewContacts = hasPermission(PERMISSIONS.READ_CONTACT);
+  const canViewContactLists = hasPermission(PERMISSIONS.READ_CONTACT_LIST);
 
   const defaultValues = useMemo(
     () => ({
@@ -626,26 +628,30 @@ export function CreateEmailForm() {
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Recipients</CardTitle>
               <div className="flex items-center space-x-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={openContactModal}
-                  className="bg-primary/50 hover:bg-primary"
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  Add Contact
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={openContactListModal}
-                  className="bg-primary/50 hover:bg-primary"
-                >
-                  <List className="mr-2 h-4 w-4" />
-                  Add Contact List
-                </Button>
+                {canViewContacts && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={openContactModal}
+                    className="bg-primary/50 hover:bg-primary"
+                  >
+                    <Users className="mr-2 h-4 w-4" />
+                    Add Contact
+                  </Button>
+                )}
+                {canViewContactLists && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={openContactListModal}
+                    className="bg-primary/50 hover:bg-primary"
+                  >
+                    <List className="mr-2 h-4 w-4" />
+                    Add Contact List
+                  </Button>
+                )}
                 <Button
                   type="button"
                   variant="outline"
