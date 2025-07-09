@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { CreateEmailForm } from '@/components/emails/create-email-form';
 
 export const metadata: Metadata = {
-  title: 'New Email',
+  title: 'Mail Manger - New Email',
   description: 'Create a new email',
 };
 

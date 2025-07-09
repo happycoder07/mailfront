@@ -3,7 +3,7 @@ import { MonitoringStats } from '@/components/monitoring/monitoring-stats';
 import { MetricsDisplay } from '@/components/monitoring/metrics-display';
 
 export const metadata: Metadata = {
-  title: 'Monitoring',
+  title: 'Mail Manger - Monitoring',
   description: 'System monitoring and metrics',
 };
 

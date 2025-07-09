@@ -1,9 +1,10 @@
 import { Metadata } from 'next';
+import Image from 'next/image';
 import { LoginForm } from '@/components/auth/login-form';
-import { Shield } from 'lucide-react';
+
 
 export const metadata: Metadata = {
-  title: 'Login',
+  title: 'Mail Manager - Login',
   description: 'Login to your account',
 };
 
@@ -14,9 +15,10 @@ export default function LoginPage() {
         <div className="bg-card rounded-xl shadow-xl overflow-hidden">
           <div className="bg-primary p-6 text-primary-foreground text-center">
             <div className="flex justify-center mb-4">
-              <Shield className="h-12 w-12" />
+              <Image src="/logo.png" alt="Mail Manager" width={120} height={32} />
+              {/* <Shield className="h-12 w-12" /> */}
             </div>
-            <h1 className="text-2xl font-bold">NCCC Mail Manager</h1>
+            <h1 className="text-2xl font-bold">Mail Manager</h1>
             <p className="text-primary-foreground/80 mt-1">Secure email management system</p>
           </div>
           <div className="p-6">

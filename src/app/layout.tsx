@@ -10,7 +10,7 @@ import { GlobalShortcuts } from '@/components/global-shortcuts';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'NCCC Mail Manager',
+  title: 'Mail Manager',
   description: 'Email management system for NCCC',
   keywords: ['email', 'management', 'NCCC', 'mail'],
   authors: [{ name: 'NCCC' }],
@@ -27,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="theme-color" content="#000000" />
         <meta name="color-scheme" content="light dark" />
+
       </head>
       <body className={inter.className}>
         <ThemeProvider
@@ -38,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProvider>
             <KeyboardShortcutsProvider>
               <GlobalShortcuts />
-              <div id="root" role="application" aria-label="NCCC Mail Manager">
+              <div id="root" role="application" aria-label="Mail Manager">
                 {children}
               </div>
             </KeyboardShortcutsProvider>

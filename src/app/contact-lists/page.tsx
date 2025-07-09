@@ -5,6 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus } from 'lucide-react';
 import { ContactListsTable } from '@/components/contact-lists/contact-lists-table';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Mail Manger - Contact Lists',
+  description: 'Manage your contact lists',
+};
 
 export default function ContactListsPage() {
   return (

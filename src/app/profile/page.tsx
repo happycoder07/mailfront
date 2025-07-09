@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { ProfileForm } from '@/components/profile/profile-form';
 
 export const metadata: Metadata = {
-  title: 'Profile',
+  title: 'Mail Manger - Profile',
   description: 'Manage your profile settings',
 };
 

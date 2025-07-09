@@ -9,7 +9,7 @@ export function Header() {
           className="flex items-center space-x-2"
           aria-label="Go to home page"
         >
-          <span className="text-xl font-bold">NCCC NCCC Mail Manager</span>
+          <span className="text-xl font-bold">Mail Manager</span>
         </Link>
       </div>
     </header>

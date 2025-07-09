@@ -3,7 +3,7 @@ import { EmailView } from '@/components/emails/email-view';
 import { notFound } from 'next/navigation';
 
 export const metadata: Metadata = {
-  title: 'View Email',
+  title: 'Mail Manger - View Email',
   description: 'View email details and content',
 };
 

@@ -1,4 +1,10 @@
 import { CreateContactListForm } from '@/components/contact-lists/create-contact-list-form';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Mail Manger - New Contact List',
+  description: 'Create a new contact list',
+};
 
 export default function NewContactListPage() {
   return (

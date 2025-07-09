@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -175,8 +176,14 @@ export function MainNav() {
             initial="hidden"
             animate="visible"
           >
-            <Mail className="h-6 w-6" aria-hidden="true" />
-            <span>NCCC Mail Manager</span>
+            <Image
+              src="/logo.png"
+              alt="Mail Manager Logo"
+              width={24}
+              height={24}
+              className="h-6 w-6"
+            />
+            <span>Mail Manager</span>
           </motion.div>
           <div className="ml-auto">
             <Tooltip>
@@ -212,8 +219,14 @@ export function MainNav() {
             initial="hidden"
             animate="visible"
           >
-            <Mail className="h-6 w-6" aria-hidden="true" />
-            <span>NCCC Mail Manager</span>
+            <Image
+              src="/logo.png"
+              alt="Mail Manager Logo"
+              width={24}
+              height={24}
+              className="h-6 w-6"
+            />
+            <span>Mail Manager</span>
           </motion.div>
           <div className="ml-auto flex items-center space-x-4">
             <div className="hidden md:flex items-center space-x-3">
@@ -247,8 +260,14 @@ export function MainNav() {
           initial="hidden"
           animate="visible"
         >
-          <Mail className="h-6 w-6" aria-hidden="true" />
-          <span>NCCC Mail Manager</span>
+          <Image
+            src="/logo.png"
+            alt="Mail Manager Logo"
+            width={24}
+            height={24}
+            className="h-6 w-6"
+          />
+          <span>Mail Manager</span>
         </motion.div>
         <div className="ml-auto flex items-center space-x-4">
           <nav className="hidden md:flex items-center space-x-3" role="navigation" aria-label="Main navigation">
@@ -351,8 +370,14 @@ export function MainNav() {
                   initial="hidden"
                   animate="visible"
                 >
-                  <Mail className="h-6 w-6" aria-hidden="true" />
-                  <span>NCCC Mail Manager</span>
+                  <Image
+                    src="/logo.png"
+                    alt="Mail Manager Logo"
+                    width={24}
+                    height={24}
+                    className="h-6 w-6"
+                  />
+                  <span>Mail Manager</span>
                 </motion.div>
                 <nav className="flex flex-col space-y-2" role="navigation" aria-label="Mobile navigation">
                   {navItems.map((item, index) => {

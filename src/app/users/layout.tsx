@@ -1,4 +1,10 @@
 import { MainNav } from '@/components/layout/main-nav';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Users',
+  description: 'Manage users and permissions',
+};
 
 export default function UsersLayout({ children }: { children: React.ReactNode }) {
   return (

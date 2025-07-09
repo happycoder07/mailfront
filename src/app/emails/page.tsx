@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const metadata: Metadata = {
-  title: 'Emails',
+  title: 'Mail Manger - Emails',
   description: 'Manage your emails',
 };
 

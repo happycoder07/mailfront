@@ -1,11 +1,8 @@
-import { Metadata } from 'next';
+
 import { QueueStats } from '@/components/queue/queue-stats';
 import { QueueItems } from '@/components/queue/queue-items';
 
-export const metadata: Metadata = {
-  title: 'Queue',
-  description: 'Manage email queue',
-};
+
 
 export default function QueuePage() {
   return (

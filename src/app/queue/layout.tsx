@@ -1,5 +1,9 @@
 import { MainNav } from '@/components/layout/main-nav';
-
+import { Metadata } from 'next';
+export const metadata: Metadata = {
+  title: 'Queue',
+  description: 'Manage email queue',
+};
 export default function QueueLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
