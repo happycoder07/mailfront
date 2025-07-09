@@ -15,6 +15,7 @@ import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { KeyboardShortcutsHelp } from '@/components/ui/keyboard-shortcuts-help';
+import { NotificationIndicator } from '@/components/notifications/notification-indicator';
 
 const navItemVariants = {
   hidden: { opacity: 0, x: -20 },
@@ -318,6 +319,9 @@ export function MainNav() {
 
           <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
             <ThemeToggle />
+          </motion.div>
+          <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+            <NotificationIndicator variant="compact" showCount={true} showStatus={false} />
           </motion.div>
           <Tooltip>
             <TooltipTrigger asChild>

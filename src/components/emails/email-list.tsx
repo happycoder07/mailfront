@@ -53,8 +53,6 @@ import {
 import { EmailDialog } from './email-dialog';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { DatePicker } from '@/components/ui/date-picker';
 import {
   Dialog,
@@ -78,7 +76,6 @@ export function EmailList() {
   const [status, setStatus] = useState<string>('ALL');
   const [selectedEmail, setSelectedEmail] = useState<EmailResponseDto | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 10,
@@ -243,16 +240,15 @@ export function EmailList() {
     fetchEmails();
     let interval: NodeJS.Timeout | null = null;
 
-    if (autoRefresh) {
-      interval = setInterval(fetchEmails, 10000); // Refresh every 10 seconds
-    }
+    // Always refresh every 30 seconds
+    interval = setInterval(fetchEmails, 30000);
 
     return () => {
       if (interval) {
         clearInterval(interval);
       }
     };
-  }, [pagination.page, pagination.pageSize, autoRefresh, appliedFilters]);
+  }, [pagination.page, pagination.pageSize, appliedFilters]);
 
   const handleApprove = async (id: number) => {
     try {
@@ -443,14 +439,18 @@ export function EmailList() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle>Email Management</CardTitle>
             <div className="flex items-center gap-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="auto-refresh"
-                  checked={autoRefresh}
-                  onCheckedChange={checked => setAutoRefresh(checked as boolean)}
-                />
-                <Label htmlFor="auto-refresh">Auto-refresh</Label>
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <RefreshCw className="h-4 w-4" />
+                    <span>Auto-refresh every 30s</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Email list automatically refreshes every 30 seconds</p>
+                  <p>Click the refresh button to manually refresh now</p>
+                </TooltipContent>
+              </Tooltip>
               <Button
                 variant="ghost"
                 size="icon"
