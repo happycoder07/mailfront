@@ -405,9 +405,9 @@ export type CreateTemplateDto = {
   subject: string;
   content: string;
   html?: string;
-  emailRecipients?: TemplateEmailRecipientDto[];
-  contactRecipients?: TemplateContactRecipientDto[];
-  contactListRecipients?: TemplateContactListRecipientDto[];
+  templateEmailRecipients?: TemplateEmailRecipientDto[];
+  templateContactRecipients?: TemplateContactRecipientDto[];
+  templateContactListRecipients?: TemplateContactListRecipientDto[];
 };
 
 export type EmailTemplateResponseDto = {

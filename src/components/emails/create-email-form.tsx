@@ -31,7 +31,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/use-toast';
-import { API_ENDPOINTS } from '@/lib/config';
+import { API_ENDPOINTS, CreateTemplateDto, EmailTemplateResponseDto } from '@/lib/config';
 import { createEmailSchema, CreateEmailFormData } from '@/lib/validation';
 import { Mail, Plus, Trash2, Loader2, Paperclip, Users, List, Search, X, Save, FileText } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
@@ -108,6 +108,10 @@ export function CreateEmailForm() {
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [templateSearch, setTemplateSearch] = useState('');
 
+  // Template details state
+  const [isTemplateDetailsModalOpen, setIsTemplateDetailsModalOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplateResponseDto | null>(null);
+
   // Check if user has permission to send emails
   const canSendEmail = hasPermission(PERMISSIONS.SEND_EMAIL);
   const canViewContacts = hasPermission(PERMISSIONS.READ_CONTACT);
@@ -157,20 +161,10 @@ export function CreateEmailForm() {
 
   // Load contacts and contact lists on mount (from cache or API)
   useEffect(() => {
-    const cachedContacts = loadFromSessionStorage(CONTACTS_KEY);
-    if (cachedContacts) {
-      setContacts(cachedContacts);
-      setAllContacts(cachedContacts);
-    } else {
-      loadContacts();
-    }
-    const cachedLists = loadFromSessionStorage(CONTACT_LISTS_KEY);
-    if (cachedLists) {
-      setContactLists(cachedLists);
-      setAllContactLists(cachedLists);
-    } else {
-      loadContactLists();
-    }
+
+      canViewContacts&&loadContacts();
+      canViewContactLists&&loadContactLists();
+
   }, []);
 
   // Cleanup timeout on unmount
@@ -654,7 +648,7 @@ export function CreateEmailForm() {
     setIsSavingTemplate(true);
     try {
       const data = form.getValues();
-      const templateData: any = {
+      const templateData: CreateTemplateDto = {
         name: templateName.trim(),
         subject: data.subject,
         content: data.content,
@@ -664,17 +658,17 @@ export function CreateEmailForm() {
 
       // Convert recipients to template format (no attachments in templates)
       if (data.recipients && data.recipients.length > 0) {
-        templateData.emailRecipients = data.recipients;
+        templateData.templateEmailRecipients = data.recipients;
       }
 
       const contactRecipients = form.getValues('contactRecipients');
       if (contactRecipients && contactRecipients.length > 0) {
-        templateData.contactRecipients = contactRecipients;
+        templateData.templateContactRecipients = contactRecipients;
       }
 
       const contactListRecipients = form.getValues('contactListRecipients');
       if (contactListRecipients && contactListRecipients.length > 0) {
-        templateData.contactListRecipients = contactListRecipients;
+        templateData.templateContactListRecipients = contactListRecipients;
       }
 
       const response = await fetch(API_ENDPOINTS.MAIL.TEMPLATES, {
@@ -705,7 +699,7 @@ export function CreateEmailForm() {
     }
   }
 
-  const applyTemplate = (template: any) => {
+  const applyTemplate = (template: EmailTemplateResponseDto) => {
     try {
       // Clear existing form data
       form.reset({
@@ -725,18 +719,18 @@ export function CreateEmailForm() {
       }
 
       // Apply email recipients
-      if (template.emailRecipients && template.emailRecipients.length > 0) {
-        form.setValue('recipients', template.emailRecipients);
+      if (template.templateEmailRecipients && template.templateEmailRecipients.length > 0) {
+        form.setValue('recipients', template.templateEmailRecipients);
       }
 
       // Apply contact recipients
-      if (template.contactRecipients && template.contactRecipients.length > 0) {
-        form.setValue('contactRecipients', template.contactRecipients);
+      if (template.templateContactRecipients && template.templateContactRecipients.length > 0) {
+        form.setValue('contactRecipients', template.templateContactRecipients);
       }
 
       // Apply contact list recipients
-      if (template.contactListRecipients && template.contactListRecipients.length > 0) {
-        form.setValue('contactListRecipients', template.contactListRecipients);
+      if (template.templateContactListRecipients && template.templateContactListRecipients.length > 0) {
+        form.setValue('contactListRecipients', template.templateContactListRecipients);
       }
 
       setIsTemplateSelectionModalOpen(false);
@@ -746,6 +740,11 @@ export function CreateEmailForm() {
       console.error('Error applying template:', error);
       toast({ title: 'Error', description: 'Failed to apply template', variant: 'destructive' });
     }
+  };
+
+  const showTemplateDetails = (template: EmailTemplateResponseDto) => {
+    setSelectedTemplate(template);
+    setIsTemplateDetailsModalOpen(true);
   };
 
   // If user doesn't have permission to send emails, show a message
@@ -1287,9 +1286,9 @@ export function CreateEmailForm() {
                             <div className="text-sm text-muted-foreground">
                               <strong>Recipients:</strong>
                               {(() => {
-                                const emailRecipients = template.emailRecipients || [];
-                                const contactRecipients = template.contactRecipients || [];
-                                const contactListRecipients = template.contactListRecipients || [];
+                                const emailRecipients = template.templateEmailRecipients || [];
+                                const contactRecipients = template.templateContactRecipients || [];
+                                const contactListRecipients = template.templateContactListRecipients || [];
 
                                 const recipients = [];
 
@@ -1310,20 +1309,165 @@ export function CreateEmailForm() {
                               Created {new Date(template.createdAt).toLocaleDateString()}
                             </div>
                           </div>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => applyTemplate(template)}
-                            className="ml-4"
-                          >
-                            Use Template
-                          </Button>
+                          <div className="flex flex-col gap-2 ml-4">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => showTemplateDetails(template)}
+                              className="text-xs"
+                            >
+                              View Details
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => applyTemplate(template)}
+                            >
+                              Use Template
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
                   )}
                 </ScrollArea>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Template Details Modal */}
+          <Dialog open={isTemplateDetailsModalOpen} onOpenChange={setIsTemplateDetailsModalOpen}>
+            <DialogContent className="max-w-2xl max-h-[85vh] bg-card border border-primary/30 shadow-2xl">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Template Details: {selectedTemplate?.name}
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-6">
+                {selectedTemplate && (
+                  <>
+                    {/* Template Info */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium text-foreground">Template Information</h4>
+                      <div className="space-y-2 text-sm border border-border/50 rounded-md p-4 bg-muted/30">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Name:</span>
+                          <span className="font-medium">{selectedTemplate.name}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Subject:</span>
+                          <span className="font-medium">{selectedTemplate.subject || 'No subject'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Content Length:</span>
+                          <span className="font-medium">{selectedTemplate.content?.length || 0} characters</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Created:</span>
+                          <span className="font-medium">{new Date(selectedTemplate.createdAt).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Email Recipients */}
+                    {selectedTemplate.templateEmailRecipients && selectedTemplate.templateEmailRecipients.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-foreground">Email Recipients</h4>
+                        <div className="space-y-2 max-h-40 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
+                          {selectedTemplate.templateEmailRecipients.map((recipient, index) => (
+                            <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                              <div className="flex items-center space-x-2">
+                                <Badge variant="secondary">{recipient.type}</Badge>
+                                <span className="font-mono text-sm">{recipient.address}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Contact Recipients */}
+                    {selectedTemplate.templateContactRecipients && selectedTemplate.templateContactRecipients.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-foreground">Contact Recipients</h4>
+                        <div className="space-y-2 max-h-40 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
+                          {selectedTemplate.templateContactRecipients.map((recipient, index) => {
+                            const contact = contacts.find(c => c.id === recipient.contactId);
+                            return (
+                              <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                                <div className="flex items-center space-x-2">
+                                  <Badge variant="secondary">{recipient.type}</Badge>
+                                  <span className="font-medium">{contact?.name || `Contact ID: ${recipient.contactId}`}</span>
+                                  <span className="text-sm text-muted-foreground">({contact?.eid || 'Unknown email'})</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Contact List Recipients */}
+                    {selectedTemplate.templateContactListRecipients && selectedTemplate.templateContactListRecipients.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-foreground">Contact List Recipients</h4>
+                        <div className="space-y-2 max-h-40 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
+                          {selectedTemplate.templateContactListRecipients.map((recipient, index) => {
+                            const contactList = contactLists.find(cl => cl.id === recipient.contactListId);
+                            return (
+                              <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                                <div className="flex items-center space-x-2">
+                                  <Badge variant="secondary">{recipient.type}</Badge>
+                                  <span className="font-medium">{contactList?.name || `Contact List ID: ${recipient.contactListId}`}</span>
+                                  {contactList?.description && (
+                                    <span className="text-sm text-muted-foreground">({contactList.description})</span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Content Preview */}
+                    {selectedTemplate.content && (
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-foreground">Content Preview</h4>
+                        <div className="border border-border/50 rounded-md p-4 bg-muted/30">
+                          <div className="text-sm text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto">
+                            {selectedTemplate.content}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <div className="flex justify-end space-x-3 pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsTemplateDetailsModalOpen(false)}
+                  >
+                    Close
+                  </Button>
+                  {selectedTemplate && (
+                    <Button
+                      onClick={() => {
+                        setIsTemplateDetailsModalOpen(false);
+                        applyTemplate(selectedTemplate);
+                      }}
+                      className="bg-contact-primary hover:bg-contact-primary/90 text-contact-primary-foreground"
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Use This Template
+                    </Button>
+                  )}
+                </div>
               </div>
             </DialogContent>
           </Dialog>
