@@ -244,54 +244,6 @@
         ]
       }
     },
-    "/api/mail/upload-progress/{sessionId}/stream": {
-      "get": {
-        "description": "Streams real-time upload progress updates using Server-Sent Events (SSE)",
-        "operationId": "MailController_streamUploadProgress",
-        "parameters": [
-          {
-            "name": "sessionId",
-            "required": true,
-            "in": "path",
-            "description": "Upload session ID",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Server-Sent Events stream of progress updates",
-            "content": {
-              "text/event-stream": {
-                "schema": {
-                  "type": "string",
-                  "example": "data: {\"sessionId\":\"123\",\"progress\":50,\"status\":\"uploading\",\"message\":\"Uploading... 50%\"}\n\n"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "jwt": []
-          },
-          {
-            "XSRF": []
-          }
-        ],
-        "summary": "Stream upload progress (Server-Sent Events)",
-        "tags": [
-          "mail"
-        ]
-      }
-    },
     "/api/mail": {
       "post": {
         "description": "Creates a new email with optional attachments and recipients. Recipients can be provided as direct email addresses, contact IDs, or contact list IDs. Attachments should be uploaded separately using the /attachments endpoint.",
@@ -999,6 +951,699 @@
           }
         ],
         "summary": "Delete a draft attachment",
+        "tags": [
+          "mail"
+        ]
+      }
+    },
+    "/api/mail/templates": {
+      "post": {
+        "description": "Creates a new email template with subject, content, and optional recipients. Recipients can be direct email addresses, contacts, or contact lists.",
+        "operationId": "MailController_createEmailTemplate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTemplateDto"
+              },
+              "examples": {
+                "Basic Template": {
+                  "summary": "Basic template with subject and content",
+                  "value": {
+                    "name": "Welcome Template",
+                    "subject": "Welcome Email",
+                    "content": "Hello, welcome to our service!"
+                  }
+                },
+                "Template with Recipients": {
+                  "summary": "Template with all recipient types",
+                  "value": {
+                    "name": "Team Update",
+                    "subject": "Team Update",
+                    "content": "Monthly update for the team.",
+                    "html": "\u003Cp\u003EMonthly \u003Cb\u003Eupdate\u003C/b\u003E for the team.\u003C/p\u003E",
+                    "emailRecipients": [
+                      {
+                        "address": "user1@example.com",
+                        "type": "TO"
+                      },
+                      {
+                        "address": "user2@example.com",
+                        "type": "CC"
+                      }
+                    ],
+                    "contactRecipients": [
+                      {
+                        "contactId": 1,
+                        "type": "TO"
+                      },
+                      {
+                        "contactId": 2,
+                        "type": "CC"
+                      }
+                    ],
+                    "contactListRecipients": [
+                      {
+                        "contactListId": 1,
+                        "type": "BCC"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Email template created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "subject": {
+                      "type": "string",
+                      "example": "Welcome Email"
+                    },
+                    "content": {
+                      "type": "string",
+                      "example": "Hello, this is a welcome email."
+                    },
+                    "html": {
+                      "type": "string",
+                      "example": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
+                      "nullable": true
+                    },
+                    "emailRecipients": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "example": 1
+                          },
+                          "address": {
+                            "type": "string",
+                            "example": "user@example.com"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "TO",
+                              "CC",
+                              "BCC"
+                            ],
+                            "example": "TO"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-03-20T10:00:00Z"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-03-20T10:00:00Z"
+                          }
+                        }
+                      }
+                    },
+                    "contactRecipients": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "example": 2
+                          },
+                          "contactId": {
+                            "type": "number",
+                            "example": 1
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "TO",
+                              "CC",
+                              "BCC"
+                            ],
+                            "example": "CC"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-03-20T10:00:00Z"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-03-20T10:00:00Z"
+                          }
+                        }
+                      }
+                    },
+                    "contactListRecipients": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "example": 3
+                          },
+                          "contactListId": {
+                            "type": "number",
+                            "example": 2
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "TO",
+                              "CC",
+                              "BCC"
+                            ],
+                            "example": "BCC"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-03-20T10:00:00Z"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-03-20T10:00:00Z"
+                          }
+                        }
+                      }
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-03-20T10:00:00Z"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-03-20T10:00:00Z"
+                    }
+                  }
+                },
+                "examples": {
+                  "Created Template": {
+                    "summary": "A created template",
+                    "value": {
+                      "id": 1,
+                      "subject": "Welcome Email",
+                      "content": "Hello, this is a welcome email.",
+                      "html": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
+                      "emailRecipients": [
+                        {
+                          "id": 1,
+                          "address": "user@example.com",
+                          "type": "TO",
+                          "createdAt": "2024-03-20T10:00:00Z",
+                          "updatedAt": "2024-03-20T10:00:00Z"
+                        }
+                      ],
+                      "contactRecipients": [
+                        {
+                          "id": 2,
+                          "contactId": 1,
+                          "type": "CC",
+                          "createdAt": "2024-03-20T10:00:00Z",
+                          "updatedAt": "2024-03-20T10:00:00Z"
+                        }
+                      ],
+                      "contactListRecipients": [
+                        {
+                          "id": 3,
+                          "contactListId": 2,
+                          "type": "BCC",
+                          "createdAt": "2024-03-20T10:00:00Z",
+                          "updatedAt": "2024-03-20T10:00:00Z"
+                        }
+                      ],
+                      "createdAt": "2024-03-20T10:00:00Z",
+                      "updatedAt": "2024-03-20T10:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Create a new email template",
+        "tags": [
+          "mail"
+        ]
+      },
+      "get": {
+        "description": "Retrieves all email templates with their recipients.",
+        "operationId": "MailController_getEmailTemplates",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of email templates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number",
+                        "example": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Welcome Template"
+                      },
+                      "subject": {
+                        "type": "string",
+                        "example": "Welcome Email"
+                      },
+                      "content": {
+                        "type": "string",
+                        "example": "Hello, this is a welcome email."
+                      },
+                      "html": {
+                        "type": "string",
+                        "example": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
+                        "nullable": true
+                      },
+                      "emailRecipients": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "number",
+                              "example": 1
+                            },
+                            "address": {
+                              "type": "string",
+                              "example": "user@example.com"
+                            },
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "TO",
+                                "CC",
+                                "BCC"
+                              ],
+                              "example": "TO"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2024-03-20T10:00:00Z"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2024-03-20T10:00:00Z"
+                            }
+                          }
+                        }
+                      },
+                      "contactRecipients": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "number",
+                              "example": 2
+                            },
+                            "contactId": {
+                              "type": "number",
+                              "example": 1
+                            },
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "TO",
+                                "CC",
+                                "BCC"
+                              ],
+                              "example": "CC"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2024-03-20T10:00:00Z"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2024-03-20T10:00:00Z"
+                            }
+                          }
+                        }
+                      },
+                      "contactListRecipients": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "number",
+                              "example": 3
+                            },
+                            "contactListId": {
+                              "type": "number",
+                              "example": 2
+                            },
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "TO",
+                                "CC",
+                                "BCC"
+                              ],
+                              "example": "BCC"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2024-03-20T10:00:00Z"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2024-03-20T10:00:00Z"
+                            }
+                          }
+                        }
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-03-20T10:00:00Z"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-03-20T10:00:00Z"
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "Templates List": {
+                    "summary": "List of templates",
+                    "value": [
+                      {
+                        "id": 1,
+                        "name": "Welcome Template",
+                        "subject": "Welcome Email",
+                        "content": "Hello, this is a welcome email.",
+                        "html": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
+                        "emailRecipients": [
+                          {
+                            "id": 1,
+                            "address": "user@example.com",
+                            "type": "TO",
+                            "createdAt": "2024-03-20T10:00:00Z",
+                            "updatedAt": "2024-03-20T10:00:00Z"
+                          }
+                        ],
+                        "contactRecipients": [
+                          {
+                            "id": 2,
+                            "contactId": 1,
+                            "type": "CC",
+                            "createdAt": "2024-03-20T10:00:00Z",
+                            "updatedAt": "2024-03-20T10:00:00Z"
+                          }
+                        ],
+                        "contactListRecipients": [
+                          {
+                            "id": 3,
+                            "contactListId": 2,
+                            "type": "BCC",
+                            "createdAt": "2024-03-20T10:00:00Z",
+                            "updatedAt": "2024-03-20T10:00:00Z"
+                          }
+                        ],
+                        "createdAt": "2024-03-20T10:00:00Z",
+                        "updatedAt": "2024-03-20T10:00:00Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Get all email templates",
+        "tags": [
+          "mail"
+        ]
+      }
+    },
+    "/api/mail/templates/{id}": {
+      "get": {
+        "description": "Retrieves a specific email template by its ID, including all recipients.",
+        "operationId": "MailController_getEmailTemplateById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Email template ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email template details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Welcome Template"
+                    },
+                    "subject": {
+                      "type": "string",
+                      "example": "Welcome Email"
+                    },
+                    "content": {
+                      "type": "string",
+                      "example": "Hello, this is a welcome email."
+                    },
+                    "html": {
+                      "type": "string",
+                      "example": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
+                      "nullable": true
+                    },
+                    "emailRecipients": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "example": 1
+                          },
+                          "address": {
+                            "type": "string",
+                            "example": "user@example.com"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "TO",
+                              "CC",
+                              "BCC"
+                            ],
+                            "example": "TO"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-03-20T10:00:00Z"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-03-20T10:00:00Z"
+                          }
+                        }
+                      }
+                    },
+                    "contactRecipients": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "example": 2
+                          },
+                          "contactId": {
+                            "type": "number",
+                            "example": 1
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "TO",
+                              "CC",
+                              "BCC"
+                            ],
+                            "example": "CC"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-03-20T10:00:00Z"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-03-20T10:00:00Z"
+                          }
+                        }
+                      }
+                    },
+                    "contactListRecipients": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "example": 3
+                          },
+                          "contactListId": {
+                            "type": "number",
+                            "example": 2
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "TO",
+                              "CC",
+                              "BCC"
+                            ],
+                            "example": "BCC"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-03-20T10:00:00Z"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-03-20T10:00:00Z"
+                          }
+                        }
+                      }
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-03-20T10:00:00Z"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-03-20T10:00:00Z"
+                    }
+                  }
+                },
+                "examples": {
+                  "Template Details": {
+                    "summary": "A template with all fields",
+                    "value": {
+                      "id": 1,
+                      "name": "Welcome Template",
+                      "subject": "Welcome Email",
+                      "content": "Hello, this is a welcome email.",
+                      "html": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
+                      "emailRecipients": [
+                        {
+                          "id": 1,
+                          "address": "user@example.com",
+                          "type": "TO",
+                          "createdAt": "2024-03-20T10:00:00Z",
+                          "updatedAt": "2024-03-20T10:00:00Z"
+                        }
+                      ],
+                      "contactRecipients": [
+                        {
+                          "id": 2,
+                          "contactId": 1,
+                          "type": "CC",
+                          "createdAt": "2024-03-20T10:00:00Z",
+                          "updatedAt": "2024-03-20T10:00:00Z"
+                        }
+                      ],
+                      "contactListRecipients": [
+                        {
+                          "id": 3,
+                          "contactListId": 2,
+                          "type": "BCC",
+                          "createdAt": "2024-03-20T10:00:00Z",
+                          "updatedAt": "2024-03-20T10:00:00Z"
+                        }
+                      ],
+                      "createdAt": "2024-03-20T10:00:00Z",
+                      "updatedAt": "2024-03-20T10:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Get email template by id",
         "tags": [
           "mail"
         ]
@@ -2320,6 +2965,22 @@
             "type": "string",
             "example": "2024-03-20T10:00:00Z",
             "description": "Timestamp of the progress update"
+          },
+          "result": {
+            "type": "object",
+            "example": {
+              "id": "123e4567-e89b-12d3-a456-426614174000",
+              "filename": "document.pdf",
+              "contentType": "application/pdf",
+              "size": 1024000,
+              "createdAt": "2024-03-20T10:00:00Z"
+            },
+            "description": "Upload result when completed"
+          },
+          "error": {
+            "type": "string",
+            "example": "File size exceeds limit",
+            "description": "Error message when upload fails"
           }
         },
         "required": [
@@ -2672,6 +3333,126 @@
         },
         "required": [
           "reason"
+        ]
+      },
+      "TemplateEmailRecipientDto": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "example": "user@example.com",
+            "description": "Recipient email address"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TO",
+              "CC",
+              "BCC"
+            ],
+            "example": "TO",
+            "description": "Recipient type"
+          }
+        },
+        "required": [
+          "address"
+        ]
+      },
+      "TemplateContactRecipientDto": {
+        "type": "object",
+        "properties": {
+          "contactId": {
+            "type": "number",
+            "example": 1,
+            "description": "Contact ID"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TO",
+              "CC",
+              "BCC"
+            ],
+            "example": "CC",
+            "description": "Recipient type"
+          }
+        },
+        "required": [
+          "contactId"
+        ]
+      },
+      "TemplateContactListRecipientDto": {
+        "type": "object",
+        "properties": {
+          "contactListId": {
+            "type": "number",
+            "example": 2,
+            "description": "Contact List ID"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TO",
+              "CC",
+              "BCC"
+            ],
+            "example": "BCC",
+            "description": "Recipient type"
+          }
+        },
+        "required": [
+          "contactListId"
+        ]
+      },
+      "CreateTemplateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Welcome Template",
+            "description": "Name of the template"
+          },
+          "subject": {
+            "type": "string",
+            "example": "Welcome Email",
+            "description": "Subject of the template"
+          },
+          "content": {
+            "type": "string",
+            "example": "Hello, this is a welcome email.",
+            "description": "Plain text content of the template"
+          },
+          "html": {
+            "type": "string",
+            "example": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
+            "description": "HTML content of the template"
+          },
+          "emailRecipients": {
+            "description": "Direct email recipients",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateEmailRecipientDto"
+            }
+          },
+          "contactRecipients": {
+            "description": "Contact recipients",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateContactRecipientDto"
+            }
+          },
+          "contactListRecipients": {
+            "description": "Contact list recipients",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateContactListRecipientDto"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "subject",
+          "content"
         ]
       },
       "LoginDto": {

@@ -27,6 +27,8 @@ export const API_ENDPOINTS = {
     UPLOAD_PROGRESS_STREAM: (sessionId: string) => `${API_BASE_URL}/mail/upload-progress/${sessionId}/stream`,
     CONTACTS: `${API_BASE_URL}/mail/contacts`,
     CONTACT_LISTS: `${API_BASE_URL}/mail/contact-lists`,
+    TEMPLATES: `${API_BASE_URL}/mail/templates`,
+    TEMPLATE: (id: number) => `${API_BASE_URL}/mail/templates/${id}`,
   },
 
   // Queue endpoints
@@ -169,18 +171,7 @@ export type EmailRecipientDto = {
   updatedAt: string;
 };
 
-export type CreateEmailDto = {
-  from: string;
-  recipients: RecipientDto[];
-  subject: string;
-  content: string;
-  html?: string;
-  attachments?: {
-    filename: string;
-    path: string;
-    contentType: string;
-  }[];
-};
+
 
 export type EmailStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SENT' | 'FAILED';
 
@@ -391,4 +382,43 @@ export type PaginatedContactListResponseDto = {
     totalItems: number;
     totalPages: number;
   };
+};
+
+// Template types
+export type TemplateEmailRecipientDto = {
+  address: string;
+  type: 'TO' | 'CC' | 'BCC';
+};
+
+export type TemplateContactRecipientDto = {
+  contactId: number;
+  type: 'TO' | 'CC' | 'BCC';
+};
+
+export type TemplateContactListRecipientDto = {
+  contactListId: number;
+  type: 'TO' | 'CC' | 'BCC';
+};
+
+export type CreateTemplateDto = {
+  name: string;
+  subject: string;
+  content: string;
+  html?: string;
+  emailRecipients?: TemplateEmailRecipientDto[];
+  contactRecipients?: TemplateContactRecipientDto[];
+  contactListRecipients?: TemplateContactListRecipientDto[];
+};
+
+export type EmailTemplateResponseDto = {
+  id: number;
+  name: string;
+  subject: string;
+  content: string;
+  html?: string;
+  templateEmailRecipients: TemplateEmailRecipientDto[];
+  templateContactRecipients: TemplateContactRecipientDto[];
+  templateContactListRecipients: TemplateContactListRecipientDto[];
+  createdAt: string;
+  updatedAt: string;
 };
