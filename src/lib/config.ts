@@ -404,7 +404,7 @@ export type CreateTemplateDto = {
   name: string;
   subject: string;
   content: string;
-  html?: string;
+  html?: boolean;
   templateEmailRecipients?: TemplateEmailRecipientDto[];
   templateContactRecipients?: TemplateContactRecipientDto[];
   templateContactListRecipients?: TemplateContactListRecipientDto[];
@@ -415,7 +415,7 @@ export type EmailTemplateResponseDto = {
   name: string;
   subject: string;
   content: string;
-  html?: string;
+  html?: boolean;
   templateEmailRecipients: TemplateEmailRecipientDto[];
   templateContactRecipients: TemplateContactRecipientDto[];
   templateContactListRecipients: TemplateContactListRecipientDto[];

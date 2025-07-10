@@ -86,7 +86,7 @@ export const createEmailSchema = z.object({
   content: z.string().min(1, {
     message: 'Content is required.',
   }),
-  html: z.string().optional(),
+  html: z.boolean().optional(),
   attachments: z.array(z.instanceof(File)).optional(),
 }).refine((data) => {
   // At least one type of recipient is required
@@ -98,6 +98,31 @@ export const createEmailSchema = z.object({
 }, {
   message: 'At least one recipient is required (direct email, contact, or contact list).',
   path: ['recipients'], // This will show the error on the recipients field
+});
+
+export const createTemplateSchema = z.object({
+  name: z.string().min(1, {
+    message: 'Template name is required.',
+  }),
+  subject: z.string().min(1, {
+    message: 'Subject is required.',
+  }),
+  content: z.string().min(1, {
+    message: 'Content is required.',
+  }),
+  html: z.boolean().optional(),
+  templateEmailRecipients: z.array(z.object({
+    address: z.string().email(),
+    type: z.enum(['TO', 'CC', 'BCC']),
+  })).optional(),
+  templateContactRecipients: z.array(z.object({
+    contactId: z.number(),
+    type: z.enum(['TO', 'CC', 'BCC']),
+  })).optional(),
+  templateContactListRecipients: z.array(z.object({
+    contactListId: z.number(),
+    type: z.enum(['TO', 'CC', 'BCC']),
+  })).optional(),
 });
 
 export const rejectEmailSchema = z.object({
@@ -125,5 +150,6 @@ export type EditUserFormData = z.infer<typeof editUserSchema>;
 export type RecipientFormData = z.infer<typeof recipientSchema>;
 export type AttachmentFormData = z.infer<typeof attachmentSchema>;
 export type CreateEmailFormData = z.infer<typeof createEmailSchema>;
+export type CreateTemplateFormData = z.infer<typeof createTemplateSchema>;
 export type RejectEmailFormData = z.infer<typeof rejectEmailSchema>;
 export type CreateContactFormData = z.infer<typeof createContactSchema>;

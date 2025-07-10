@@ -983,8 +983,8 @@
                     "name": "Team Update",
                     "subject": "Team Update",
                     "content": "Monthly update for the team.",
-                    "html": "\u003Cp\u003EMonthly \u003Cb\u003Eupdate\u003C/b\u003E for the team.\u003C/p\u003E",
-                    "emailRecipients": [
+                    "html": false,
+                    "templateEmailRecipients": [
                       {
                         "address": "user1@example.com",
                         "type": "TO"
@@ -994,7 +994,7 @@
                         "type": "CC"
                       }
                     ],
-                    "contactRecipients": [
+                    "templateContactRecipients": [
                       {
                         "contactId": 1,
                         "type": "TO"
@@ -1004,7 +1004,7 @@
                         "type": "CC"
                       }
                     ],
-                    "contactListRecipients": [
+                    "templateContactListRecipients": [
                       {
                         "contactListId": 1,
                         "type": "BCC"
@@ -1037,11 +1037,11 @@
                       "example": "Hello, this is a welcome email."
                     },
                     "html": {
-                      "type": "string",
-                      "example": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
+                      "type": "boolean",
+                      "example": true,
                       "nullable": true
                     },
-                    "emailRecipients": {
+                    "templateEmailRecipients": {
                       "type": "array",
                       "items": {
                         "type": "object",
@@ -1076,7 +1076,7 @@
                         }
                       }
                     },
-                    "contactRecipients": {
+                    "templateContactRecipients": {
                       "type": "array",
                       "items": {
                         "type": "object",
@@ -1111,7 +1111,7 @@
                         }
                       }
                     },
-                    "contactListRecipients": {
+                    "templateContactListRecipients": {
                       "type": "array",
                       "items": {
                         "type": "object",
@@ -1165,8 +1165,8 @@
                       "id": 1,
                       "subject": "Welcome Email",
                       "content": "Hello, this is a welcome email.",
-                      "html": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
-                      "emailRecipients": [
+                      "html": true,
+                      "templateEmailRecipients": [
                         {
                           "id": 1,
                           "address": "user@example.com",
@@ -1175,7 +1175,7 @@
                           "updatedAt": "2024-03-20T10:00:00Z"
                         }
                       ],
-                      "contactRecipients": [
+                      "templateContactRecipients": [
                         {
                           "id": 2,
                           "contactId": 1,
@@ -1184,7 +1184,7 @@
                           "updatedAt": "2024-03-20T10:00:00Z"
                         }
                       ],
-                      "contactListRecipients": [
+                      "templateContactListRecipients": [
                         {
                           "id": 3,
                           "contactListId": 2,
@@ -1246,11 +1246,11 @@
                         "example": "Hello, this is a welcome email."
                       },
                       "html": {
-                        "type": "string",
-                        "example": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
+                        "type": "boolean",
+                        "example": true,
                         "nullable": true
                       },
-                      "emailRecipients": {
+                      "templateEmailRecipients": {
                         "type": "array",
                         "items": {
                           "type": "object",
@@ -1285,7 +1285,7 @@
                           }
                         }
                       },
-                      "contactRecipients": {
+                      "templateContactRecipients": {
                         "type": "array",
                         "items": {
                           "type": "object",
@@ -1320,7 +1320,7 @@
                           }
                         }
                       },
-                      "contactListRecipients": {
+                      "templateContactListRecipients": {
                         "type": "array",
                         "items": {
                           "type": "object",
@@ -1377,8 +1377,8 @@
                         "name": "Welcome Template",
                         "subject": "Welcome Email",
                         "content": "Hello, this is a welcome email.",
-                        "html": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
-                        "emailRecipients": [
+                        "html": true,
+                        "templateEmailRecipients": [
                           {
                             "id": 1,
                             "address": "user@example.com",
@@ -1387,7 +1387,7 @@
                             "updatedAt": "2024-03-20T10:00:00Z"
                           }
                         ],
-                        "contactRecipients": [
+                        "templateContactRecipients": [
                           {
                             "id": 2,
                             "contactId": 1,
@@ -1396,7 +1396,7 @@
                             "updatedAt": "2024-03-20T10:00:00Z"
                           }
                         ],
-                        "contactListRecipients": [
+                        "templateContactListRecipients": [
                           {
                             "id": 3,
                             "contactListId": 2,
@@ -1469,11 +1469,11 @@
                       "example": "Hello, this is a welcome email."
                     },
                     "html": {
-                      "type": "string",
-                      "example": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
+                      "type": "boolean",
+                      "example": true,
                       "nullable": true
                     },
-                    "emailRecipients": {
+                    "templateEmailRecipients": {
                       "type": "array",
                       "items": {
                         "type": "object",
@@ -1508,7 +1508,7 @@
                         }
                       }
                     },
-                    "contactRecipients": {
+                    "templateContactRecipients": {
                       "type": "array",
                       "items": {
                         "type": "object",
@@ -1543,7 +1543,7 @@
                         }
                       }
                     },
-                    "contactListRecipients": {
+                    "templateContactListRecipients": {
                       "type": "array",
                       "items": {
                         "type": "object",
@@ -1598,8 +1598,8 @@
                       "name": "Welcome Template",
                       "subject": "Welcome Email",
                       "content": "Hello, this is a welcome email.",
-                      "html": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
-                      "emailRecipients": [
+                      "html": true,
+                      "templateEmailRecipients": [
                         {
                           "id": 1,
                           "address": "user@example.com",
@@ -1608,7 +1608,7 @@
                           "updatedAt": "2024-03-20T10:00:00Z"
                         }
                       ],
-                      "contactRecipients": [
+                      "templateContactRecipients": [
                         {
                           "id": 2,
                           "contactId": 1,
@@ -1617,7 +1617,7 @@
                           "updatedAt": "2024-03-20T10:00:00Z"
                         }
                       ],
-                      "contactListRecipients": [
+                      "templateContactListRecipients": [
                         {
                           "id": 3,
                           "contactListId": 2,
@@ -3021,8 +3021,8 @@
             "example": "This is the email content"
           },
           "html": {
-            "type": "string",
-            "example": "\u003Cp\u003EThis is HTML content\u003C/p\u003E"
+            "type": "boolean",
+            "example": true
           },
           "attachmentIds": {
             "type": "array",
@@ -3191,6 +3191,11 @@
             "example": "Please find the meeting schedule attached.",
             "description": "Content/body of the email"
           },
+          "html": {
+            "type": "boolean",
+            "example": false,
+            "description": "Whether the content is HTML format"
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -3273,6 +3278,7 @@
           "from",
           "subject",
           "content",
+          "html",
           "status",
           "attachments",
           "recipients",
@@ -3423,25 +3429,25 @@
             "description": "Plain text content of the template"
           },
           "html": {
-            "type": "string",
-            "example": "\u003Cp\u003EHello, this is a \u003Cb\u003Ewelcome\u003C/b\u003E email.\u003C/p\u003E",
-            "description": "HTML content of the template"
+            "type": "boolean",
+            "example": true,
+            "description": "Whether the template has HTML content"
           },
-          "emailRecipients": {
+          "templateEmailRecipients": {
             "description": "Direct email recipients",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TemplateEmailRecipientDto"
             }
           },
-          "contactRecipients": {
+          "templateContactRecipients": {
             "description": "Contact recipients",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TemplateContactRecipientDto"
             }
           },
-          "contactListRecipients": {
+          "templateContactListRecipients": {
             "description": "Contact list recipients",
             "type": "array",
             "items": {

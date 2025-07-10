@@ -41,6 +41,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
 
 // Types for the new attachment upload flow
 interface DraftAttachment {
@@ -126,7 +127,7 @@ export function CreateEmailForm() {
       contactListRecipients: [] as { contactListId: number; type: 'TO' | 'CC' | 'BCC' }[],
       subject: '',
       content: '',
-      html: '',
+      html: false,
     }),
     [],
   );
@@ -708,14 +709,14 @@ export function CreateEmailForm() {
         contactListRecipients: [],
         subject: '',
         content: '',
-        html: '',
+        html: false,
       });
 
       // Apply template data
       form.setValue('subject', template.subject || '');
       form.setValue('content', template.content || '');
       if (template.html) {
-        form.setValue('html', template.html);
+        form.setValue('html', true);
       }
 
       // Apply email recipients
@@ -1520,23 +1521,21 @@ export function CreateEmailForm() {
                 control={form.control}
                 name="html"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>HTML Content (Optional)</FormLabel>
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                     <FormControl>
-                      <div className="relative">
-                        <ScrollArea className="h-[100px] border rounded-md">
-                          <Textarea
-                            placeholder="HTML content"
-                            className="min-h-[400px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                            {...field}
-                          />
-                        </ScrollArea>
-                        <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
-                          {field.value?.length || 0} characters
-                        </div>
-                      </div>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        HTML Content
+                      </FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Check this if the content contains HTML formatting
+                      </p>
+                    </div>
                   </FormItem>
                 )}
               />

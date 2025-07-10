@@ -53,7 +53,7 @@ const formSchema = z.object({
   content: z.string().min(1, {
     message: 'Content is required.',
   }),
-  html: z.string().optional(),
+  html: z.boolean().optional(),
   attachments: z.array(z.instanceof(File)).optional(),
 });
 
@@ -80,7 +80,7 @@ export function NewEmailForm() {
       recipients: [],
       subject: '',
       content: '',
-      html: '',
+      html: false,
       attachments: [],
     },
   });
@@ -135,8 +135,8 @@ export function NewEmailForm() {
       formData.append('content', data.content);
 
       // Add optional fields if they exist
-      if (data.html) {
-        formData.append('html', data.html);
+      if (data.html !== undefined) {
+        formData.append('html', data.html.toString());
       }
 
       // Add recipients as individual form fields

@@ -18,7 +18,7 @@ interface Email {
   from: string;
   subject: string;
   content: string;
-  html?: string;
+  html?: boolean;
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SENT' | 'FAILED';
   signedContent?: string;
   rejectionReason?: string;
@@ -363,7 +363,7 @@ export function EmailView({ id }: { id: string }) {
               {email.html ? (
                 <div
                   className="prose max-w-none"
-                  dangerouslySetInnerHTML={{ __html: email.html }}
+                  dangerouslySetInnerHTML={{ __html: email.content }}
                 />
               ) : (
                 <p className="whitespace-pre-wrap">{email.content}</p>
