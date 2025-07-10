@@ -484,7 +484,7 @@ export function EmailView({ id }: { id: string }) {
                   </Button>
                 )}
                 {canSignEmails && (
-                  <Button onClick={handleSign} disabled={isProcessing} variant="outline">
+                  <Button onClick={handleSign} disabled={isProcessing} variant="outline" className='bg-green-600 hover:bg-green-700 text-white'>
                     {isProcessing ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (

@@ -99,7 +99,7 @@ export function NotificationIndicator({
                 {settings.browserNotifications ? 'Browser notifications enabled' : 'Browser notifications disabled'}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-black">
               Right-click to reset notifications
             </p>
           </div>

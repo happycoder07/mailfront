@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Activity, ChevronDown, ChevronUp, AlertCircle, RefreshCw } from 'lucide-react';
+import { Activity, ChevronDown, ChevronUp, AlertCircle, RefreshCw, TrendingUp, Gauge, BarChart3, PieChart } from 'lucide-react';
 import { API_ENDPOINTS } from '@/lib/config';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -147,18 +147,18 @@ export function MetricsDisplay() {
     }
   };
 
-  const getMetricTypeColor = (type: MetricType) => {
+  const getMetricTypeIcon = (type: MetricType) => {
     switch (type) {
       case 'counter':
-        return 'bg-primary/10 text-primary';
+        return { icon: <TrendingUp className="h-4 w-4" />, color: 'bg-primary/10 text-primary' };
       case 'gauge':
-        return 'bg-success/10 text-success';
+        return { icon: <Gauge className="h-4 w-4" />, color: 'bg-success/10 text-success' };
       case 'histogram':
-        return 'bg-accent/10 text-accent';
+        return { icon: <BarChart3 className="h-4 w-4" />, color: 'bg-blue-500/10 text-blue-600' };
       case 'summary':
-        return 'bg-warning/10 text-warning';
+        return { icon: <PieChart className="h-4 w-4" />, color: 'bg-warning/10 text-warning' };
       default:
-        return 'bg-muted text-muted-foreground';
+        return { icon: <Activity className="h-4 w-4 text-muted-foreground" />, color: 'bg-muted text-muted-foreground' };
     }
   };
 
@@ -266,7 +266,9 @@ export function MetricsDisplay() {
                   >
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{group.name}</span>
-                      <Badge className={getMetricTypeColor(group.type)}>{group.type}</Badge>
+                      <Badge className={`text-xs ${getMetricTypeIcon(group.type).color}`}>
+                        {getMetricTypeIcon(group.type).icon}
+                      </Badge>
                     </div>
                     {expandedGroups[group.name] ? (
                       <ChevronUp className="h-4 w-4" />
