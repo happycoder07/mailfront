@@ -43,6 +43,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Switch } from '@/components/ui/switch';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 // Types for the new attachment upload flow
 interface DraftAttachment {
@@ -615,11 +616,17 @@ export function CreateEmailForm() {
         content: data.content,
       };
 
-      // If using rich text editor, automatically set html to true
+      // If using rich text editor, automatically set html to true and sanitize content
       if (useRichText) {
         emailData.html = true;
+        emailData.content = sanitizeHtml(data.content);
       } else if (data.html) {
         emailData.html = data.html;
+        // Also sanitize plain text content if HTML is manually enabled
+        emailData.content = sanitizeHtml(data.content);
+      } else {
+        // For plain text, just use the content as-is
+        emailData.content = data.content;
       }
 
       if (data.recipients && data.recipients.length > 0) emailData.recipients = JSON.stringify(data.recipients);
@@ -673,11 +680,17 @@ export function CreateEmailForm() {
         content: data.content,
       };
 
-      // If using rich text editor, automatically set html to true
+      // If using rich text editor, automatically set html to true and sanitize content
       if (useRichText) {
         templateData.html = true;
+        templateData.content = sanitizeHtml(data.content);
       } else if (data.html) {
         templateData.html = data.html;
+        // Also sanitize plain text content if HTML is manually enabled
+        templateData.content = sanitizeHtml(data.content);
+      } else {
+        // For plain text, just use the content as-is
+        templateData.content = data.content;
       }
 
       // Convert recipients to template format (no attachments in templates)

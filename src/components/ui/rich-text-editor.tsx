@@ -30,6 +30,7 @@ import {
   Palette,
 } from 'lucide-react';
 import { useState } from 'react';
+import { sanitizeHtml, sanitizeHtmlWithCheck } from '@/lib/sanitize';
 
 interface RichTextEditorProps {
   value: string;
@@ -79,7 +80,15 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
     ],
     content: value,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      const rawHtml = editor.getHTML();
+      // Sanitize the HTML content before passing it to onChange
+      const { sanitized, wasModified } = sanitizeHtmlWithCheck(rawHtml);
+
+      if (wasModified) {
+        console.warn('Potentially unsafe content was removed from the editor');
+      }
+
+      onChange(sanitized);
     },
     editorProps: {
       attributes: {
@@ -94,7 +103,11 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
 
   const addLink = () => {
     if (linkUrl) {
-      editor.chain().focus().extendMarkRange('link').setLink({ href: linkUrl }).run();
+      // Sanitize the URL before adding it
+      const sanitizedUrl = sanitizeHtml(linkUrl);
+      if (sanitizedUrl) {
+        editor.chain().focus().extendMarkRange('link').setLink({ href: sanitizedUrl }).run();
+      }
       setLinkUrl('');
       setShowLinkInput(false);
     }
