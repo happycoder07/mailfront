@@ -41,7 +41,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Checkbox } from '@/components/ui/checkbox';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
+import { Switch } from '@/components/ui/switch';
 
 // Types for the new attachment upload flow
 interface DraftAttachment {
@@ -112,6 +113,16 @@ export function CreateEmailForm() {
   // Template details state
   const [isTemplateDetailsModalOpen, setIsTemplateDetailsModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplateResponseDto | null>(null);
+
+  // Rich text editor state
+  const [useRichText, setUseRichText] = useState(false);
+
+  // Handle rich text toggle
+  const handleRichTextToggle = (enabled: boolean) => {
+    setUseRichText(enabled);
+    // Automatically set HTML checkbox based on rich text mode
+    form.setValue('html', enabled);
+  };
 
   // Check if user has permission to send emails
   const canSendEmail = hasPermission(PERMISSIONS.SEND_EMAIL);
@@ -603,7 +614,14 @@ export function CreateEmailForm() {
         subject: data.subject,
         content: data.content,
       };
-      if (data.html) emailData.html = data.html;
+
+      // If using rich text editor, automatically set html to true
+      if (useRichText) {
+        emailData.html = true;
+      } else if (data.html) {
+        emailData.html = data.html;
+      }
+
       if (data.recipients && data.recipients.length > 0) emailData.recipients = JSON.stringify(data.recipients);
       const contactRecipients = form.getValues('contactRecipients');
       if (contactRecipients && contactRecipients.length > 0) emailData.contactRecipients = JSON.stringify(contactRecipients);
@@ -655,7 +673,12 @@ export function CreateEmailForm() {
         content: data.content,
       };
 
-      if (data.html) templateData.html = data.html;
+      // If using rich text editor, automatically set html to true
+      if (useRichText) {
+        templateData.html = true;
+      } else if (data.html) {
+        templateData.html = data.html;
+      }
 
       // Convert recipients to template format (no attachments in templates)
       if (data.recipients && data.recipients.length > 0) {
@@ -715,7 +738,10 @@ export function CreateEmailForm() {
       // Apply template data
       form.setValue('subject', template.subject || '');
       form.setValue('content', template.content || '');
+
+      // If template has HTML content, enable rich text editor
       if (template.html) {
+        setUseRichText(true);
         form.setValue('html', true);
       }
 
@@ -1497,45 +1523,40 @@ export function CreateEmailForm() {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Content</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <ScrollArea className="h-[300px] border rounded-md">
-                          <Textarea
-                            placeholder="Email content"
-                            className="min-h-[400px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                            {...field}
-                          />
-                        </ScrollArea>
-                        <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
-                          {field.value?.length || 0} characters
-                        </div>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Content</FormLabel>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-muted-foreground">Rich Text</span>
+                        <Switch
+                          checked={useRichText}
+                          onCheckedChange={handleRichTextToggle}
+                        />
                       </div>
+                    </div>
+                    <FormControl>
+                      {useRichText ? (
+                        <RichTextEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Email content"
+                          className="min-h-[300px]"
+                        />
+                      ) : (
+                        <div className="relative">
+                          <ScrollArea className="h-[300px] border rounded-md">
+                            <Textarea
+                              placeholder="Email content"
+                              className="min-h-[400px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                              {...field}
+                            />
+                          </ScrollArea>
+                          <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
+                            {field.value?.length || 0} characters
+                          </div>
+                        </div>
+                      )}
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="html"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>
-                        HTML Content
-                      </FormLabel>
-                      <p className="text-sm text-muted-foreground">
-                        Check this if the content contains HTML formatting
-                      </p>
-                    </div>
                   </FormItem>
                 )}
               />
