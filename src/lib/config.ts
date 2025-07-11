@@ -6,12 +6,22 @@ export const API_ENDPOINTS = {
   // Auth endpoints
   AUTH: {
     LOGIN: `${API_BASE_URL}/auth/login`,
+    LOGIN_2FA: `${API_BASE_URL}/auth/login/2fa`,
     REGISTER: `${API_BASE_URL}/auth/register`,
     PROFILE: `${API_BASE_URL}/auth/profile`,
     LOGOUT: `${API_BASE_URL}/auth/logout`,
     USERS: `${API_BASE_URL}/auth/users`,
     USER: (id: string) => `${API_BASE_URL}/auth/users/${id}`,
     ROLES: `${API_BASE_URL}/auth/roles`,
+    // 2FA endpoints
+    TWO_FACTOR: {
+      SETUP: `${API_BASE_URL}/auth/2fa/setup`,
+      ENABLE: `${API_BASE_URL}/auth/2fa/enable`,
+      DISABLE: `${API_BASE_URL}/auth/2fa/disable`,
+      VERIFY: `${API_BASE_URL}/auth/2fa/verify`,
+      REGENERATE_BACKUP_CODES: `${API_BASE_URL}/auth/2fa/backup-codes/regenerate`,
+      STATUS: `${API_BASE_URL}/auth/2fa/status`,
+    },
   },
 
   // Mail endpoints
@@ -421,4 +431,50 @@ export type EmailTemplateResponseDto = {
   templateContactListRecipients: TemplateContactListRecipientDto[];
   createdAt: string;
   updatedAt: string;
+};
+
+// 2FA Types
+export type TwoFactorRequiredResponseDto = {
+  requiresTwoFactor: boolean;
+  message: string;
+  tempToken: string;
+  user: UserResponseDto;
+};
+
+export type VerifyTwoFactorLoginDto = {
+  token: string;
+  tempToken: string;
+};
+
+export type TwoFactorSetupResponseDto = {
+  secret: string;
+  qrCode: string;
+  backupCodes: string[];
+  otpauthUrl: string;
+};
+
+export type EnableTwoFactorDto = {
+  token: string;
+};
+
+export type DisableTwoFactorDto = {
+  token: string;
+};
+
+export type VerifyTwoFactorDto = {
+  token: string;
+};
+
+export type RegenerateBackupCodesDto = {
+  token: string;
+};
+
+export type TwoFactorVerificationResponseDto = {
+  valid: boolean;
+  message: string;
+};
+
+export type TwoFactorStatusResponseDto = {
+  enabled: boolean;
+  backupCodesRemaining: number;
 };

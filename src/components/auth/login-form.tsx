@@ -16,8 +16,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
-import { loginSchema, LoginFormData } from '@/lib/validation';
-import { Mail, Lock, Loader2 } from 'lucide-react';
+import { loginSchema, loginWithTwoFactorSchema, LoginFormData, LoginWithTwoFactorFormData } from '@/lib/validation';
+import { Mail, Lock, Loader2, Shield, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 
 const containerVariants = {
@@ -67,14 +67,21 @@ const buttonVariants = {
 export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [tempToken, setTempToken] = useState<string>('');
+  const { login, loginWithTwoFactor } = useAuth();
+
+  // Generate unique IDs for accessibility
   const emailId = useId();
   const passwordId = useId();
+  const tokenId = useId();
   const emailErrorId = useId();
   const passwordErrorId = useId();
+  const tokenErrorId = useId();
   const loadingDescId = useId();
 
-  const form = useForm<LoginFormData>({
+  // Login form
+  const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
@@ -82,7 +89,25 @@ export function LoginForm() {
     },
   });
 
-  async function onSubmit(data: LoginFormData) {
+  // 2FA form
+  const twoFactorForm = useForm<LoginWithTwoFactorFormData>({
+    resolver: zodResolver(loginWithTwoFactorSchema),
+    defaultValues: {
+      token: '',
+      tempToken: '',
+    },
+  });
+
+  // Handle back to login
+  const handleBackToLogin = () => {
+    setRequires2FA(false);
+    setTempToken('');
+    loginForm.reset();
+    twoFactorForm.reset();
+  };
+
+  // Handle initial login
+  const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
 
     try {
@@ -95,8 +120,16 @@ export function LoginForm() {
           variant: 'default',
           duration: 500,
         });
-
         router.push('/emails');
+      } else if (result.requires2FA && result.tempToken) {
+        setRequires2FA(true);
+        setTempToken(result.tempToken);
+        twoFactorForm.setValue('tempToken', result.tempToken);
+        toast({
+          title: 'Two-Factor Authentication Required',
+          description: 'Please enter your 6-digit authentication code.',
+          variant: 'default',
+        });
       } else {
         toast({
           title: 'Error',
@@ -113,8 +146,147 @@ export function LoginForm() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Handle 2FA verification
+  const handleTwoFactor = async (data: LoginWithTwoFactorFormData) => {
+    setIsLoading(true);
+
+    try {
+      const result = await loginWithTwoFactor(data.token, data.tempToken);
+
+      if (result.success) {
+        toast({
+          title: 'Success',
+          description: 'You have been logged in successfully.',
+          variant: 'default',
+          duration: 500,
+        });
+        router.push('/emails');
+      } else {
+        toast({
+          title: 'Error',
+          description: result.message || 'Invalid two-factor authentication token',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Render 2FA form
+  if (requires2FA) {
+    return (
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="w-full max-w-md mx-auto"
+        role="main"
+        aria-labelledby="two-factor-form-title"
+      >
+        <div className="space-y-6">
+          <h1 id="two-factor-form-title" className="sr-only">
+            Two-Factor Authentication
+          </h1>
+
+          <motion.div variants={itemVariants} className="text-center">
+            <div className="flex justify-center mb-4">
+              <Shield className="h-12 w-12 text-primary" aria-hidden="true" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Two-Factor Authentication</h2>
+            <p className="text-muted-foreground">
+              Enter the 6-digit code from your authenticator app or an 8-character backup code
+            </p>
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const token = formData.get('token') as string;
+
+                if (token && (token.length === 6 || token.length === 8)) {
+                  handleTwoFactor({ token, tempToken });
+                } else {
+                  toast({
+                    title: 'Error',
+                    description: 'Please enter a valid 6-digit authentication code or 8-character backup code',
+                    variant: 'destructive',
+                  });
+                }
+              }}
+              className="space-y-6"
+            >
+              <div>
+                <label htmlFor={tokenId} className="block text-sm font-medium mb-2">
+                  Authentication Code or Backup Code
+                </label>
+                <Input
+                  id={tokenId}
+                  name="token"
+                  type="text"
+                  placeholder="000000 or A1B2C3D4"
+                  className="text-center text-lg tracking-widest w-full"
+                  maxLength={8}
+                  autoComplete="off"
+                  autoFocus
+                  required
+                  aria-label="6-digit authentication code or 8-character backup code"
+                />
+              </div>
+
+              <motion.div variants={buttonVariants}>
+                <Button
+                  type="submit"
+                  className="w-full bg-primary hover:bg-primary/90"
+                  disabled={isLoading}
+                  aria-describedby={isLoading ? loadingDescId : undefined}
+                  aria-label="Verify two-factor authentication"
+                  title="Verify two-factor authentication"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                      <span id={loadingDescId} className="sr-only">
+                        Verifying authentication code, please wait
+                      </span>
+                      Verifying...
+                    </>
+                  ) : (
+                    'Verify'
+                  )}
+                </Button>
+              </motion.div>
+            </form>
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={handleBackToLogin}
+              aria-label="Back to login"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+              Back to Login
+            </Button>
+          </motion.div>
+        </div>
+      </motion.div>
+    );
   }
 
+  // Render login form
   return (
     <motion.div
       variants={containerVariants}
@@ -124,9 +296,9 @@ export function LoginForm() {
       role="main"
       aria-labelledby="login-form-title"
     >
-      <Form {...form}>
+      <Form {...loginForm}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={loginForm.handleSubmit(handleLogin)}
           className="space-y-6"
           aria-label="Login form"
           noValidate
@@ -137,7 +309,7 @@ export function LoginForm() {
 
           <motion.div variants={itemVariants}>
             <FormField
-              control={form.control}
+              control={loginForm.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
@@ -158,8 +330,8 @@ export function LoginForm() {
                         placeholder="name@example.com"
                         className="pl-10"
                         {...field}
-                        aria-describedby={form.formState.errors.email ? emailErrorId : undefined}
-                        aria-invalid={!!form.formState.errors.email}
+                        aria-describedby={loginForm.formState.errors.email ? emailErrorId : undefined}
+                        aria-invalid={!!loginForm.formState.errors.email}
                         autoComplete="email"
                         required
                         aria-label="Email address"
@@ -174,7 +346,7 @@ export function LoginForm() {
 
           <motion.div variants={itemVariants}>
             <FormField
-              control={form.control}
+              control={loginForm.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
@@ -194,8 +366,8 @@ export function LoginForm() {
                         type="password"
                         className="pl-10"
                         {...field}
-                        aria-describedby={form.formState.errors.password ? passwordErrorId : undefined}
-                        aria-invalid={!!form.formState.errors.password}
+                        aria-describedby={loginForm.formState.errors.password ? passwordErrorId : undefined}
+                        aria-invalid={!!loginForm.formState.errors.password}
                         autoComplete="current-password"
                         required
                         aria-label="Password"

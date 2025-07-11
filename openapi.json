@@ -263,7 +263,7 @@
                     "recipients": "[{\"address\":\"recipient1@example.com\",\"type\":\"TO\"},{\"address\":\"recipient2@example.com\",\"type\":\"CC\"}]",
                     "subject": "Test Subject",
                     "content": "This is the email content",
-                    "html": "\u003Cp\u003EThis is HTML content\u003C/p\u003E"
+                    "html": false
                   }
                 },
                 "Email with Contact Recipients": {
@@ -419,9 +419,7 @@
             "required": false,
             "in": "query",
             "description": "Filter and pagination parameters",
-            "schema": {
-
-            }
+            "schema": {}
           }
         ],
         "responses": {
@@ -1682,10 +1680,12 @@
     },
     "/api/auth/login": {
       "post": {
+        "description": "Authenticate user with email and password. If 2FA is enabled, returns a temporary token for 2FA verification.",
         "operationId": "AuthController_login",
         "parameters": [],
         "requestBody": {
           "required": true,
+          "description": "Login credentials (email and password only)",
           "content": {
             "application/json": {
               "schema": {
@@ -1696,7 +1696,76 @@
         },
         "responses": {
           "200": {
-            "description": "Login successful",
+            "description": "Login successful - User authenticated and logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Two-factor authentication required - User needs to provide 2FA token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorRequiredResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error - Invalid input format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "User login",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/login/2fa": {
+      "post": {
+        "description": "Verify 2FA token and complete the login process using the temporary token from the initial login",
+        "operationId": "AuthController_verifyTwoFactorAndLogin",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "2FA verification token and temporary session token",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyTwoFactorLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "2FA verification successful - User authenticated and logged in",
             "content": {
               "application/json": {
                 "schema": {
@@ -1706,7 +1775,24 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Invalid 2FA token or expired temporary session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error - Invalid input format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1714,7 +1800,7 @@
             "XSRF": []
           }
         ],
-        "summary": "User login",
+        "summary": "Complete login with two-factor authentication",
         "tags": [
           "auth"
         ]
@@ -2049,6 +2135,297 @@
           }
         ],
         "summary": "Get all roles",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/2fa/setup": {
+      "post": {
+        "description": "Generate a new TOTP secret and QR code for 2FA setup",
+        "operationId": "AuthController_setupTwoFactor",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "2FA setup generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorSetupResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Setup two-factor authentication",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/2fa/enable": {
+      "post": {
+        "description": "Enable 2FA after verifying the setup token",
+        "operationId": "AuthController_enableTwoFactor",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnableTwoFactorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "2FA enabled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorVerificationResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid token"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Enable two-factor authentication",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/2fa/disable": {
+      "post": {
+        "description": "Disable 2FA using a valid token or backup code",
+        "operationId": "AuthController_disableTwoFactor",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisableTwoFactorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "2FA disabled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorVerificationResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid token"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Disable two-factor authentication",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/2fa/verify": {
+      "post": {
+        "description": "Verify a TOTP token or backup code",
+        "operationId": "AuthController_verifyTwoFactor",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyTwoFactorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token verification result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorVerificationResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid token"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Verify two-factor authentication token",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/2fa/backup-codes/regenerate": {
+      "post": {
+        "description": "Generate new backup codes (invalidates old ones)",
+        "operationId": "AuthController_regenerateBackupCodes",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegenerateBackupCodesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Backup codes regenerated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "backupCodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "A1B2C3D4",
+                        "E5F6G7H8",
+                        "I9J0K1L2"
+                      ]
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Backup codes regenerated successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid token"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Regenerate backup codes",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/2fa/status": {
+      "get": {
+        "description": "Get current 2FA status and remaining backup codes",
+        "operationId": "AuthController_getTwoFactorStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "2FA status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorStatusResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          },
+          {
+            "XSRF": []
+          }
+        ],
+        "summary": "Get two-factor authentication status",
         "tags": [
           "auth"
         ]
@@ -2839,9 +3216,7 @@
     "title": "Mail Manager API",
     "description": "API for managing emails and attachments",
     "version": "v1",
-    "contact": {
-
-    }
+    "contact": {}
   },
   "tags": [],
   "servers": [],
@@ -3555,6 +3930,115 @@
           "message"
         ]
       },
+      "TwoFactorRequiredResponseDto": {
+        "type": "object",
+        "properties": {
+          "requiresTwoFactor": {
+            "type": "boolean",
+            "example": true,
+            "description": "Indicates that two-factor authentication is required"
+          },
+          "message": {
+            "type": "string",
+            "example": "Two-factor authentication is required",
+            "description": "Message indicating that 2FA is required for this account"
+          },
+          "tempToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "description": "Temporary JWT token for 2FA verification (valid for 5 minutes)"
+          },
+          "user": {
+            "description": "User information (without sensitive data) for 2FA setup",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "requiresTwoFactor",
+          "message",
+          "tempToken",
+          "user"
+        ]
+      },
+      "ErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "example": 400,
+            "description": "HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid credentials",
+            "description": "Error message describing what went wrong"
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request",
+            "description": "Error type"
+          }
+        },
+        "required": [
+          "statusCode",
+          "message",
+          "error"
+        ]
+      },
+      "ValidationErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "example": 400,
+            "description": "HTTP status code"
+          },
+          "message": {
+            "example": [
+              "email must be an email",
+              "password must be longer than or equal to 6 characters"
+            ],
+            "description": "Array of validation error messages",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request",
+            "description": "Error type"
+          }
+        },
+        "required": [
+          "statusCode",
+          "message",
+          "error"
+        ]
+      },
+      "VerifyTwoFactorLoginDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "123456",
+            "description": "6-digit TOTP token or 8-character backup code for login verification"
+          },
+          "tempToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "description": "Temporary JWT token received from the initial login response"
+          }
+        },
+        "required": [
+          "token",
+          "tempToken"
+        ]
+      },
       "RegisterDto": {
         "type": "object",
         "properties": {
@@ -3733,6 +4217,134 @@
             "description": "User role ID"
           }
         }
+      },
+      "TwoFactorSetupResponseDto": {
+        "type": "object",
+        "properties": {
+          "secret": {
+            "type": "string",
+            "example": "JBSWY3DPEHPK3PXP",
+            "description": "Base32 encoded secret key"
+          },
+          "qrCode": {
+            "type": "string",
+            "example": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+            "description": "QR code data URL for authenticator apps"
+          },
+          "backupCodes": {
+            "example": [
+              "A1B2C3D4",
+              "E5F6G7H8",
+              "I9J0K1L2"
+            ],
+            "description": "Array of backup codes (one-time use)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "otpauthUrl": {
+            "type": "string",
+            "example": "otpauth://totp/MailManager:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=MailManager",
+            "description": "OTP Auth URL for manual entry"
+          }
+        },
+        "required": [
+          "secret",
+          "qrCode",
+          "backupCodes",
+          "otpauthUrl"
+        ]
+      },
+      "EnableTwoFactorDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "123456",
+            "description": "6-digit TOTP token from authenticator app"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "TwoFactorVerificationResponseDto": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether the token was valid"
+          },
+          "message": {
+            "type": "string",
+            "example": "2FA verification successful",
+            "description": "Response message"
+          }
+        },
+        "required": [
+          "valid",
+          "message"
+        ]
+      },
+      "DisableTwoFactorDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "123456",
+            "description": "6-digit TOTP token or 8-character backup code"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "VerifyTwoFactorDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "123456",
+            "description": "6-digit TOTP token or 8-character backup code"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "RegenerateBackupCodesDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "123456",
+            "description": "6-digit TOTP token to verify identity"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "TwoFactorStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether 2FA is enabled for the user"
+          },
+          "backupCodesRemaining": {
+            "type": "number",
+            "example": 8,
+            "description": "Number of remaining backup codes"
+          }
+        },
+        "required": [
+          "enabled",
+          "backupCodesRemaining"
+        ]
       },
       "HealthResponseDto": {
         "type": "object",
@@ -4011,7 +4623,10 @@
           },
           "contactListIds": {
             "description": "List of contact list IDs to associate with the contact",
-            "example": [1, 2],
+            "example": [
+              1,
+              2
+            ],
             "type": "array",
             "items": {
               "type": "string"
@@ -4173,7 +4788,10 @@
           },
           "contactIds": {
             "description": "List of contact IDs to include in the list",
-            "example": [1, 2],
+            "example": [
+              1,
+              2
+            ],
             "type": "array",
             "items": {
               "type": "string"
@@ -4299,7 +4917,10 @@
           },
           "contactIds": {
             "description": "List of contact IDs to include in the list",
-            "example": [1, 2],
+            "example": [
+              1,
+              2
+            ],
             "type": "array",
             "items": {
               "type": "string"
@@ -4322,7 +4943,10 @@
           },
           "contactListIds": {
             "description": "List of contact list IDs to associate with the contact",
-            "example": [1, 2],
+            "example": [
+              1,
+              2
+            ],
             "type": "array",
             "items": {
               "type": "string"

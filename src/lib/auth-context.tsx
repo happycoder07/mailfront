@@ -12,6 +12,10 @@ interface AuthContextType {
   login: (
     email: string,
     password: string
+  ) => Promise<{ success: boolean; user?: any; message?: string; requires2FA?: boolean; tempToken?: string }>;
+  loginWithTwoFactor: (
+    token: string,
+    tempToken: string
   ) => Promise<{ success: boolean; user?: any; message?: string }>;
   logout: () => Promise<void>;
   getCSRFToken: () => string;
@@ -46,6 +50,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ email, password }),
       });
 
+      if (response.status === 400) {
+        const errorData = await response.json();
+        if (errorData.requiresTwoFactor) {
+          return {
+            success: false,
+            requires2FA: true,
+            tempToken: errorData.tempToken,
+            message: errorData.message || 'Two-factor authentication required',
+          };
+        }
+      }
+
       if (!response.ok) {
         throw new Error('Invalid credentials');
       }
@@ -75,6 +91,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return {
         success: false,
         message: error instanceof Error ? error.message : 'Login failed',
+      };
+    }
+  };
+
+  const loginWithTwoFactor = async (token: string, tempToken: string) => {
+    try {
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN_2FA, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token, tempToken }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Invalid two-factor authentication token');
+      }
+
+      const data = await response.json();
+
+      // Store CSRF token
+      if (data.csrf_token) {
+        setCsrfToken(data.csrf_token);
+      }
+
+      // Set role and permissions from login response
+      if (data.user.role) {
+        const roleKey = data.user.role as Role;
+        setRole(roleKey);
+
+        const userPermissions = data.user.permissions;
+        setPermissions(userPermissions);
+      }
+
+      return {
+        success: true,
+        user: data.user,
+        message: data.message,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Two-factor authentication failed',
       };
     }
   };
@@ -125,6 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setRole,
         hasPermission,
         login,
+        loginWithTwoFactor,
         logout,
         getCSRFToken,
         mounted,

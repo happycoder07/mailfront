@@ -8,6 +8,56 @@ export const loginSchema = z.object({
   password: z.string().min(6, {
     message: 'Password must be at least 6 characters.',
   }),
+  twoFactorToken: z.string().optional(),
+});
+
+export const loginWithTwoFactorSchema = z.object({
+  token: z.string().refine((val) => {
+    // Accept either 6-digit TOTP token or 8-character alphanumeric backup code
+    const isTOTP = /^\d{6}$/.test(val);
+    const isBackupCode = /^[A-Z0-9]{8}$/.test(val);
+    return isTOTP || isBackupCode;
+  }, {
+    message: 'Please enter a valid 6-digit authentication code or 8-character backup code.',
+  }),
+  tempToken: z.string().min(1, {
+    message: 'Temporary token is required.',
+  }),
+});
+
+// 2FA validation schemas
+export const enableTwoFactorSchema = z.object({
+  token: z.string().min(6, {
+    message: 'Please enter a valid 6-digit token.',
+  }),
+});
+
+export const disableTwoFactorSchema = z.object({
+  token: z.string().refine((val) => {
+    // Accept either 6-digit TOTP token or 8-character alphanumeric backup code
+    const isTOTP = /^\d{6}$/.test(val);
+    const isBackupCode = /^[A-Z0-9]{8}$/.test(val);
+    return isTOTP || isBackupCode;
+  }, {
+    message: 'Please enter a valid 6-digit token or 8-character backup code.',
+  }),
+});
+
+export const verifyTwoFactorSchema = z.object({
+  token: z.string().refine((val) => {
+    // Accept either 6-digit TOTP token or 8-character alphanumeric backup code
+    const isTOTP = /^\d{6}$/.test(val);
+    const isBackupCode = /^[A-Z0-9]{8}$/.test(val);
+    return isTOTP || isBackupCode;
+  }, {
+    message: 'Please enter a valid 6-digit token or 8-character backup code.',
+  }),
+});
+
+export const regenerateBackupCodesSchema = z.object({
+  token: z.string().min(6, {
+    message: 'Please enter a valid 6-digit token.',
+  }),
 });
 
 export const registerSchema = z.object({
@@ -144,9 +194,14 @@ export const createContactSchema = z.object({
 
 // Types
 export type LoginFormData = z.infer<typeof loginSchema>;
+export type LoginWithTwoFactorFormData = z.infer<typeof loginWithTwoFactorSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
 export type EditUserFormData = z.infer<typeof editUserSchema>;
+export type EnableTwoFactorFormData = z.infer<typeof enableTwoFactorSchema>;
+export type DisableTwoFactorFormData = z.infer<typeof disableTwoFactorSchema>;
+export type VerifyTwoFactorFormData = z.infer<typeof verifyTwoFactorSchema>;
+export type RegenerateBackupCodesFormData = z.infer<typeof regenerateBackupCodesSchema>;
 export type RecipientFormData = z.infer<typeof recipientSchema>;
 export type AttachmentFormData = z.infer<typeof attachmentSchema>;
 export type CreateEmailFormData = z.infer<typeof createEmailSchema>;

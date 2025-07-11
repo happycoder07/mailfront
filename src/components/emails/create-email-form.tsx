@@ -1537,15 +1537,15 @@ export function CreateEmailForm() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center justify-between">
-                      <FormLabel>Content</FormLabel>
+                    <FormLabel>Content</FormLabel>
                       <div className="flex items-center space-x-2">
                         <span className="text-sm text-muted-foreground">Rich Text</span>
                         <Switch
                           checked={useRichText}
                           onCheckedChange={handleRichTextToggle}
                         />
+                        </div>
                       </div>
-                    </div>
                     <FormControl>
                       {useRichText ? (
                         <RichTextEditor
@@ -1555,18 +1555,18 @@ export function CreateEmailForm() {
                           className="min-h-[300px]"
                         />
                       ) : (
-                        <div className="relative">
+                      <div className="relative">
                           <ScrollArea className="h-[300px] border rounded-md">
-                            <Textarea
+                          <Textarea
                               placeholder="Email content"
-                              className="min-h-[400px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                              {...field}
-                            />
-                          </ScrollArea>
-                          <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
-                            {field.value?.length || 0} characters
-                          </div>
+                            className="min-h-[400px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                            {...field}
+                          />
+                        </ScrollArea>
+                        <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
+                          {field.value?.length || 0} characters
                         </div>
+                      </div>
                       )}
                     </FormControl>
                     <FormMessage />
