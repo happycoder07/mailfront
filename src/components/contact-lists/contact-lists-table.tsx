@@ -249,7 +249,9 @@ export function ContactListsTable() {
                 ) : lists.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center" role="alert">
-                      No contact lists found
+                      <p className="text-muted-foreground">
+                        No contact lists found. Create your first contact list to get started.
+                      </p>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -342,7 +344,7 @@ export function ContactListsTable() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Contact List</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{contactListToDelete?.name}"? This action cannot be
+              Are you sure you want to delete &quot;{contactListToDelete?.name}&quot;? This action cannot be
               undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

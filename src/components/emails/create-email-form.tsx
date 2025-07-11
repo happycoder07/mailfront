@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -184,22 +184,7 @@ export function CreateEmailForm() {
     }
   };
 
-  // Load contacts and contact lists on mount (from cache or API)
-  useEffect(() => {
-    canViewContacts && loadContacts();
-    canViewContactLists && loadContactLists();
-  }, []);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const loadContacts = async () => {
+  const loadContacts = useCallback(async () => {
     try {
       const response = await fetch(API_ENDPOINTS.MAIL.CONTACTS, {
         headers: { 'X-XSRF-TOKEN': getCSRFToken() },
@@ -215,8 +200,9 @@ export function CreateEmailForm() {
     } catch (error) {
       console.error('Error loading contacts:', error);
     }
-  };
-  const loadContactLists = async () => {
+  }, [getCSRFToken]);
+
+  const loadContactLists = useCallback(async () => {
     try {
       const response = await fetch(API_ENDPOINTS.MAIL.CONTACT_LISTS, {
         headers: { 'X-XSRF-TOKEN': getCSRFToken() },
@@ -232,7 +218,26 @@ export function CreateEmailForm() {
     } catch (error) {
       console.error('Error loading contact lists:', error);
     }
-  };
+  }, [getCSRFToken]);
+
+  // Load contacts and contact lists on mount (from cache or API)
+  useEffect(() => {
+    if (canViewContacts) {
+      loadContacts();
+    }
+    if (canViewContactLists) {
+      loadContactLists();
+    }
+  }, [canViewContacts, canViewContactLists, loadContacts, loadContactLists]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const loadTemplates = async () => {
     if (!canReadTemplates) {
@@ -1854,12 +1859,12 @@ export function CreateEmailForm() {
               )}
               {!canCreateTemplate && (
                 <p className="text-sm text-muted-foreground">
-                  You don't have permission to create email templates
+                  You don&apos;t have permission to create email templates
                 </p>
               )}
               {!canReadTemplates && (
                 <p className="text-sm text-muted-foreground">
-                  You don't have permission to use email templates
+                  You don&apos;t have permission to use email templates
                 </p>
               )}
             </div>

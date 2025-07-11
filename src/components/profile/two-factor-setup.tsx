@@ -458,7 +458,7 @@ Note: These codes will be invalidated if you regenerate new backup codes.`;
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm font-medium">Manual Entry (if QR code doesn't work):</p>
+              <p className="text-sm font-medium">Manual Entry (if QR code doesn&apos;t work):</p>
               <div className="flex items-center gap-2 p-2 bg-muted rounded">
                 <code className="text-sm flex-1">{setupData.secret}</code>
                 <Button variant="ghost" size="sm" onClick={() => copyToClipboard(setupData.secret)}>

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { Role, Permission, ROLES } from './permissions';
 import { API_ENDPOINTS } from './config';
+import type { UserResponseDto } from './config';
 
 interface AuthContextType {
   role: Role | null;
@@ -14,7 +15,7 @@ interface AuthContextType {
     password: string
   ) => Promise<{
     success: boolean;
-    user?: any;
+    user?: UserResponseDto;
     message?: string;
     requires2FA?: boolean;
     tempToken?: string;
@@ -22,7 +23,7 @@ interface AuthContextType {
   loginWithTwoFactor: (
     token: string,
     tempToken: string
-  ) => Promise<{ success: boolean; user?: any; message?: string }>;
+  ) => Promise<{ success: boolean; user?: UserResponseDto; message?: string }>;
   logout: () => Promise<void>;
   getCSRFToken: () => string;
   mounted: boolean;

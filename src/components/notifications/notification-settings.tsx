@@ -100,8 +100,8 @@ export function NotificationSettings() {
         <CardContent>
           <div className="text-center py-4">
             <BellOff className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-            <p className="text-muted-foreground">
-              You don't have permission to view emails, so notifications are not available.
+            <p className="text-sm text-muted-foreground">
+              You don&apos;t have permission to manage notification settings.
             </p>
           </div>
         </CardContent>

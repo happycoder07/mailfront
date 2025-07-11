@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Table,
@@ -10,14 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { Search, Loader2, Pencil, Trash, Eye, ShieldCheck, ShieldX } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { UserDialog } from './user-dialog';
 import type { UserProfileDto, PaginatedUsersResponseDto } from '@/lib/config';
 import { useTableShortcuts } from '@/hooks/use-keyboard-shortcuts';
@@ -93,11 +91,6 @@ const searchVariants = {
   },
 };
 
-const buttonVariants = {
-  hover: { scale: 1.05, transition: { duration: 0.2 } },
-  tap: { scale: 0.95, transition: { duration: 0.1 } },
-};
-
 export function UserList() {
   const [users, setUsers] = useState<UserProfileDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,7 +108,6 @@ export function UserList() {
   const { hasPermission, getCSRFToken } = useAuth();
 
   const canManageUsers = hasPermission(PERMISSIONS.MANAGE_USERS);
-  const canEditUsers = hasPermission(PERMISSIONS.EDIT_USERS);
   const canDeleteUsers = hasPermission(PERMISSIONS.DELETE_USERS);
 
   // Table navigation shortcuts
@@ -146,7 +138,7 @@ export function UserList() {
     }
   );
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const response = await fetch(`${API_ENDPOINTS.AUTH.USERS}?search=${searchQuery}`, {
         headers: {
@@ -179,7 +171,7 @@ export function UserList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery, getCSRFToken]);
 
   const handleDeleteUser = async (userId: number) => {
     if (!canDeleteUsers) {
@@ -235,7 +227,7 @@ export function UserList() {
 
   useEffect(() => {
     fetchUsers();
-  }, [searchQuery]);
+  }, [fetchUsers]);
 
   if (!canManageUsers) {
     return (

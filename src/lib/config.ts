@@ -266,7 +266,7 @@ export type TerminusHealthResponseDto = {
       };
     };
   };
-  error: Record<string, any>;
+  error: Record<string, unknown>;
   details: {
     database?: {
       status: TerminusHealthStatus;

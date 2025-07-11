@@ -348,7 +348,7 @@ export function ContactsList() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Contact</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{contactToDelete?.name}"? This action cannot be
+              Are you sure you want to delete &quot;{contactToDelete?.name}&quot;? This action cannot be
               undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
