@@ -113,43 +113,49 @@ export function useEmailNotifications(): UseEmailNotificationsReturn {
   }, [settings.soundEnabled]);
 
   // Show browser notification
-  const showBrowserNotification = useCallback((email: EmailResponseDto) => {
-    if (!settings.browserNotifications) return;
+  const showBrowserNotification = useCallback(
+    (email: EmailResponseDto) => {
+      if (!settings.browserNotifications) return;
 
-    requestNotificationPermission().then(hasPermission => {
-      if (hasPermission) {
-        const notification = new Notification('New Email Pending Approval', {
-          body: `From: ${email.from}\nSubject: ${email.subject}`,
-          icon: '/favicon.ico',
-          tag: `email-${email.id}`,
-          requireInteraction: false,
-          silent: !settings.soundEnabled,
-        });
+      requestNotificationPermission().then(hasPermission => {
+        if (hasPermission) {
+          const notification = new Notification('New Email Pending Approval', {
+            body: `From: ${email.from}\nSubject: ${email.subject}`,
+            icon: '/favicon.ico',
+            tag: `email-${email.id}`,
+            requireInteraction: false,
+            silent: !settings.soundEnabled,
+          });
 
-        notification.onclick = () => {
-          window.focus();
-          window.open(`/emails/${email.id}`, '_blank');
-          notification.close();
-        };
+          notification.onclick = () => {
+            window.focus();
+            window.open(`/emails/${email.id}`, '_blank');
+            notification.close();
+          };
 
-        // Auto-close after 10 seconds
-        setTimeout(() => {
-          notification.close();
-        }, 10000);
-      }
-    });
-  }, [settings.browserNotifications, settings.soundEnabled, requestNotificationPermission]);
+          // Auto-close after 10 seconds
+          setTimeout(() => {
+            notification.close();
+          }, 10000);
+        }
+      });
+    },
+    [settings.browserNotifications, settings.soundEnabled, requestNotificationPermission]
+  );
 
   // Show toast notification
-  const showToastNotification = useCallback((email: EmailResponseDto) => {
-    if (!settings.toastNotifications) return;
+  const showToastNotification = useCallback(
+    (email: EmailResponseDto) => {
+      if (!settings.toastNotifications) return;
 
-    toast({
-      title: 'New Email Pending Approval',
-      description: `From: ${email.from}\nSubject: ${email.subject}\nReceived at ${new Date(email.createdAt).toLocaleTimeString()}`,
-      duration: 8000,
-    });
-  }, [settings.toastNotifications]);
+      toast({
+        title: 'New Email Pending Approval',
+        description: `From: ${email.from}\nSubject: ${email.subject}\nReceived at ${new Date(email.createdAt).toLocaleTimeString()}`,
+        duration: 8000,
+      });
+    },
+    [settings.toastNotifications]
+  );
 
   // Check for new pending emails with debouncing
   const checkForNewEmails = useCallback(async () => {
@@ -186,8 +192,8 @@ export function useEmailNotifications(): UseEmailNotificationsReturn {
       setLastChecked(new Date());
 
       // Check for new emails (emails that weren't in the previous check)
-      const newEmails = pendingEmails.filter((email: EmailResponseDto) =>
-        !previousPendingEmailsRef.current.has(email.id)
+      const newEmails = pendingEmails.filter(
+        (email: EmailResponseDto) => !previousPendingEmailsRef.current.has(email.id)
       );
 
       // Update previous pending emails set
@@ -224,7 +230,7 @@ export function useEmailNotifications(): UseEmailNotificationsReturn {
     getCSRFToken,
     playNotificationSound,
     showBrowserNotification,
-    showToastNotification
+    showToastNotification,
   ]);
 
   // Manual check function

@@ -34,7 +34,8 @@ export const API_ENDPOINTS = {
     CREATE: `${API_BASE_URL}/mail`,
     ATTACHMENTS: `${API_BASE_URL}/mail/attachments`,
     UPLOAD_PROGRESS: (sessionId: string) => `${API_BASE_URL}/mail/upload-progress/${sessionId}`,
-    UPLOAD_PROGRESS_STREAM: (sessionId: string) => `${API_BASE_URL}/mail/upload-progress/${sessionId}/stream`,
+    UPLOAD_PROGRESS_STREAM: (sessionId: string) =>
+      `${API_BASE_URL}/mail/upload-progress/${sessionId}/stream`,
     CONTACTS: `${API_BASE_URL}/mail/contacts`,
     CONTACT_LISTS: `${API_BASE_URL}/mail/contact-lists`,
     TEMPLATES: `${API_BASE_URL}/mail/templates`,
@@ -180,8 +181,6 @@ export type EmailRecipientDto = {
   createdAt: string;
   updatedAt: string;
 };
-
-
 
 export type EmailStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SENT' | 'FAILED';
 

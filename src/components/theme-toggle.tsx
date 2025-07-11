@@ -43,8 +43,8 @@ export function ThemeToggle() {
               ? theme === 'dark'
                 ? 'Switch to light mode'
                 : theme === 'light'
-                ? 'Switch to dark mode'
-                : 'Switch theme'
+                  ? 'Switch to dark mode'
+                  : 'Switch theme'
               : 'Switch theme'}
           </span>
         </Button>

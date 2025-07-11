@@ -58,7 +58,14 @@ const shortcuts: Shortcut[] = [
   { key: 'Alt + K', description: 'Show Keyboard Shortcuts', category: 'General' },
 ];
 
-const categories = ['Navigation', 'Actions', 'Email Management', 'Table Navigation', 'Forms', 'General'];
+const categories = [
+  'Navigation',
+  'Actions',
+  'Email Management',
+  'Table Navigation',
+  'Forms',
+  'General',
+];
 
 export function KeyboardShortcutsHelp() {
   const [open, setOpen] = useState(false);
@@ -99,24 +106,21 @@ export function KeyboardShortcutsHelp() {
             Keyboard Shortcuts
           </DialogTitle>
           <DialogDescription className="text-foreground">
-            Use these keyboard shortcuts to navigate and perform actions quickly. Shortcuts are context-aware and may not work when typing in input fields.
+            Use these keyboard shortcuts to navigate and perform actions quickly. Shortcuts are
+            context-aware and may not work when typing in input fields.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-6">
           {groupedShortcuts.map(({ category, shortcuts: categoryShortcuts }) => (
             <div key={category} className="space-y-3">
-              <h3 className="text-sm font-semibold text-foreground border-b pb-1">
-                {category}
-              </h3>
+              <h3 className="text-sm font-semibold text-foreground border-b pb-1">{category}</h3>
               <div className="grid gap-2">
                 {categoryShortcuts.map((shortcut, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between py-2 px-3 rounded-md bg-muted/50 hover:bg-muted/70 transition-colors"
                   >
-                    <span className="text-sm text-muted-foreground">
-                      {shortcut.description}
-                    </span>
+                    <span className="text-sm text-muted-foreground">{shortcut.description}</span>
                     <Badge variant="secondary" className="font-mono text-xs">
                       {shortcut.key}
                     </Badge>

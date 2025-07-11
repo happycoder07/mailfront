@@ -419,7 +419,9 @@
             "required": false,
             "in": "query",
             "description": "Filter and pagination parameters",
-            "schema": {}
+            "schema": {
+
+            }
           }
         ],
         "responses": {
@@ -1736,11 +1738,6 @@
             }
           }
         },
-        "security": [
-          {
-            "XSRF": []
-          }
-        ],
         "summary": "User login",
         "tags": [
           "auth"
@@ -1749,12 +1746,12 @@
     },
     "/api/auth/login/2fa": {
       "post": {
-        "description": "Verify 2FA token and complete the login process using the temporary token from the initial login",
+        "description": "Verify 2FA token and complete the login process using the temporary token from the initial login. Supports both 6-digit TOTP tokens from authenticator apps and 8-character backup codes.",
         "operationId": "AuthController_verifyTwoFactorAndLogin",
         "parameters": [],
         "requestBody": {
           "required": true,
-          "description": "2FA verification token and temporary session token",
+          "description": "2FA verification token (6-digit TOTP or 8-character backup code) and temporary session token",
           "content": {
             "application/json": {
               "schema": {
@@ -1774,8 +1771,18 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request - Invalid token format or validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponseDto"
+                }
+              }
+            }
+          },
           "401": {
-            "description": "Unauthorized - Invalid 2FA token or expired temporary session",
+            "description": "Unauthorized - Invalid 2FA token, expired temporary session, or already used backup code",
             "content": {
               "application/json": {
                 "schema": {
@@ -1795,11 +1802,6 @@
             }
           }
         },
-        "security": [
-          {
-            "XSRF": []
-          }
-        ],
         "summary": "Complete login with two-factor authentication",
         "tags": [
           "auth"
@@ -1936,6 +1938,9 @@
         },
         "security": [
           {
+            "jwt": []
+          },
+          {
             "XSRF": []
           }
         ],
@@ -1997,10 +2002,10 @@
         },
         "security": [
           {
-            "jwt": []
+            "XSRF": []
           },
           {
-            "XSRF": []
+            "jwt": []
           }
         ],
         "summary": "Get all users",
@@ -2059,10 +2064,10 @@
         },
         "security": [
           {
-            "jwt": []
+            "XSRF": []
           },
           {
-            "XSRF": []
+            "jwt": []
           }
         ],
         "summary": "Edit user",
@@ -2099,10 +2104,10 @@
         },
         "security": [
           {
-            "jwt": []
+            "XSRF": []
           },
           {
-            "XSRF": []
+            "jwt": []
           }
         ],
         "summary": "Delete user",
@@ -2128,10 +2133,10 @@
         },
         "security": [
           {
-            "jwt": []
+            "XSRF": []
           },
           {
-            "XSRF": []
+            "jwt": []
           }
         ],
         "summary": "Get all roles",
@@ -2215,10 +2220,10 @@
         },
         "security": [
           {
-            "jwt": []
+            "XSRF": []
           },
           {
-            "XSRF": []
+            "jwt": []
           }
         ],
         "summary": "Enable two-factor authentication",
@@ -2265,10 +2270,10 @@
         },
         "security": [
           {
-            "jwt": []
+            "XSRF": []
           },
           {
-            "XSRF": []
+            "jwt": []
           }
         ],
         "summary": "Disable two-factor authentication",
@@ -2315,10 +2320,10 @@
         },
         "security": [
           {
-            "jwt": []
+            "XSRF": []
           },
           {
-            "XSRF": []
+            "jwt": []
           }
         ],
         "summary": "Verify two-factor authentication token",
@@ -2382,10 +2387,10 @@
         },
         "security": [
           {
-            "jwt": []
+            "XSRF": []
           },
           {
-            "XSRF": []
+            "jwt": []
           }
         ],
         "summary": "Regenerate backup codes",
@@ -2419,10 +2424,10 @@
         },
         "security": [
           {
-            "jwt": []
+            "XSRF": []
           },
           {
-            "XSRF": []
+            "jwt": []
           }
         ],
         "summary": "Get two-factor authentication status",
@@ -3216,7 +3221,9 @@
     "title": "Mail Manager API",
     "description": "API for managing emails and attachments",
     "version": "v1",
-    "contact": {}
+    "contact": {
+
+    }
   },
   "tags": [],
   "servers": [],
@@ -4106,21 +4113,6 @@
             "example": "user@example.com",
             "description": "Email address of the user"
           },
-          "role": {
-            "type": "string",
-            "example": "user",
-            "description": "Role name assigned to the user"
-          },
-          "permissions": {
-            "example": [
-              "VIEW_EMAILS"
-            ],
-            "description": "List of permissions granted to the user based on their role",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "firstName": {
             "type": "string",
             "example": "John",
@@ -4130,15 +4122,51 @@
             "type": "string",
             "example": "Doe",
             "description": "Last name of the user"
+          },
+          "twoFactorEnabled": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether two-factor authentication is enabled for this user"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2023-01-01T00:00:00.000Z",
+            "description": "When the user account was created"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2023-01-01T00:00:00.000Z",
+            "description": "When the user account was last updated"
+          },
+          "role": {
+            "type": "string",
+            "example": "admin",
+            "description": "Role name assigned to the user"
+          },
+          "permissions": {
+            "example": [
+              "VIEW_EMAILS",
+              "SEND_EMAILS"
+            ],
+            "description": "List of permissions granted to the user based on their role",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
           "id",
           "email",
-          "role",
-          "permissions",
           "firstName",
-          "lastName"
+          "lastName",
+          "twoFactorEnabled",
+          "createdAt",
+          "updatedAt",
+          "role",
+          "permissions"
         ]
       },
       "ChangePasswordDto": {
@@ -4623,10 +4651,7 @@
           },
           "contactListIds": {
             "description": "List of contact list IDs to associate with the contact",
-            "example": [
-              1,
-              2
-            ],
+            "example": [1, 2],
             "type": "array",
             "items": {
               "type": "string"
@@ -4788,10 +4813,7 @@
           },
           "contactIds": {
             "description": "List of contact IDs to include in the list",
-            "example": [
-              1,
-              2
-            ],
+            "example": [1, 2],
             "type": "array",
             "items": {
               "type": "string"
@@ -4917,10 +4939,7 @@
           },
           "contactIds": {
             "description": "List of contact IDs to include in the list",
-            "example": [
-              1,
-              2
-            ],
+            "example": [1, 2],
             "type": "array",
             "items": {
               "type": "string"
@@ -4943,10 +4962,7 @@
           },
           "contactListIds": {
             "description": "List of contact list IDs to associate with the contact",
-            "example": [
-              1,
-              2
-            ],
+            "example": [1, 2],
             "type": "array",
             "items": {
               "type": "string"

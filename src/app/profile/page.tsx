@@ -15,7 +15,9 @@ export default function ProfilePage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Profile & Settings</h1>
-        <p className="text-muted-foreground">Manage your account settings, profile information, and notification preferences</p>
+        <p className="text-muted-foreground">
+          Manage your account settings, profile information, and notification preferences
+        </p>
       </div>
 
       <Tabs defaultValue="profile" className="w-full">

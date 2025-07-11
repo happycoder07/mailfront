@@ -1,8 +1,5 @@
-
 import { QueueStats } from '@/components/queue/queue-stats';
 import { QueueItems } from '@/components/queue/queue-items';
-
-
 
 export default function QueuePage() {
   return (

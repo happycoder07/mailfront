@@ -19,7 +19,7 @@ interface NotificationIndicatorProps {
 export function NotificationIndicator({
   variant = 'default',
   showCount = true,
-  showStatus = true
+  showStatus = true,
 }: NotificationIndicatorProps) {
   const { hasPermission } = useAuth();
   const {
@@ -49,12 +49,13 @@ export function NotificationIndicator({
             variant="ghost"
             size="icon"
             onClick={manuallyCheck}
-            onContextMenu={(e) => {
+            onContextMenu={e => {
               e.preventDefault();
               resetNotifications();
               toast({
                 title: 'Notifications Reset',
-                description: 'Notification tracking has been reset. You will be notified of new emails again.',
+                description:
+                  'Notification tracking has been reset. You will be notified of new emails again.',
                 duration: 3000,
               });
             }}
@@ -74,9 +75,7 @@ export function NotificationIndicator({
                 {pendingEmailCount > 99 ? '99+' : pendingEmailCount}
               </Badge>
             )}
-            {isChecking && (
-              <RefreshCw className="h-4 w-4 animate-spin absolute" />
-            )}
+            {isChecking && <RefreshCw className="h-4 w-4 animate-spin absolute" />}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
@@ -90,18 +89,17 @@ export function NotificationIndicator({
                   ? 'Loading...'
                   : hasPendingEmails
                     ? `${pendingEmailCount} pending email${pendingEmailCount !== 1 ? 's' : ''}`
-                    : 'No pending emails'
-                }
+                    : 'No pending emails'}
               </p>
             )}
             {showStatus && (
               <p className="text-xs text-muted-foreground">
-                {settings.browserNotifications ? 'Browser notifications enabled' : 'Browser notifications disabled'}
+                {settings.browserNotifications
+                  ? 'Browser notifications enabled'
+                  : 'Browser notifications disabled'}
               </p>
             )}
-            <p className="text-xs text-black">
-              Right-click to reset notifications
-            </p>
+            <p className="text-xs text-black">Right-click to reset notifications</p>
           </div>
         </TooltipContent>
       </Tooltip>
@@ -116,12 +114,13 @@ export function NotificationIndicator({
             variant="ghost"
             size="sm"
             onClick={manuallyCheck}
-            onContextMenu={(e) => {
+            onContextMenu={e => {
               e.preventDefault();
               resetNotifications();
               toast({
                 title: 'Notifications Reset',
-                description: 'Notification tracking has been reset. You will be notified of new emails again.',
+                description:
+                  'Notification tracking has been reset. You will be notified of new emails again.',
                 duration: 3000,
               });
             }}
@@ -142,9 +141,7 @@ export function NotificationIndicator({
                 {pendingEmailCount > 99 ? '99+' : pendingEmailCount}
               </Badge>
             )}
-            {isChecking && (
-              <RefreshCw className="h-4 w-4 animate-spin ml-2" />
-            )}
+            {isChecking && <RefreshCw className="h-4 w-4 animate-spin ml-2" />}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
@@ -158,18 +155,17 @@ export function NotificationIndicator({
                   ? 'Loading...'
                   : hasPendingEmails
                     ? `${pendingEmailCount} pending email${pendingEmailCount !== 1 ? 's' : ''}`
-                    : 'No pending emails'
-                }
+                    : 'No pending emails'}
               </p>
             )}
             {showStatus && (
               <p className="text-xs text-muted-foreground">
-                {settings.browserNotifications ? 'Browser notifications enabled' : 'Browser notifications disabled'}
+                {settings.browserNotifications
+                  ? 'Browser notifications enabled'
+                  : 'Browser notifications disabled'}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">
-              Right-click to reset notifications
-            </p>
+            <p className="text-xs text-muted-foreground">Right-click to reset notifications</p>
           </div>
         </TooltipContent>
       </Tooltip>

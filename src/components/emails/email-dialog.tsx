@@ -35,7 +35,7 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
       const response = await fetch(`${API_ENDPOINTS.MAIL.APPROVE(email.id.toString())}`, {
         method: 'POST',
         headers: {
-          'X-XSRF-TOKEN': getCSRFToken()
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -76,7 +76,7 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
       const response = await fetch(`${API_ENDPOINTS.MAIL.SIGN(email.id.toString())}`, {
         method: 'POST',
         headers: {
-          'X-XSRF-TOKEN': getCSRFToken()
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -105,8 +105,7 @@ export function EmailDialog({ email, open, onOpenChange, onEmailUpdated }: Email
     try {
       const response = await fetch(`${API_ENDPOINTS.FILE.GET(attachment.minioKey)}`, {
         headers: {
-
-          'X-XSRF-TOKEN': getCSRFToken()
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });

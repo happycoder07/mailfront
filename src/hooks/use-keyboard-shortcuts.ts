@@ -123,7 +123,9 @@ export function useGlobalShortcuts() {
       ctrlKey: true,
       action: () => {
         // Focus search input if available
-        const searchInput = document.querySelector('input[placeholder*="search" i], input[placeholder*="Search" i]') as HTMLInputElement;
+        const searchInput = document.querySelector(
+          'input[placeholder*="search" i], input[placeholder*="Search" i]'
+        ) as HTMLInputElement;
         if (searchInput) {
           searchInput.focus();
           searchInput.select();
@@ -168,7 +170,9 @@ export function useGlobalShortcuts() {
       key: 'Escape',
       action: () => {
         // Close any open dialogs or modals
-        const closeButtons = document.querySelectorAll('[data-radix-collection-item] button[aria-label*="Close"], [role="dialog"] button[aria-label*="Close"]');
+        const closeButtons = document.querySelectorAll(
+          '[data-radix-collection-item] button[aria-label*="Close"], [role="dialog"] button[aria-label*="Close"]'
+        );
         if (closeButtons.length > 0) {
           (closeButtons[0] as HTMLButtonElement).click();
         }

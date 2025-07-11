@@ -5,7 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Activity, ChevronDown, ChevronUp, AlertCircle, RefreshCw, TrendingUp, Gauge, BarChart3, PieChart } from 'lucide-react';
+import {
+  Activity,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle,
+  RefreshCw,
+  TrendingUp,
+  Gauge,
+  BarChart3,
+  PieChart,
+} from 'lucide-react';
 import { API_ENDPOINTS } from '@/lib/config';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -158,7 +168,10 @@ export function MetricsDisplay() {
       case 'summary':
         return { icon: <PieChart className="h-4 w-4" />, color: 'bg-warning/10 text-warning' };
       default:
-        return { icon: <Activity className="h-4 w-4 text-muted-foreground" />, color: 'bg-muted text-muted-foreground' };
+        return {
+          icon: <Activity className="h-4 w-4 text-muted-foreground" />,
+          color: 'bg-muted text-muted-foreground',
+        };
     }
   };
 
@@ -282,7 +295,7 @@ export function MetricsDisplay() {
                       <Separator />
                       <Table>
                         <TableHeader>
-                          <TableRow className='bg-background'>
+                          <TableRow className="bg-background">
                             <TableHead>Metric</TableHead>
                             <TableHead>Labels</TableHead>
                             <TableHead className="text-right">Value</TableHead>
@@ -359,7 +372,12 @@ function parsePrometheusMetrics(text: string): MetricGroup[] {
         const typeStr = parts[1];
 
         // Map Prometheus types to our types
-        if (typeStr === 'counter' || typeStr === 'gauge' || typeStr === 'histogram' || typeStr === 'summary') {
+        if (
+          typeStr === 'counter' ||
+          typeStr === 'gauge' ||
+          typeStr === 'histogram' ||
+          typeStr === 'summary'
+        ) {
           currentType = typeStr as MetricType;
         }
 

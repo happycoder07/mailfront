@@ -27,7 +27,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="theme-color" content="#000000" />
         <meta name="color-scheme" content="light dark" />
-
       </head>
       <body className={inter.className}>
         <ThemeProvider

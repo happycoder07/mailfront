@@ -168,7 +168,13 @@ export function MonitoringStats() {
   // If user doesn't have permission to view monitoring stats, show a message
   if (!canViewMonitoring) {
     return (
-      <motion.div variants={alertVariants} initial="hidden" animate="visible" role="alert" aria-live="polite">
+      <motion.div
+        variants={alertVariants}
+        initial="hidden"
+        animate="visible"
+        role="alert"
+        aria-live="polite"
+      >
         <Card>
           <CardHeader>
             <CardTitle>Access Denied</CardTitle>
@@ -276,7 +282,7 @@ export function MonitoringStats() {
           <Tooltip delayDuration={100}>
             <TooltipTrigger asChild>
               <Button variant="outline" size="sm" className="ml-2" onClick={fetchHealthStatus}>
-                <RefreshCw  />
+                <RefreshCw />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Refresh health status</TooltipContent>

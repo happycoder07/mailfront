@@ -105,14 +105,24 @@ export function MainNav() {
       href: '/contacts',
       icon: User,
       description: 'Manage contacts',
-      permissions: [PERMISSIONS.READ_CONTACT, PERMISSIONS.CREATE_CONTACT, PERMISSIONS.UPDATE_CONTACT, PERMISSIONS.DELETE_CONTACT],
+      permissions: [
+        PERMISSIONS.READ_CONTACT,
+        PERMISSIONS.CREATE_CONTACT,
+        PERMISSIONS.UPDATE_CONTACT,
+        PERMISSIONS.DELETE_CONTACT,
+      ],
     },
     {
       title: 'Contact Lists',
       href: '/contact-lists',
       icon: Inbox,
       description: 'Manage contact lists',
-      permissions: [PERMISSIONS.READ_CONTACT_LIST, PERMISSIONS.CREATE_CONTACT_LIST, PERMISSIONS.UPDATE_CONTACT_LIST, PERMISSIONS.DELETE_CONTACT_LIST],
+      permissions: [
+        PERMISSIONS.READ_CONTACT_LIST,
+        PERMISSIONS.CREATE_CONTACT_LIST,
+        PERMISSIONS.UPDATE_CONTACT_LIST,
+        PERMISSIONS.DELETE_CONTACT_LIST,
+      ],
     },
     {
       title: 'Queue',
@@ -271,7 +281,11 @@ export function MainNav() {
           <span>Mail Manager</span>
         </motion.div>
         <div className="ml-auto flex items-center space-x-4">
-          <nav className="hidden md:flex items-center space-x-3" role="navigation" aria-label="Main navigation">
+          <nav
+            className="hidden md:flex items-center space-x-3"
+            role="navigation"
+            aria-label="Main navigation"
+          >
             {navItems.map((item, index) => {
               const Icon = item.icon;
               const hasRequiredPermission: boolean =
@@ -326,7 +340,7 @@ export function MainNav() {
           <Tooltip>
             <TooltipTrigger asChild>
               <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                <KeyboardShortcutsHelp  />
+                <KeyboardShortcutsHelp />
               </motion.div>
             </TooltipTrigger>
             <TooltipContent>Keyboard Shortcuts (Alt + K)</TooltipContent>
@@ -383,7 +397,11 @@ export function MainNav() {
                   />
                   <span>Mail Manager</span>
                 </motion.div>
-                <nav className="flex flex-col space-y-2" role="navigation" aria-label="Mobile navigation">
+                <nav
+                  className="flex flex-col space-y-2"
+                  role="navigation"
+                  aria-label="Mobile navigation"
+                >
                   {navItems.map((item, index) => {
                     const Icon = item.icon;
                     const hasRequiredPermission: boolean =

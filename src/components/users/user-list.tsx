@@ -22,7 +22,6 @@ import { UserDialog } from './user-dialog';
 import type { User, UserListResponse } from '@/lib/config';
 import { useTableShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -247,11 +246,11 @@ export function UserList() {
       <motion.div className="rounded-md border" variants={itemVariants}>
         <Table>
           <TableHeader>
-            <TableRow className='bg-background'>
+            <TableRow className="bg-background">
               <TableHead>Name</TableHead>
-              <TableHead className='text-center'>Email</TableHead>
-              <TableHead className='text-center'>Role</TableHead>
-              <TableHead className='text-center'>Created At</TableHead>
+              <TableHead className="text-center">Email</TableHead>
+              <TableHead className="text-center">Role</TableHead>
+              <TableHead className="text-center">Created At</TableHead>
               <TableHead className="text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -301,8 +300,8 @@ export function UserList() {
                     <TableCell className="font-medium">
                       {user.firstName} {user.lastName}
                     </TableCell>
-                    <TableCell className='text-center'>{user.email}</TableCell>
-                    <TableCell className='text-center'>
+                    <TableCell className="text-center">{user.email}</TableCell>
+                    <TableCell className="text-center">
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -311,7 +310,9 @@ export function UserList() {
                         <Badge variant="outline">{user.role.name}</Badge>
                       </motion.div>
                     </TableCell>
-                    <TableCell className='text-center'>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-center">
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </TableCell>
                     <TableCell className="text-center space-x-2">
                       {canEditUsers && (
                         <motion.div

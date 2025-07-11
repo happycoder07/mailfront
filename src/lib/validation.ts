@@ -12,14 +12,17 @@ export const loginSchema = z.object({
 });
 
 export const loginWithTwoFactorSchema = z.object({
-  token: z.string().refine((val) => {
-    // Accept either 6-digit TOTP token or 8-character alphanumeric backup code
-    const isTOTP = /^\d{6}$/.test(val);
-    const isBackupCode = /^[A-Z0-9]{8}$/.test(val);
-    return isTOTP || isBackupCode;
-  }, {
-    message: 'Please enter a valid 6-digit authentication code or 8-character backup code.',
-  }),
+  token: z.string().refine(
+    val => {
+      // Accept either 6-digit TOTP token or 8-character alphanumeric backup code
+      const isTOTP = /^\d{6}$/.test(val);
+      const isBackupCode = /^[A-Z0-9]{8}$/.test(val);
+      return isTOTP || isBackupCode;
+    },
+    {
+      message: 'Please enter a valid 6-digit authentication code or 8-character backup code.',
+    }
+  ),
   tempToken: z.string().min(1, {
     message: 'Temporary token is required.',
   }),
@@ -33,25 +36,31 @@ export const enableTwoFactorSchema = z.object({
 });
 
 export const disableTwoFactorSchema = z.object({
-  token: z.string().refine((val) => {
-    // Accept either 6-digit TOTP token or 8-character alphanumeric backup code
-    const isTOTP = /^\d{6}$/.test(val);
-    const isBackupCode = /^[A-Z0-9]{8}$/.test(val);
-    return isTOTP || isBackupCode;
-  }, {
-    message: 'Please enter a valid 6-digit token or 8-character backup code.',
-  }),
+  token: z.string().refine(
+    val => {
+      // Accept either 6-digit TOTP token or 8-character alphanumeric backup code
+      const isTOTP = /^\d{6}$/.test(val);
+      const isBackupCode = /^[A-Z0-9]{8}$/.test(val);
+      return isTOTP || isBackupCode;
+    },
+    {
+      message: 'Please enter a valid 6-digit token or 8-character backup code.',
+    }
+  ),
 });
 
 export const verifyTwoFactorSchema = z.object({
-  token: z.string().refine((val) => {
-    // Accept either 6-digit TOTP token or 8-character alphanumeric backup code
-    const isTOTP = /^\d{6}$/.test(val);
-    const isBackupCode = /^[A-Z0-9]{8}$/.test(val);
-    return isTOTP || isBackupCode;
-  }, {
-    message: 'Please enter a valid 6-digit token or 8-character backup code.',
-  }),
+  token: z.string().refine(
+    val => {
+      // Accept either 6-digit TOTP token or 8-character alphanumeric backup code
+      const isTOTP = /^\d{6}$/.test(val);
+      const isBackupCode = /^[A-Z0-9]{8}$/.test(val);
+      return isTOTP || isBackupCode;
+    },
+    {
+      message: 'Please enter a valid 6-digit token or 8-character backup code.',
+    }
+  ),
 });
 
 export const regenerateBackupCodesSchema = z.object({
@@ -120,35 +129,49 @@ export const attachmentSchema = z.object({
   contentType: z.string().optional(),
 });
 
-export const createEmailSchema = z.object({
-  recipients: z.array(recipientSchema).optional(),
-  contactRecipients: z.array(z.object({
-    contactId: z.number(),
-    type: z.enum(['TO', 'CC', 'BCC']),
-  })).optional(),
-  contactListRecipients: z.array(z.object({
-    contactListId: z.number(),
-    type: z.enum(['TO', 'CC', 'BCC']),
-  })).optional(),
-  subject: z.string().min(1, {
-    message: 'Subject is required.',
-  }),
-  content: z.string().min(1, {
-    message: 'Content is required.',
-  }),
-  html: z.boolean().optional(),
-  attachments: z.array(z.instanceof(File)).optional(),
-}).refine((data) => {
-  // At least one type of recipient is required
-  const hasDirectRecipients = data.recipients && data.recipients.length > 0;
-  const hasContactRecipients = data.contactRecipients && data.contactRecipients.length > 0;
-  const hasContactListRecipients = data.contactListRecipients && data.contactListRecipients.length > 0;
+export const createEmailSchema = z
+  .object({
+    recipients: z.array(recipientSchema).optional(),
+    contactRecipients: z
+      .array(
+        z.object({
+          contactId: z.number(),
+          type: z.enum(['TO', 'CC', 'BCC']),
+        })
+      )
+      .optional(),
+    contactListRecipients: z
+      .array(
+        z.object({
+          contactListId: z.number(),
+          type: z.enum(['TO', 'CC', 'BCC']),
+        })
+      )
+      .optional(),
+    subject: z.string().min(1, {
+      message: 'Subject is required.',
+    }),
+    content: z.string().min(1, {
+      message: 'Content is required.',
+    }),
+    html: z.boolean().optional(),
+    attachments: z.array(z.instanceof(File)).optional(),
+  })
+  .refine(
+    data => {
+      // At least one type of recipient is required
+      const hasDirectRecipients = data.recipients && data.recipients.length > 0;
+      const hasContactRecipients = data.contactRecipients && data.contactRecipients.length > 0;
+      const hasContactListRecipients =
+        data.contactListRecipients && data.contactListRecipients.length > 0;
 
-  return hasDirectRecipients || hasContactRecipients || hasContactListRecipients;
-}, {
-  message: 'At least one recipient is required (direct email, contact, or contact list).',
-  path: ['recipients'], // This will show the error on the recipients field
-});
+      return hasDirectRecipients || hasContactRecipients || hasContactListRecipients;
+    },
+    {
+      message: 'At least one recipient is required (direct email, contact, or contact list).',
+      path: ['recipients'], // This will show the error on the recipients field
+    }
+  );
 
 export const createTemplateSchema = z.object({
   name: z.string().min(1, {
@@ -161,18 +184,30 @@ export const createTemplateSchema = z.object({
     message: 'Content is required.',
   }),
   html: z.boolean().optional(),
-  templateEmailRecipients: z.array(z.object({
-    address: z.string().email(),
-    type: z.enum(['TO', 'CC', 'BCC']),
-  })).optional(),
-  templateContactRecipients: z.array(z.object({
-    contactId: z.number(),
-    type: z.enum(['TO', 'CC', 'BCC']),
-  })).optional(),
-  templateContactListRecipients: z.array(z.object({
-    contactListId: z.number(),
-    type: z.enum(['TO', 'CC', 'BCC']),
-  })).optional(),
+  templateEmailRecipients: z
+    .array(
+      z.object({
+        address: z.string().email(),
+        type: z.enum(['TO', 'CC', 'BCC']),
+      })
+    )
+    .optional(),
+  templateContactRecipients: z
+    .array(
+      z.object({
+        contactId: z.number(),
+        type: z.enum(['TO', 'CC', 'BCC']),
+      })
+    )
+    .optional(),
+  templateContactListRecipients: z
+    .array(
+      z.object({
+        contactListId: z.number(),
+        type: z.enum(['TO', 'CC', 'BCC']),
+      })
+    )
+    .optional(),
 });
 
 export const rejectEmailSchema = z.object({

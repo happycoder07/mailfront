@@ -76,7 +76,9 @@ export function ChangePasswordForm() {
 
   return (
     <div role="main" aria-labelledby="change-password-form-title">
-      <h1 id="change-password-form-title" className="sr-only">Change your password</h1>
+      <h1 id="change-password-form-title" className="sr-only">
+        Change your password
+      </h1>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -105,7 +107,9 @@ export function ChangePasswordForm() {
                       type="password"
                       className="pl-10"
                       {...field}
-                      aria-describedby={form.formState.errors.currentPassword ? currentPasswordErrorId : undefined}
+                      aria-describedby={
+                        form.formState.errors.currentPassword ? currentPasswordErrorId : undefined
+                      }
                       aria-invalid={!!form.formState.errors.currentPassword}
                       autoComplete="current-password"
                       required
@@ -138,7 +142,9 @@ export function ChangePasswordForm() {
                       type="password"
                       className="pl-10"
                       {...field}
-                      aria-describedby={form.formState.errors.newPassword ? newPasswordErrorId : undefined}
+                      aria-describedby={
+                        form.formState.errors.newPassword ? newPasswordErrorId : undefined
+                      }
                       aria-invalid={!!form.formState.errors.newPassword}
                       autoComplete="new-password"
                       required

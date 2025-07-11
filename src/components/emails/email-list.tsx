@@ -201,7 +201,7 @@ export function EmailList() {
 
       const response = await fetch(url, {
         headers: {
-          'X-XSRF-TOKEN': getCSRFToken()
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include', // Include cookies in the request
       });
@@ -255,7 +255,7 @@ export function EmailList() {
       const response = await fetch(API_ENDPOINTS.MAIL.APPROVE(id.toString()), {
         method: 'POST',
         headers: {
-          'X-XSRF-TOKEN': getCSRFToken()
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -331,8 +331,7 @@ export function EmailList() {
       const response = await fetch(API_ENDPOINTS.MAIL.SIGN(id.toString()), {
         method: 'POST',
         headers: {
-
-          'X-XSRF-TOKEN': getCSRFToken()
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -467,7 +466,10 @@ export function EmailList() {
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="relative">
-                <Search className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                <Search
+                  className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 <Input
                   placeholder="Search by subject..."
                   className="pl-10"
@@ -531,12 +533,14 @@ export function EmailList() {
                   onClick={handleSearch}
                   disabled={searching}
                   className="w-full"
-                  aria-describedby={searching ? "searching-description" : undefined}
+                  aria-describedby={searching ? 'searching-description' : undefined}
                 >
                   {searching ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                      <span id="searching-description" className="sr-only">Searching emails, please wait</span>
+                      <span id="searching-description" className="sr-only">
+                        Searching emails, please wait
+                      </span>
                       Searching...
                     </>
                   ) : (
@@ -553,13 +557,25 @@ export function EmailList() {
               <div className="relative w-full overflow-auto">
                 <Table role="table" aria-label="Email list">
                   <TableHeader>
-                    <TableRow className='bg-background'>
-                      <TableHead className="whitespace-nowrap text-center" scope="col">From</TableHead>
-                      <TableHead className="whitespace-nowrap text-center" scope="col">Subject</TableHead>
-                      <TableHead className="whitespace-nowrap text-center" scope="col">Status</TableHead>
-                      <TableHead className="whitespace-nowrap text-center" scope="col">Signed</TableHead>
-                      <TableHead className="whitespace-nowrap text-center" scope="col">Created At</TableHead>
-                      <TableHead className="whitespace-nowrap text-center" scope="col">Actions</TableHead>
+                    <TableRow className="bg-background">
+                      <TableHead className="whitespace-nowrap text-center" scope="col">
+                        From
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap text-center" scope="col">
+                        Subject
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap text-center" scope="col">
+                        Status
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap text-center" scope="col">
+                        Signed
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap text-center" scope="col">
+                        Created At
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap text-center" scope="col">
+                        Actions
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -623,12 +639,14 @@ export function EmailList() {
                               </span>
                               {email.approvedBy && (
                                 <span className="text-xs text-muted-foreground">
-                                  {email.signedContent ? 'Signed by' : 'Approved by'}: {email.approvedBy.firstName} {email.approvedBy.lastName}
+                                  {email.signedContent ? 'Signed by' : 'Approved by'}:{' '}
+                                  {email.approvedBy.firstName} {email.approvedBy.lastName}
                                 </span>
                               )}
                               {email.rejectedBy && (
                                 <span className="text-xs text-muted-foreground">
-                                  Rejected by: {email.rejectedBy.firstName} {email.rejectedBy.lastName}
+                                  Rejected by: {email.rejectedBy.firstName}{' '}
+                                  {email.rejectedBy.lastName}
                                 </span>
                               )}
                             </div>
@@ -637,12 +655,20 @@ export function EmailList() {
                             {email.signedContent ? (
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <FileSignature className="h-4 w-4 text-green-500" aria-hidden="true" />
+                                  <FileSignature
+                                    className="h-4 w-4 text-green-500"
+                                    aria-hidden="true"
+                                  />
                                 </TooltipTrigger>
                                 <TooltipContent>Email is signed</TooltipContent>
                               </Tooltip>
                             ) : (
-                              <span className="text-muted-foreground" aria-label="Email is not signed">-</span>
+                              <span
+                                className="text-muted-foreground"
+                                aria-label="Email is not signed"
+                              >
+                                -
+                              </span>
                             )}
                           </TableCell>
                           <TableCell className="whitespace-nowrap text-center">

@@ -92,7 +92,8 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[200px] p-4',
+        class:
+          'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[200px] p-4',
       },
     },
   });
@@ -159,7 +160,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
             <SelectValue placeholder="Color" />
           </SelectTrigger>
           <SelectContent>
-            {colors.map((color) => (
+            {colors.map(color => (
               <SelectItem key={color.value} value={color.value}>
                 <div className="flex items-center gap-2">
                   <div
@@ -217,9 +218,9 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
                 type="url"
                 placeholder="Enter URL"
                 value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
+                onChange={e => setLinkUrl(e.target.value)}
                 className="px-2 py-1 text-sm border rounded"
-                onKeyDown={(e) => {
+                onKeyDown={e => {
                   if (e.key === 'Enter') {
                     addLink();
                   }
@@ -248,12 +249,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
                 <LinkIcon className="h-4 w-4" />
               </Button>
               {editor.isActive('link') && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={removeLink}
-                >
+                <Button type="button" variant="ghost" size="sm" onClick={removeLink}>
                   <Unlink className="h-4 w-4" />
                 </Button>
               )}

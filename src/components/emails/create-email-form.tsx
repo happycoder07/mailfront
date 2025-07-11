@@ -33,7 +33,19 @@ import {
 import { toast } from '@/components/ui/use-toast';
 import { API_ENDPOINTS, CreateTemplateDto, EmailTemplateResponseDto } from '@/lib/config';
 import { createEmailSchema, CreateEmailFormData } from '@/lib/validation';
-import { Mail, Plus, Trash2, Loader2, Paperclip, Users, List, Search, X, Save, FileText } from 'lucide-react';
+import {
+  Mail,
+  Plus,
+  Trash2,
+  Loader2,
+  Paperclip,
+  Users,
+  List,
+  Search,
+  X,
+  Save,
+  FileText,
+} from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -141,7 +153,7 @@ export function CreateEmailForm() {
       content: '',
       html: false,
     }),
-    [],
+    []
   );
 
   const form = useForm<CreateEmailFormData>({
@@ -174,10 +186,8 @@ export function CreateEmailForm() {
 
   // Load contacts and contact lists on mount (from cache or API)
   useEffect(() => {
-
-      canViewContacts&&loadContacts();
-      canViewContactLists&&loadContactLists();
-
+    canViewContacts && loadContacts();
+    canViewContactLists && loadContactLists();
   }, []);
 
   // Cleanup timeout on unmount
@@ -226,7 +236,11 @@ export function CreateEmailForm() {
 
   const loadTemplates = async () => {
     if (!canReadTemplates) {
-      toast({ title: 'Error', description: 'You do not have permission to read email templates', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'You do not have permission to read email templates',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -244,7 +258,11 @@ export function CreateEmailForm() {
       }
     } catch (error) {
       console.error('Error loading templates:', error);
-      toast({ title: 'Error', description: 'Failed to load email templates', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Failed to load email templates',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoadingTemplates(false);
     }
@@ -280,8 +298,8 @@ export function CreateEmailForm() {
         status: 'uploading' as const,
         filename: file.name,
         message: 'Starting upload...',
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     }));
 
     try {
@@ -315,8 +333,8 @@ export function CreateEmailForm() {
               status: 'uploading' as const,
               filename: file.name,
               message: 'Upload started...',
-              timestamp: new Date().toISOString()
-            }
+              timestamp: new Date().toISOString(),
+            },
           };
         });
 
@@ -342,7 +360,7 @@ export function CreateEmailForm() {
       toast({
         title: 'Upload Error',
         description: `Failed to upload ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: 'destructive'
+        variant: 'destructive',
       });
     } finally {
       delete uploadAbortControllers.current[tempKey];
@@ -371,7 +389,7 @@ export function CreateEmailForm() {
           toast({
             title: 'Upload Error',
             description: `Failed to track progress for ${filename}`,
-            variant: 'destructive'
+            variant: 'destructive',
           });
           setUploadProgress(prev => {
             const { [sessionId]: _, ...rest } = prev;
@@ -388,13 +406,18 @@ export function CreateEmailForm() {
           // Add to uploaded attachments
           if (attachmentId) {
             setUploadedAttachments(prev =>
-              prev.some(a => a.id === attachmentId) ? prev : [...prev, {
-                id: attachmentId,
-                filename,
-                contentType: '',
-                size: progress.totalBytes,
-                createdAt: new Date().toISOString()
-              }]
+              prev.some(a => a.id === attachmentId)
+                ? prev
+                : [
+                    ...prev,
+                    {
+                      id: attachmentId,
+                      filename,
+                      contentType: '',
+                      size: progress.totalBytes,
+                      createdAt: new Date().toISOString(),
+                    },
+                  ]
             );
           }
           // Remove from progress immediately for instant UI update
@@ -407,7 +430,7 @@ export function CreateEmailForm() {
           toast({
             title: 'Upload Error',
             description: `Failed to upload ${filename}: ${progress.message}`,
-            variant: 'destructive'
+            variant: 'destructive',
           });
           setUploadProgress(prev => {
             const { [sessionId]: _, ...rest } = prev;
@@ -457,41 +480,54 @@ export function CreateEmailForm() {
         throw new Error(errorData.message || 'Failed to delete attachment');
       }
       setUploadedAttachments(prev => prev.filter(att => att.id !== id));
-      toast({ title: 'Attachment Deleted', description: 'Draft attachment deleted successfully.',duration:1000 });
+      toast({
+        title: 'Attachment Deleted',
+        description: 'Draft attachment deleted successfully.',
+        duration: 1000,
+      });
     } catch (error) {
-      toast({ title: 'Delete Error', description: error instanceof Error ? error.message : 'Failed to delete attachment', variant: 'destructive' });
+      toast({
+        title: 'Delete Error',
+        description: error instanceof Error ? error.message : 'Failed to delete attachment',
+        variant: 'destructive',
+      });
     }
   };
 
   // --- Contact/ContactList Search ---
-  const filteredContacts = contacts.filter(c =>
-    c.name.toLowerCase().includes(contactSearch.toLowerCase()) ||
-    c.eid.toLowerCase().includes(contactSearch.toLowerCase())
+  const filteredContacts = contacts.filter(
+    c =>
+      c.name.toLowerCase().includes(contactSearch.toLowerCase()) ||
+      c.eid.toLowerCase().includes(contactSearch.toLowerCase())
   );
-  const filteredContactLists = contactLists.filter(cl =>
-    cl.name.toLowerCase().includes(contactListSearch.toLowerCase()) ||
-    (cl.description || '').toLowerCase().includes(contactListSearch.toLowerCase())
+  const filteredContactLists = contactLists.filter(
+    cl =>
+      cl.name.toLowerCase().includes(contactListSearch.toLowerCase()) ||
+      (cl.description || '').toLowerCase().includes(contactListSearch.toLowerCase())
   );
 
   // Modal search functionality
   const filteredModalContacts = useMemo(() => {
-    return contacts.filter(c =>
-      c.name.toLowerCase().includes(modalSearch.toLowerCase()) ||
-      c.eid.toLowerCase().includes(modalSearch.toLowerCase())
+    return contacts.filter(
+      c =>
+        c.name.toLowerCase().includes(modalSearch.toLowerCase()) ||
+        c.eid.toLowerCase().includes(modalSearch.toLowerCase())
     );
   }, [modalSearch, contacts]);
 
   const filteredModalContactLists = useMemo(() => {
-    return contactLists.filter(cl =>
-      cl.name.toLowerCase().includes(modalSearch.toLowerCase()) ||
-      (cl.description || '').toLowerCase().includes(modalSearch.toLowerCase())
+    return contactLists.filter(
+      cl =>
+        cl.name.toLowerCase().includes(modalSearch.toLowerCase()) ||
+        (cl.description || '').toLowerCase().includes(modalSearch.toLowerCase())
     );
   }, [modalSearch, contactLists]);
 
   const filteredTemplates = useMemo(() => {
-    return templates.filter(template =>
-      template.name.toLowerCase().includes(templateSearch.toLowerCase()) ||
-      template.subject.toLowerCase().includes(templateSearch.toLowerCase())
+    return templates.filter(
+      template =>
+        template.name.toLowerCase().includes(templateSearch.toLowerCase()) ||
+        template.subject.toLowerCase().includes(templateSearch.toLowerCase())
     );
   }, [templateSearch, templates]);
 
@@ -503,16 +539,18 @@ export function CreateEmailForm() {
     try {
       if (modalType === 'contact') {
         // Use client-side filtering instead of API call
-        const filtered = allContacts.filter(c =>
-          c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          c.eid.toLowerCase().includes(searchTerm.toLowerCase())
+        const filtered = allContacts.filter(
+          c =>
+            c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            c.eid.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setContacts(filtered);
       } else {
         // Use client-side filtering instead of API call
-        const filtered = allContactLists.filter(cl =>
-          cl.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (cl.description || '').toLowerCase().includes(searchTerm.toLowerCase())
+        const filtered = allContactLists.filter(
+          cl =>
+            cl.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (cl.description || '').toLowerCase().includes(searchTerm.toLowerCase())
         );
         setContactLists(filtered);
       }
@@ -565,10 +603,7 @@ export function CreateEmailForm() {
 
   const addContactRecipient = (contact: Contact, type: 'TO' | 'CC' | 'BCC') => {
     const currentRecipients = form.getValues('contactRecipients') || [];
-    form.setValue('contactRecipients', [
-      ...currentRecipients,
-      { contactId: contact.id, type }
-    ]);
+    form.setValue('contactRecipients', [...currentRecipients, { contactId: contact.id, type }]);
     setIsContactModalOpen(false);
     toast({ title: 'Contact Added', description: `${contact.name} added as ${type} recipient` });
   };
@@ -577,20 +612,29 @@ export function CreateEmailForm() {
     const currentRecipients = form.getValues('contactListRecipients') || [];
     form.setValue('contactListRecipients', [
       ...currentRecipients,
-      { contactListId: contactList.id, type }
+      { contactListId: contactList.id, type },
     ]);
     setIsContactListModalOpen(false);
-    toast({ title: 'Contact List Added', description: `${contactList.name} added as ${type} recipient` });
+    toast({
+      title: 'Contact List Added',
+      description: `${contactList.name} added as ${type} recipient`,
+    });
   };
 
   const removeContactRecipient = (index: number) => {
     const currentRecipients = form.getValues('contactRecipients') || [];
-    form.setValue('contactRecipients', currentRecipients.filter((_, i) => i !== index));
+    form.setValue(
+      'contactRecipients',
+      currentRecipients.filter((_, i) => i !== index)
+    );
   };
 
   const removeContactListRecipient = (index: number) => {
     const currentRecipients = form.getValues('contactListRecipients') || [];
-    form.setValue('contactListRecipients', currentRecipients.filter((_, i) => i !== index));
+    form.setValue(
+      'contactListRecipients',
+      currentRecipients.filter((_, i) => i !== index)
+    );
   };
 
   // Custom validation to check if at least one recipient is added
@@ -599,12 +643,22 @@ export function CreateEmailForm() {
     const contactRecipients = form.watch('contactRecipients') || [];
     const contactListRecipients = form.watch('contactListRecipients') || [];
 
-    return recipients.length > 0 || contactRecipients.length > 0 || contactListRecipients.length > 0;
-  }, [form.watch('recipients'), form.watch('contactRecipients'), form.watch('contactListRecipients')]);
+    return (
+      recipients.length > 0 || contactRecipients.length > 0 || contactListRecipients.length > 0
+    );
+  }, [
+    form.watch('recipients'),
+    form.watch('contactRecipients'),
+    form.watch('contactListRecipients'),
+  ]);
 
   async function onSubmit(data: CreateEmailFormData) {
     if (!canSendEmail) {
-      toast({ title: 'Error', description: 'You do not have permission to send emails', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'You do not have permission to send emails',
+        variant: 'destructive',
+      });
       return;
     }
     setIsLoading(true);
@@ -629,11 +683,14 @@ export function CreateEmailForm() {
         emailData.content = data.content;
       }
 
-      if (data.recipients && data.recipients.length > 0) emailData.recipients = JSON.stringify(data.recipients);
+      if (data.recipients && data.recipients.length > 0)
+        emailData.recipients = JSON.stringify(data.recipients);
       const contactRecipients = form.getValues('contactRecipients');
-      if (contactRecipients && contactRecipients.length > 0) emailData.contactRecipients = JSON.stringify(contactRecipients);
+      if (contactRecipients && contactRecipients.length > 0)
+        emailData.contactRecipients = JSON.stringify(contactRecipients);
       const contactListRecipients = form.getValues('contactListRecipients');
-      if (contactListRecipients && contactListRecipients.length > 0) emailData.contactListRecipients = JSON.stringify(contactListRecipients);
+      if (contactListRecipients && contactListRecipients.length > 0)
+        emailData.contactListRecipients = JSON.stringify(contactListRecipients);
       if (attachmentIds.length > 0) emailData.attachmentIds = attachmentIds;
       const response = await fetch(API_ENDPOINTS.MAIL.CREATE, {
         method: 'POST',
@@ -645,7 +702,8 @@ export function CreateEmailForm() {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         let errorMessage = 'Failed to create email';
         if (response.status === 401) errorMessage = 'Unauthorized - Please login again';
-        else if (response.status === 403) errorMessage = 'Forbidden - You do not have permission to perform this action';
+        else if (response.status === 403)
+          errorMessage = 'Forbidden - You do not have permission to perform this action';
         else if (errorData.message) errorMessage = errorData.message;
         else if (errorData.error) errorMessage = errorData.error;
         throw new Error(errorMessage);
@@ -654,7 +712,11 @@ export function CreateEmailForm() {
       toast({ title: 'Success', description: 'Email created successfully' });
       router.push('/emails');
     } catch (error) {
-      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to create email', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to create email',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -662,12 +724,20 @@ export function CreateEmailForm() {
 
   async function saveAsTemplate() {
     if (!canCreateTemplate) {
-      toast({ title: 'Error', description: 'You do not have permission to create email templates', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'You do not have permission to create email templates',
+        variant: 'destructive',
+      });
       return;
     }
 
     if (!templateName.trim()) {
-      toast({ title: 'Error', description: 'Please provide a template name', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Please provide a template name',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -719,7 +789,8 @@ export function CreateEmailForm() {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         let errorMessage = 'Failed to save template';
         if (response.status === 401) errorMessage = 'Unauthorized - Please login again';
-        else if (response.status === 403) errorMessage = 'Forbidden - You do not have permission to perform this action';
+        else if (response.status === 403)
+          errorMessage = 'Forbidden - You do not have permission to perform this action';
         else if (errorData.message) errorMessage = errorData.message;
         else if (errorData.error) errorMessage = errorData.error;
         throw new Error(errorMessage);
@@ -730,7 +801,11 @@ export function CreateEmailForm() {
       setIsTemplateModalOpen(false);
       setTemplateName('');
     } catch (error) {
-      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to save template', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to save template',
+        variant: 'destructive',
+      });
     } finally {
       setIsSavingTemplate(false);
     }
@@ -769,7 +844,10 @@ export function CreateEmailForm() {
       }
 
       // Apply contact list recipients
-      if (template.templateContactListRecipients && template.templateContactListRecipients.length > 0) {
+      if (
+        template.templateContactListRecipients &&
+        template.templateContactListRecipients.length > 0
+      ) {
         form.setValue('contactListRecipients', template.templateContactListRecipients);
       }
 
@@ -830,42 +908,24 @@ export function CreateEmailForm() {
                       setIsTemplateSelectionModalOpen(true);
                       loadTemplates();
                     }}
-
                   >
                     <FileText className="mr-2 h-4 w-4" />
                     Use Template
                   </Button>
                 )}
                 {canViewContacts && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={openContactModal}
-
-                  >
+                  <Button type="button" size="sm" onClick={openContactModal}>
                     <Users className="mr-2 h-4 w-4" />
                     Add Contact
                   </Button>
                 )}
                 {canViewContactLists && (
-                  <Button
-                    type="button"
-
-                    size="sm"
-                    onClick={openContactListModal}
-
-                  >
+                  <Button type="button" size="sm" onClick={openContactListModal}>
                     <List className="mr-2 h-4 w-4" />
                     Add Contact List
                   </Button>
                 )}
-                <Button
-                  type="button"
-
-                  size="sm"
-                  onClick={() => append({ address: '', type: 'TO' })}
-
-                >
+                <Button type="button" size="sm" onClick={() => append({ address: '', type: 'TO' })}>
                   <Plus className="mr-2 h-4 w-4" />
                   Add Email
                 </Button>
@@ -875,7 +935,7 @@ export function CreateEmailForm() {
               {/* Direct Email Recipients */}
               {fields.map((field, index) => (
                 <div key={field.id} className="flex items-end space-x-2">
-                   <FormField
+                  <FormField
                     control={form.control}
                     name={`recipients.${index}.type`}
                     render={({ field }) => (
@@ -909,12 +969,7 @@ export function CreateEmailForm() {
                     )}
                   />
 
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => remove(index)}
-                  >
+                  <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
@@ -924,7 +979,10 @@ export function CreateEmailForm() {
               {form.watch('contactRecipients')?.map((recipient, index) => {
                 const contact = contacts.find(c => c.id === recipient.contactId);
                 return (
-                  <div key={`contact-${index}`} className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
+                  <div
+                    key={`contact-${index}`}
+                    className="flex items-center justify-between p-2 border rounded-md bg-muted/50"
+                  >
                     <div className="flex items-center space-x-2">
                       <Badge variant="secondary">{recipient.type}</Badge>
                       <span className="font-medium">{contact?.name || 'Unknown Contact'}</span>
@@ -946,12 +1004,19 @@ export function CreateEmailForm() {
               {form.watch('contactListRecipients')?.map((recipient, index) => {
                 const contactList = contactLists.find(cl => cl.id === recipient.contactListId);
                 return (
-                  <div key={`contact-list-${index}`} className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
+                  <div
+                    key={`contact-list-${index}`}
+                    className="flex items-center justify-between p-2 border rounded-md bg-muted/50"
+                  >
                     <div className="flex items-center space-x-2">
                       <Badge variant="secondary">{recipient.type}</Badge>
-                      <span className="font-medium">{contactList?.name || 'Unknown Contact List'}</span>
+                      <span className="font-medium">
+                        {contactList?.name || 'Unknown Contact List'}
+                      </span>
                       {contactList?.description && (
-                        <span className="text-sm text-muted-foreground">({contactList.description})</span>
+                        <span className="text-sm text-muted-foreground">
+                          ({contactList.description})
+                        </span>
                       )}
                     </div>
                     <Button
@@ -985,7 +1050,7 @@ export function CreateEmailForm() {
                   <Input
                     placeholder="Search contacts by name or email..."
                     value={modalSearch}
-                    onChange={(e) => handleModalSearch(e.target.value)}
+                    onChange={e => handleModalSearch(e.target.value)}
                     className="pl-10"
                   />
                   {isSearching && (
@@ -1008,7 +1073,7 @@ export function CreateEmailForm() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {filteredModalContacts.map((contact) => (
+                      {filteredModalContacts.map(contact => (
                         <div
                           key={contact.id}
                           className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -1069,7 +1134,7 @@ export function CreateEmailForm() {
                   <Input
                     placeholder="Search contact lists by name or description..."
                     value={modalSearch}
-                    onChange={(e) => handleModalSearch(e.target.value)}
+                    onChange={e => handleModalSearch(e.target.value)}
                     className="pl-10"
                   />
                   {isSearching && (
@@ -1088,11 +1153,13 @@ export function CreateEmailForm() {
                 <ScrollArea className="h-[450px] max-h-[60vh]">
                   {filteredModalContactLists.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
-                      {modalSearch ? 'No contact lists found' : 'Start typing to search contact lists'}
+                      {modalSearch
+                        ? 'No contact lists found'
+                        : 'Start typing to search contact lists'}
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {filteredModalContactLists.map((contactList) => (
+                      {filteredModalContactLists.map(contactList => (
                         <div
                           key={contactList.id}
                           className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -1100,7 +1167,9 @@ export function CreateEmailForm() {
                           <div className="flex-1">
                             <div className="font-medium">{contactList.name}</div>
                             {contactList.description && (
-                              <div className="text-sm text-muted-foreground">{contactList.description}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {contactList.description}
+                              </div>
                             )}
                           </div>
                           <div className="flex gap-1">
@@ -1152,7 +1221,10 @@ export function CreateEmailForm() {
 
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <FormLabel htmlFor="template-name" className="text-sm font-medium text-foreground">
+                  <FormLabel
+                    htmlFor="template-name"
+                    className="text-sm font-medium text-foreground"
+                  >
                     Template Name
                   </FormLabel>
                   <div className="relative">
@@ -1160,8 +1232,8 @@ export function CreateEmailForm() {
                       id="template-name"
                       placeholder="e.g., Welcome Email, Newsletter, Meeting Invite..."
                       value={templateName}
-                      onChange={(e) => setTemplateName(e.target.value)}
-                      onKeyDown={(e) => {
+                      onChange={e => setTemplateName(e.target.value)}
+                      onKeyDown={e => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           saveAsTemplate();
@@ -1187,7 +1259,10 @@ export function CreateEmailForm() {
                   <div className="space-y-2 text-sm border border-border/50 rounded-md p-4 bg-muted/30">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Subject:</span>
-                      <span className="font-medium truncate max-w-[200px]" title={form.getValues('subject')}>
+                      <span
+                        className="font-medium truncate max-w-[200px]"
+                        title={form.getValues('subject')}
+                      >
                         {form.getValues('subject') || 'No subject'}
                       </span>
                     </div>
@@ -1197,9 +1272,15 @@ export function CreateEmailForm() {
                         {(() => {
                           const recipients = form.getValues('recipients') || [];
                           const contactRecipients = form.getValues('contactRecipients') || [];
-                          const contactListRecipients = form.getValues('contactListRecipients') || [];
-                          const total = recipients.length + contactRecipients.length + contactListRecipients.length;
-                          return total > 0 ? `${total} recipient${total !== 1 ? 's' : ''}` : 'No recipients';
+                          const contactListRecipients =
+                            form.getValues('contactListRecipients') || [];
+                          const total =
+                            recipients.length +
+                            contactRecipients.length +
+                            contactListRecipients.length;
+                          return total > 0
+                            ? `${total} recipient${total !== 1 ? 's' : ''}`
+                            : 'No recipients';
                         })()}
                       </span>
                     </div>
@@ -1208,8 +1289,7 @@ export function CreateEmailForm() {
                       <span className="font-medium">
                         {form.getValues('content')?.length > 0
                           ? `${form.getValues('content').length} characters`
-                          : 'No content'
-                        }
+                          : 'No content'}
                       </span>
                     </div>
                   </div>
@@ -1220,11 +1300,16 @@ export function CreateEmailForm() {
                     <div className="flex items-start gap-2">
                       <div className="mt-0.5">
                         <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          <path
+                            fillRule="evenodd"
+                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                       </div>
                       <div>
-                        <strong>Note:</strong> This template will save the email content, subject, and recipients, but <strong>attachments will not be included</strong>.
+                        <strong>Note:</strong> This template will save the email content, subject,
+                        and recipients, but <strong>attachments will not be included</strong>.
                       </div>
                     </div>
                   </AlertDescription>
@@ -1264,7 +1349,10 @@ export function CreateEmailForm() {
           </Dialog>
 
           {/* Template Selection Modal */}
-          <Dialog open={isTemplateSelectionModalOpen} onOpenChange={setIsTemplateSelectionModalOpen}>
+          <Dialog
+            open={isTemplateSelectionModalOpen}
+            onOpenChange={setIsTemplateSelectionModalOpen}
+          >
             <DialogContent className="max-w-2xl max-h-[85vh] bg-card border border-primary/30 shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
@@ -1280,7 +1368,7 @@ export function CreateEmailForm() {
                   <Input
                     placeholder="Search templates by name or subject..."
                     value={templateSearch}
-                    onChange={(e) => setTemplateSearch(e.target.value)}
+                    onChange={e => setTemplateSearch(e.target.value)}
                     className="pl-10"
                   />
                   {isLoadingTemplates && (
@@ -1308,7 +1396,7 @@ export function CreateEmailForm() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {filteredTemplates.map((template) => (
+                      {filteredTemplates.map(template => (
                         <div
                           key={template.id}
                           className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -1328,21 +1416,30 @@ export function CreateEmailForm() {
                               {(() => {
                                 const emailRecipients = template.templateEmailRecipients || [];
                                 const contactRecipients = template.templateContactRecipients || [];
-                                const contactListRecipients = template.templateContactListRecipients || [];
+                                const contactListRecipients =
+                                  template.templateContactListRecipients || [];
 
                                 const recipients = [];
 
                                 if (emailRecipients.length > 0) {
-                                  recipients.push(`${emailRecipients.length} email${emailRecipients.length !== 1 ? 's' : ''}`);
+                                  recipients.push(
+                                    `${emailRecipients.length} email${emailRecipients.length !== 1 ? 's' : ''}`
+                                  );
                                 }
                                 if (contactRecipients.length > 0) {
-                                  recipients.push(`${contactRecipients.length} contact${contactRecipients.length !== 1 ? 's' : ''}`);
+                                  recipients.push(
+                                    `${contactRecipients.length} contact${contactRecipients.length !== 1 ? 's' : ''}`
+                                  );
                                 }
                                 if (contactListRecipients.length > 0) {
-                                  recipients.push(`${contactListRecipients.length} contact list${contactListRecipients.length !== 1 ? 's' : ''}`);
+                                  recipients.push(
+                                    `${contactListRecipients.length} contact list${contactListRecipients.length !== 1 ? 's' : ''}`
+                                  );
                                 }
 
-                                return recipients.length > 0 ? recipients.join(', ') : 'No recipients';
+                                return recipients.length > 0
+                                  ? recipients.join(', ')
+                                  : 'No recipients';
                               })()}
                             </div>
                             <div className="text-xs text-muted-foreground">
@@ -1400,79 +1497,114 @@ export function CreateEmailForm() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Subject:</span>
-                          <span className="font-medium">{selectedTemplate.subject || 'No subject'}</span>
+                          <span className="font-medium">
+                            {selectedTemplate.subject || 'No subject'}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Content Length:</span>
-                          <span className="font-medium">{selectedTemplate.content?.length || 0} characters</span>
+                          <span className="font-medium">
+                            {selectedTemplate.content?.length || 0} characters
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Created:</span>
-                          <span className="font-medium">{new Date(selectedTemplate.createdAt).toLocaleString()}</span>
+                          <span className="font-medium">
+                            {new Date(selectedTemplate.createdAt).toLocaleString()}
+                          </span>
                         </div>
                       </div>
                     </div>
 
                     {/* Email Recipients */}
-                    {selectedTemplate.templateEmailRecipients && selectedTemplate.templateEmailRecipients.length > 0 && (
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-medium text-foreground">Email Recipients</h4>
-                        <div className="space-y-2 max-h-40 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
-                          {selectedTemplate.templateEmailRecipients.map((recipient, index) => (
-                            <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                              <div className="flex items-center space-x-2">
-                                <Badge variant="secondary">{recipient.type}</Badge>
-                                <span className="font-mono text-sm">{recipient.address}</span>
+                    {selectedTemplate.templateEmailRecipients &&
+                      selectedTemplate.templateEmailRecipients.length > 0 && (
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-medium text-foreground">Email Recipients</h4>
+                          <div className="space-y-2 max-h-40 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
+                            {selectedTemplate.templateEmailRecipients.map((recipient, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <Badge variant="secondary">{recipient.type}</Badge>
+                                  <span className="font-mono text-sm">{recipient.address}</span>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     {/* Contact Recipients */}
-                    {selectedTemplate.templateContactRecipients && selectedTemplate.templateContactRecipients.length > 0 && (
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-medium text-foreground">Contact Recipients</h4>
-                        <div className="space-y-2 max-h-40 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
-                          {selectedTemplate.templateContactRecipients.map((recipient, index) => {
-                            const contact = contacts.find(c => c.id === recipient.contactId);
-                            return (
-                              <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                                <div className="flex items-center space-x-2">
-                                  <Badge variant="secondary">{recipient.type}</Badge>
-                                  <span className="font-medium">{contact?.name || `Contact ID: ${recipient.contactId}`}</span>
-                                  <span className="text-sm text-muted-foreground">({contact?.eid || 'Unknown email'})</span>
+                    {selectedTemplate.templateContactRecipients &&
+                      selectedTemplate.templateContactRecipients.length > 0 && (
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-medium text-foreground">
+                            Contact Recipients
+                          </h4>
+                          <div className="space-y-2 max-h-40 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
+                            {selectedTemplate.templateContactRecipients.map((recipient, index) => {
+                              const contact = contacts.find(c => c.id === recipient.contactId);
+                              return (
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50"
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <Badge variant="secondary">{recipient.type}</Badge>
+                                    <span className="font-medium">
+                                      {contact?.name || `Contact ID: ${recipient.contactId}`}
+                                    </span>
+                                    <span className="text-sm text-muted-foreground">
+                                      ({contact?.eid || 'Unknown email'})
+                                    </span>
+                                  </div>
                                 </div>
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     {/* Contact List Recipients */}
-                    {selectedTemplate.templateContactListRecipients && selectedTemplate.templateContactListRecipients.length > 0 && (
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-medium text-foreground">Contact List Recipients</h4>
-                        <div className="space-y-2 max-h-40 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
-                          {selectedTemplate.templateContactListRecipients.map((recipient, index) => {
-                            const contactList = contactLists.find(cl => cl.id === recipient.contactListId);
-                            return (
-                              <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                                <div className="flex items-center space-x-2">
-                                  <Badge variant="secondary">{recipient.type}</Badge>
-                                  <span className="font-medium">{contactList?.name || `Contact List ID: ${recipient.contactListId}`}</span>
-                                  {contactList?.description && (
-                                    <span className="text-sm text-muted-foreground">({contactList.description})</span>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
+                    {selectedTemplate.templateContactListRecipients &&
+                      selectedTemplate.templateContactListRecipients.length > 0 && (
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-medium text-foreground">
+                            Contact List Recipients
+                          </h4>
+                          <div className="space-y-2 max-h-40 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
+                            {selectedTemplate.templateContactListRecipients.map(
+                              (recipient, index) => {
+                                const contactList = contactLists.find(
+                                  cl => cl.id === recipient.contactListId
+                                );
+                                return (
+                                  <div
+                                    key={index}
+                                    className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50"
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <Badge variant="secondary">{recipient.type}</Badge>
+                                      <span className="font-medium">
+                                        {contactList?.name ||
+                                          `Contact List ID: ${recipient.contactListId}`}
+                                      </span>
+                                      {contactList?.description && (
+                                        <span className="text-sm text-muted-foreground">
+                                          ({contactList.description})
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              }
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     {/* Content Preview */}
                     {selectedTemplate.content && (
@@ -1489,10 +1621,7 @@ export function CreateEmailForm() {
                 )}
 
                 <div className="flex justify-end space-x-3 pt-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsTemplateDetailsModalOpen(false)}
-                  >
+                  <Button variant="outline" onClick={() => setIsTemplateDetailsModalOpen(false)}>
                     Close
                   </Button>
                   {selectedTemplate && (
@@ -1537,15 +1666,12 @@ export function CreateEmailForm() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center justify-between">
-                    <FormLabel>Content</FormLabel>
+                      <FormLabel>Content</FormLabel>
                       <div className="flex items-center space-x-2">
                         <span className="text-sm text-muted-foreground">Rich Text</span>
-                        <Switch
-                          checked={useRichText}
-                          onCheckedChange={handleRichTextToggle}
-                        />
-                        </div>
+                        <Switch checked={useRichText} onCheckedChange={handleRichTextToggle} />
                       </div>
+                    </div>
                     <FormControl>
                       {useRichText ? (
                         <RichTextEditor
@@ -1555,18 +1681,18 @@ export function CreateEmailForm() {
                           className="min-h-[300px]"
                         />
                       ) : (
-                      <div className="relative">
+                        <div className="relative">
                           <ScrollArea className="h-[300px] border rounded-md">
-                          <Textarea
+                            <Textarea
                               placeholder="Email content"
-                            className="min-h-[400px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                            {...field}
-                          />
-                        </ScrollArea>
-                        <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
-                          {field.value?.length || 0} characters
+                              className="min-h-[400px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                              {...field}
+                            />
+                          </ScrollArea>
+                          <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
+                            {field.value?.length || 0} characters
+                          </div>
                         </div>
-                      </div>
                       )}
                     </FormControl>
                     <FormMessage />
@@ -1602,9 +1728,15 @@ export function CreateEmailForm() {
             <CardContent className="space-y-4">
               {/* Upload Progress */}
               {Object.entries(uploadProgress)
-                .filter(([sessionId, progress]) => !uploadedAttachments.some(att => att.filename === progress.filename))
+                .filter(
+                  ([sessionId, progress]) =>
+                    !uploadedAttachments.some(att => att.filename === progress.filename)
+                )
                 .map(([sessionId, progress]) => (
-                  <div key={sessionId} className="flex items-center justify-between p-2 border rounded-md bg-muted/50 mb-2">
+                  <div
+                    key={sessionId}
+                    className="flex items-center justify-between p-2 border rounded-md bg-muted/50 mb-2"
+                  >
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">{progress.filename}</span>
@@ -1634,8 +1766,13 @@ export function CreateEmailForm() {
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">Uploaded</h4>
                   {uploadedAttachments
-                    .filter(att => !Object.values(uploadProgress).some(progress => progress.filename === att.filename))
-                    .map((attachment) => (
+                    .filter(
+                      att =>
+                        !Object.values(uploadProgress).some(
+                          progress => progress.filename === att.filename
+                        )
+                    )
+                    .map(attachment => (
                       <div
                         key={attachment.id}
                         className="flex items-center justify-between p-2 border rounded-md bg-green-50 dark:bg-green-500 dark:text-white"
@@ -1673,7 +1810,11 @@ export function CreateEmailForm() {
 
           <div className="flex items-center justify-between mt-8">
             <div className="flex items-center space-x-4">
-              <Button type="submit" disabled={isLoading || !form.formState.isValid || !hasRecipients} size="lg">
+              <Button
+                type="submit"
+                disabled={isLoading || !form.formState.isValid || !hasRecipients}
+                size="lg"
+              >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1689,7 +1830,7 @@ export function CreateEmailForm() {
               {canCreateTemplate && (
                 <Button
                   type="button"
-                  className='bg-success/70 hover:bg-success text-success-foreground'
+                  className="bg-success/70 hover:bg-success text-success-foreground"
                   size="lg"
                   onClick={() => setIsTemplateModalOpen(true)}
                   disabled={!form.formState.isValid || !hasRecipients}

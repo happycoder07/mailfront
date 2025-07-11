@@ -1,7 +1,13 @@
 'use client';
 
 import { useState, useEffect, useId } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,8 +18,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/components/ui/use-toast';
-import { API_ENDPOINTS, ContactListResponseDto, ContactDto, UpdateContactListDto } from '@/lib/config';
-import { Eye, Pencil, Save, X, Loader2, Users, Calendar, Trash2, AlertCircle, User } from 'lucide-react';
+import {
+  API_ENDPOINTS,
+  ContactListResponseDto,
+  ContactDto,
+  UpdateContactListDto,
+} from '@/lib/config';
+import {
+  Eye,
+  Pencil,
+  Save,
+  X,
+  Loader2,
+  Users,
+  Calendar,
+  Trash2,
+  AlertCircle,
+  User,
+} from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -27,7 +49,13 @@ interface ContactListDialogProps {
   initialEditMode?: boolean;
 }
 
-export function ContactListDialog({ contactList, open, onOpenChange, onContactListUpdated, initialEditMode = false }: ContactListDialogProps) {
+export function ContactListDialog({
+  contactList,
+  open,
+  onOpenChange,
+  onContactListUpdated,
+  initialEditMode = false,
+}: ContactListDialogProps) {
   const [isEditing, setIsEditing] = useState(initialEditMode);
   const [isSaving, setIsSaving] = useState(false);
   const [allContacts, setAllContacts] = useState<ContactDto[]>([]);
@@ -168,7 +196,7 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
       const response = await fetch(API_ENDPOINTS.CONTACT_LISTS.DELETE(contactList.id), {
         method: 'DELETE',
         headers: {
-          'X-XSRF-TOKEN': getCSRFToken()
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -197,7 +225,9 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
         <DialogDescription className="sr-only">
-          {isEditing ? 'Edit contact list details and manage contacts' : `Contact list: ${contactList.name} with ${contactList.contacts.length} contact${contactList.contacts.length !== 1 ? 's' : ''}`}
+          {isEditing
+            ? 'Edit contact list details and manage contacts'
+            : `Contact list: ${contactList.name} with ${contactList.contacts.length} contact${contactList.contacts.length !== 1 ? 's' : ''}`}
         </DialogDescription>
         <DialogHeader className="px-6 py-4 border-b bg-gradient-to-r from-list-primary/10 via-list-primary/5 to-list-secondary/10 dark:from-list-primary/20 dark:via-list-primary/10 dark:to-list-secondary/20">
           <div className="flex items-center justify-between pr-8">
@@ -210,7 +240,8 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                   {isEditing ? 'Edit Contact List' : contactList.name}
                 </DialogTitle>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {!isEditing && `${contactList.contacts.length} contact${contactList.contacts.length !== 1 ? 's' : ''}`}
+                  {!isEditing &&
+                    `${contactList.contacts.length} contact${contactList.contacts.length !== 1 ? 's' : ''}`}
                   {isEditing && 'Edit contact list details and manage contacts'}
                 </p>
               </div>
@@ -292,10 +323,16 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
           <Tabs defaultValue="details" className="h-full flex flex-col">
             <div className="px-6 pt-4">
               <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-                <TabsTrigger value="details" className="data-[state=active]:bg-background data-[state=active]:text-list-primary data-[state=active]:shadow-sm">
+                <TabsTrigger
+                  value="details"
+                  className="data-[state=active]:bg-background data-[state=active]:text-list-primary data-[state=active]:shadow-sm"
+                >
                   Details
                 </TabsTrigger>
-                <TabsTrigger value="contacts" className="data-[state=active]:bg-background data-[state=active]:text-list-primary data-[state=active]:shadow-sm">
+                <TabsTrigger
+                  value="contacts"
+                  className="data-[state=active]:bg-background data-[state=active]:text-list-primary data-[state=active]:shadow-sm"
+                >
                   Contacts
                 </TabsTrigger>
               </TabsList>
@@ -326,14 +363,13 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                       </div>
 
                       <div className="space-y-3">
-                        <Label className="text-sm font-medium text-foreground">
-                          Contact Count
-                        </Label>
+                        <Label className="text-sm font-medium text-foreground">Contact Count</Label>
                         <div className="p-3 bg-list-primary/5 dark:bg-list-primary/10 rounded-lg border border-list-primary/20 shadow-sm">
                           <div className="flex items-center space-x-2">
                             <Users className="h-4 w-4 text-list-primary" />
                             <span className="text-list-primary font-medium">
-                              {contactList.contacts.length} contact{contactList.contacts.length !== 1 ? 's' : ''}
+                              {contactList.contacts.length} contact
+                              {contactList.contacts.length !== 1 ? 's' : ''}
                             </span>
                           </div>
                         </div>
@@ -346,7 +382,9 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                         <Textarea
                           id={descriptionId}
                           value={formData.description}
-                          onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                          onChange={e =>
+                            setFormData(prev => ({ ...prev, description: e.target.value }))
+                          }
                           placeholder="Enter contact list description"
                           className="min-h-[100px]"
                           aria-label="Contact list description"
@@ -360,11 +398,15 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                       <div className="flex items-center space-x-4">
                         <span className="flex items-center space-x-1">
                           <Calendar className="h-3 w-3" />
-                          <span>Created: {new Date(contactList.createdAt).toLocaleDateString()}</span>
+                          <span>
+                            Created: {new Date(contactList.createdAt).toLocaleDateString()}
+                          </span>
                         </span>
                         <span className="flex items-center space-x-1">
                           <Calendar className="h-3 w-3" />
-                          <span>Updated: {new Date(contactList.updatedAt).toLocaleDateString()}</span>
+                          <span>
+                            Updated: {new Date(contactList.updatedAt).toLocaleDateString()}
+                          </span>
                         </span>
                       </div>
                     </div>
@@ -380,12 +422,12 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                     <div className="p-1.5 bg-list-primary/10 dark:bg-list-primary/20 rounded-lg">
                       <Users className="h-4 w-4 text-list-primary" />
                     </div>
-                    <span>
-                      Contacts ({contactList.contacts.length})
-                    </span>
+                    <span>Contacts ({contactList.contacts.length})</span>
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    {isEditing ? 'Select contacts to include in this list' : 'Contacts in this list'}
+                    {isEditing
+                      ? 'Select contacts to include in this list'
+                      : 'Contacts in this list'}
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -406,12 +448,17 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                             <span className="ml-2 text-muted-foreground">Loading contacts...</span>
                           </div>
                         ) : allContacts.length > 0 ? (
-                          allContacts.map((contact) => (
-                            <div key={contact.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                          allContacts.map(contact => (
+                            <div
+                              key={contact.id}
+                              className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                            >
                               <Checkbox
                                 id={`contact-${contact.id}`}
                                 checked={isContactSelected(contact.id)}
-                                onCheckedChange={(checked) => handleContactToggle(contact.id, checked as boolean)}
+                                onCheckedChange={checked =>
+                                  handleContactToggle(contact.id, checked as boolean)
+                                }
                                 className="text-list-primary border-border focus:ring-list-primary/20"
                               />
                               <div className="flex items-center space-x-3 flex-1">
@@ -419,15 +466,16 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                                   <User className="h-4 w-4 text-contact-primary" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="font-medium text-foreground">
-                                    {contact.name}
-                                  </div>
+                                  <div className="font-medium text-foreground">{contact.name}</div>
                                   <div className="text-sm text-muted-foreground font-mono">
                                     {contact.eid}
                                   </div>
                                 </div>
                               </div>
-                              <Badge variant="secondary" className="bg-success/10 text-success border-success/20">
+                              <Badge
+                                variant="secondary"
+                                className="bg-success/10 text-success border-success/20"
+                              >
                                 Member
                               </Badge>
                             </div>
@@ -452,7 +500,7 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                       {contactList.contacts.length > 0 ? (
                         <ScrollArea className="h-[310px] pr-4">
                           <div className="space-y-3">
-                            {contactList.contacts.map((contact) => (
+                            {contactList.contacts.map(contact => (
                               <div
                                 key={contact.id}
                                 className="flex items-center justify-between p-4 border rounded-lg bg-gradient-to-r from-muted/30 to-muted/50 border-border/50 hover:from-muted/50 hover:to-muted/70 hover:border-list-primary/30 transition-all duration-200 shadow-sm hover:shadow-md"
@@ -470,7 +518,10 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                                     </div>
                                   </div>
                                 </div>
-                                <Badge variant="secondary" className="bg-success/10 text-success border-success/20">
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-success/10 text-success border-success/20"
+                                >
                                   Member
                                 </Badge>
                               </div>
@@ -485,9 +536,7 @@ export function ContactListDialog({ contactList, open, onOpenChange, onContactLi
                           <h3 className="text-lg font-medium text-foreground mb-2">
                             No contacts in this list
                           </h3>
-                          <p className="text-muted-foreground">
-                            This contact list is empty.
-                          </p>
+                          <p className="text-muted-foreground">This contact list is empty.</p>
                         </div>
                       )}
                     </>

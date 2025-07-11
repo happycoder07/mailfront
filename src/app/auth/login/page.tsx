@@ -2,7 +2,6 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import { LoginForm } from '@/components/auth/login-form';
 
-
 export const metadata: Metadata = {
   title: 'Mail Manager - Login',
   description: 'Login to your account',

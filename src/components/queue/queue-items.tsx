@@ -232,9 +232,9 @@ export function QueueItems() {
       const response = await fetch(API_ENDPOINTS.QUEUE.PROCESS(emailId.toString()), {
         method: 'POST',
         headers: {
-          'X-XSRF-TOKEN': getCSRFToken()
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
-        credentials: 'include'
+        credentials: 'include',
       });
       if (!response.ok) {
         throw new Error('Failed to process queue item');
@@ -306,24 +306,46 @@ export function QueueItems() {
       role="main"
       aria-labelledby={queueTitleId}
     >
-      <h1 id={queueTitleId} className="sr-only">Email Queue Management</h1>
+      <h1 id={queueTitleId} className="sr-only">
+        Email Queue Management
+      </h1>
 
       <Card>
         <CardHeader>
           <CardTitle>Queue Items</CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs value={selectedStatus} onValueChange={setSelectedStatus} aria-label="Queue status tabs">
+          <Tabs
+            value={selectedStatus}
+            onValueChange={setSelectedStatus}
+            aria-label="Queue status tabs"
+          >
             <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="all" aria-label="Show all queue items">All</TabsTrigger>
-              <TabsTrigger value="waiting" aria-label="Show waiting queue items">Waiting</TabsTrigger>
-              <TabsTrigger value="active" aria-label="Show active queue items">Active</TabsTrigger>
-              <TabsTrigger value="completed" aria-label="Show completed queue items">Completed</TabsTrigger>
-              <TabsTrigger value="failed" aria-label="Show failed queue items">Failed</TabsTrigger>
+              <TabsTrigger value="all" aria-label="Show all queue items">
+                All
+              </TabsTrigger>
+              <TabsTrigger value="waiting" aria-label="Show waiting queue items">
+                Waiting
+              </TabsTrigger>
+              <TabsTrigger value="active" aria-label="Show active queue items">
+                Active
+              </TabsTrigger>
+              <TabsTrigger value="completed" aria-label="Show completed queue items">
+                Completed
+              </TabsTrigger>
+              <TabsTrigger value="failed" aria-label="Show failed queue items">
+                Failed
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="all" className="mt-6">
-              <QueueTable items={items} onProcess={handleProcess} canManageQueue={canManageQueue} loading={loading} formatDate={formatDate} />
+              <QueueTable
+                items={items}
+                onProcess={handleProcess}
+                canManageQueue={canManageQueue}
+                loading={loading}
+                formatDate={formatDate}
+              />
             </TabsContent>
             <TabsContent value="waiting" className="mt-6">
               <QueueTable
@@ -374,7 +396,7 @@ function QueueTable({
   onProcess,
   canManageQueue,
   loading,
-  formatDate
+  formatDate,
 }: {
   items: QueueItem[];
   onProcess: (id: string, emailId: number) => void;
@@ -404,14 +426,26 @@ function QueueTable({
     <ScrollArea className="h-[400px]">
       <Table role="table" aria-label="Queue items table">
         <TableHeader>
-          <TableRow className='bg-background'>
-            <TableHead scope="col" className="w-40 text-center">ID</TableHead>
+          <TableRow className="bg-background">
+            <TableHead scope="col" className="w-40 text-center">
+              ID
+            </TableHead>
             {/* <TableHead scope="col">Name</TableHead> */}
-            <TableHead scope="col" className="text-center">Status</TableHead>
-            <TableHead scope="col" className="text-center">Progress</TableHead>
-            <TableHead scope="col" className="text-center">Attempts</TableHead>
-            <TableHead scope="col" className="w-50 text-center">Created</TableHead>
-            <TableHead scope="col" className="text-center">Actions</TableHead>
+            <TableHead scope="col" className="text-center">
+              Status
+            </TableHead>
+            <TableHead scope="col" className="text-center">
+              Progress
+            </TableHead>
+            <TableHead scope="col" className="text-center">
+              Attempts
+            </TableHead>
+            <TableHead scope="col" className="w-50 text-center">
+              Created
+            </TableHead>
+            <TableHead scope="col" className="text-center">
+              Actions
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -422,9 +456,7 @@ function QueueTable({
               role="row"
               aria-label={`Queue item ${item.name} with status ${item.status}`}
             >
-              <TableCell className="font-mono text-sm w-40 text-center">
-                {item.id}
-              </TableCell>
+              <TableCell className="font-mono text-sm w-40 text-center">{item.id}</TableCell>
               {/* <TableCell>{item.name}</TableCell> */}
               <TableCell className="text-center">
                 <Badge
@@ -443,7 +475,13 @@ function QueueTable({
                 </Badge>
               </TableCell>
               <TableCell className="text-center">
-                <div className="w-full bg-secondary rounded-full h-2" role="progressbar" aria-valuenow={item.progress || 0} aria-valuemin={0} aria-valuemax={100}>
+                <div
+                  className="w-full bg-secondary rounded-full h-2"
+                  role="progressbar"
+                  aria-valuenow={item.progress || 0}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
                   <div
                     className="bg-primary h-2 rounded-full"
                     style={{ width: `${item.progress || 0}%` }}

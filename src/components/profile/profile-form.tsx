@@ -57,10 +57,9 @@ export function ProfileForm() {
       try {
         const response = await fetch(API_ENDPOINTS.AUTH.PROFILE, {
           headers: {
-            'X-XSRF-TOKEN': getCSRFToken()
+            'X-XSRF-TOKEN': getCSRFToken(),
           },
           credentials: 'include',
-
         });
 
         if (!response.ok) {
@@ -165,7 +164,11 @@ export function ProfileForm() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64" role="region" aria-label="Loading profile information">
+      <div
+        className="flex justify-center items-center h-64"
+        role="region"
+        aria-label="Loading profile information"
+      >
         <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
         <span className="sr-only">Loading profile information</span>
       </div>
@@ -174,7 +177,9 @@ export function ProfileForm() {
 
   return (
     <div role="main" aria-labelledby="profile-form-title">
-      <h1 id="profile-form-title" className="sr-only">Profile Information</h1>
+      <h1 id="profile-form-title" className="sr-only">
+        Profile Information
+      </h1>
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -199,7 +204,9 @@ export function ProfileForm() {
                     aria-label="Email address (read-only)"
                   />
                 </div>
-                <p id={emailDescId} className="text-xs text-muted-foreground">Email cannot be changed</p>
+                <p id={emailDescId} className="text-xs text-muted-foreground">
+                  Email cannot be changed
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -215,7 +222,9 @@ export function ProfileForm() {
                     aria-label="User role (read-only)"
                   />
                 </div>
-                <p id={roleDescId} className="text-xs text-muted-foreground">Role cannot be changed</p>
+                <p id={roleDescId} className="text-xs text-muted-foreground">
+                  Role cannot be changed
+                </p>
               </div>
             </div>
 

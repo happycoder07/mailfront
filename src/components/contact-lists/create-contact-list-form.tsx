@@ -137,11 +137,13 @@ export function CreateContactListForm() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-foreground">Name *</Label>
+                <Label htmlFor="name" className="text-foreground">
+                  Name *
+                </Label>
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Enter contact list name"
                   className="border-input focus:border-list-primary focus:ring-list-primary/20"
                   required
@@ -153,7 +155,8 @@ export function CreateContactListForm() {
                 <div className="p-3 bg-list-primary/5 dark:bg-list-primary/10 rounded-lg border border-list-primary/20 shadow-sm">
                   <div className="flex items-center space-x-2">
                     <span className="text-list-primary font-medium">
-                      {formData.contactIds?.length || 0} contact{(formData.contactIds?.length || 0) !== 1 ? 's' : ''} selected
+                      {formData.contactIds?.length || 0} contact
+                      {(formData.contactIds?.length || 0) !== 1 ? 's' : ''} selected
                     </span>
                   </div>
                 </div>
@@ -161,11 +164,13 @@ export function CreateContactListForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-foreground">Description</Label>
+              <Label htmlFor="description" className="text-foreground">
+                Description
+              </Label>
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Enter description (optional)"
                 className="border-input focus:border-list-primary focus:ring-list-primary/20"
                 rows={3}
@@ -176,8 +181,11 @@ export function CreateContactListForm() {
               <Label className="text-foreground">Contacts</Label>
               <div className="space-y-2 max-h-60 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
                 {contacts.length > 0 ? (
-                  contacts.map((contact) => (
-                    <div key={contact.id} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                  contacts.map(contact => (
+                    <div
+                      key={contact.id}
+                      className="flex items-center space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                    >
                       <Checkbox
                         id={`contact-${contact.id}`}
                         checked={formData.contactIds?.includes(contact.id) || false}

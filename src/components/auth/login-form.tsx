@@ -16,7 +16,12 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
-import { loginSchema, loginWithTwoFactorSchema, LoginFormData, LoginWithTwoFactorFormData } from '@/lib/validation';
+import {
+  loginSchema,
+  loginWithTwoFactorSchema,
+  LoginFormData,
+  LoginWithTwoFactorFormData,
+} from '@/lib/validation';
 import { Mail, Lock, Loader2, Shield, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 
@@ -209,7 +214,7 @@ export function LoginForm() {
 
           <motion.div variants={itemVariants}>
             <form
-              onSubmit={(e) => {
+              onSubmit={e => {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
                 const token = formData.get('token') as string;
@@ -219,7 +224,8 @@ export function LoginForm() {
                 } else {
                   toast({
                     title: 'Error',
-                    description: 'Please enter a valid 6-digit authentication code or 8-character backup code',
+                    description:
+                      'Please enter a valid 6-digit authentication code or 8-character backup code',
                     variant: 'destructive',
                   });
                 }
@@ -330,7 +336,9 @@ export function LoginForm() {
                         placeholder="name@example.com"
                         className="pl-10"
                         {...field}
-                        aria-describedby={loginForm.formState.errors.email ? emailErrorId : undefined}
+                        aria-describedby={
+                          loginForm.formState.errors.email ? emailErrorId : undefined
+                        }
                         aria-invalid={!!loginForm.formState.errors.email}
                         autoComplete="email"
                         required
@@ -366,7 +374,9 @@ export function LoginForm() {
                         type="password"
                         className="pl-10"
                         {...field}
-                        aria-describedby={loginForm.formState.errors.password ? passwordErrorId : undefined}
+                        aria-describedby={
+                          loginForm.formState.errors.password ? passwordErrorId : undefined
+                        }
                         aria-invalid={!!loginForm.formState.errors.password}
                         autoComplete="current-password"
                         required

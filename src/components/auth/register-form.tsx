@@ -126,7 +126,9 @@ export function RegisterForm() {
 
   return (
     <div role="main" aria-labelledby="register-form-title">
-      <h1 id="register-form-title" className="sr-only">Create new user account</h1>
+      <h1 id="register-form-title" className="sr-only">
+        Create new user account
+      </h1>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -190,7 +192,9 @@ export function RegisterForm() {
                         placeholder="John"
                         className="pl-10"
                         {...field}
-                        aria-describedby={form.formState.errors.firstName ? firstNameErrorId : undefined}
+                        aria-describedby={
+                          form.formState.errors.firstName ? firstNameErrorId : undefined
+                        }
                         aria-invalid={!!form.formState.errors.firstName}
                         autoComplete="given-name"
                         required
@@ -223,7 +227,9 @@ export function RegisterForm() {
                         placeholder="Doe"
                         className="pl-10"
                         {...field}
-                        aria-describedby={form.formState.errors.lastName ? lastNameErrorId : undefined}
+                        aria-describedby={
+                          form.formState.errors.lastName ? lastNameErrorId : undefined
+                        }
                         aria-invalid={!!form.formState.errors.lastName}
                         autoComplete="family-name"
                         required
@@ -257,7 +263,9 @@ export function RegisterForm() {
                       type="password"
                       className="pl-10"
                       {...field}
-                      aria-describedby={form.formState.errors.password ? passwordErrorId : undefined}
+                      aria-describedby={
+                        form.formState.errors.password ? passwordErrorId : undefined
+                      }
                       aria-invalid={!!form.formState.errors.password}
                       autoComplete="new-password"
                       required

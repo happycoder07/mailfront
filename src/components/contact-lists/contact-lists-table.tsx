@@ -1,11 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { API_ENDPOINTS, PaginatedContactListResponseDto, ContactListResponseDto } from '@/lib/config';
+import {
+  API_ENDPOINTS,
+  PaginatedContactListResponseDto,
+  ContactListResponseDto,
+} from '@/lib/config';
 import { Loader2, Eye, Pencil, Trash, Search } from 'lucide-react';
 import { ContactListDialog } from './contact-list-dialog';
 import { useAuth } from '@/lib/auth-context';
@@ -28,11 +39,15 @@ export function ContactListsTable() {
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedContactList, setSelectedContactList] = useState<ContactListResponseDto | null>(null);
+  const [selectedContactList, setSelectedContactList] = useState<ContactListResponseDto | null>(
+    null
+  );
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [contactListToDelete, setContactListToDelete] = useState<ContactListResponseDto | null>(null);
+  const [contactListToDelete, setContactListToDelete] = useState<ContactListResponseDto | null>(
+    null
+  );
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 10,
@@ -143,7 +158,7 @@ export function ContactListsTable() {
       const response = await fetch(API_ENDPOINTS.CONTACT_LISTS.DELETE(contactListToDelete.id), {
         method: 'DELETE',
         headers: {
-          'X-XSRF-TOKEN': getCSRFToken()
+          'X-XSRF-TOKEN': getCSRFToken(),
         },
         credentials: 'include',
       });
@@ -195,7 +210,12 @@ export function ContactListsTable() {
               Search
             </Button>
             {searchQuery && (
-              <Button onClick={handleClearSearch} variant="outline" size="sm" aria-label="Clear search">
+              <Button
+                onClick={handleClearSearch}
+                variant="outline"
+                size="sm"
+                aria-label="Clear search"
+              >
                 Clear
               </Button>
             )}
@@ -203,11 +223,19 @@ export function ContactListsTable() {
           <div className="rounded-md border">
             <Table role="table" aria-label="Contact lists table">
               <TableHeader>
-                <TableRow className='bg-background'>
-                  <TableHead className="w-2/7" scope="col">Name</TableHead>
-                  <TableHead className="w-3/7" scope="col">Description</TableHead>
-                  <TableHead className="w-1/7 hidden md:table-cell text-center" scope="col">Created At</TableHead>
-                  <TableHead className="w-1/7 text-center" scope="col">Actions</TableHead>
+                <TableRow className="bg-background">
+                  <TableHead className="w-2/7" scope="col">
+                    Name
+                  </TableHead>
+                  <TableHead className="w-3/7" scope="col">
+                    Description
+                  </TableHead>
+                  <TableHead className="w-1/7 hidden md:table-cell text-center" scope="col">
+                    Created At
+                  </TableHead>
+                  <TableHead className="w-1/7 text-center" scope="col">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -229,7 +257,9 @@ export function ContactListsTable() {
                     <TableRow key={list.id} role="row" aria-label={`Contact list ${list.name}`}>
                       <TableCell>{list.name}</TableCell>
                       <TableCell>{list.description || '-'}</TableCell>
-                      <TableCell className="hidden md:table-cell text-center">{new Date(list.createdAt).toLocaleString()}</TableCell>
+                      <TableCell className="hidden md:table-cell text-center">
+                        {new Date(list.createdAt).toLocaleString()}
+                      </TableCell>
                       <TableCell>
                         <div className="flex gap-1 justify-center">
                           <Button
@@ -285,7 +315,9 @@ export function ContactListsTable() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPagination(p => ({ ...p, page: Math.min(p.totalPages, p.page + 1) }))}
+                onClick={() =>
+                  setPagination(p => ({ ...p, page: Math.min(p.totalPages, p.page + 1) }))
+                }
                 disabled={pagination.page === pagination.totalPages}
               >
                 Next
@@ -310,12 +342,16 @@ export function ContactListsTable() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Contact List</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{contactListToDelete?.name}"? This action cannot be undone.
+              Are you sure you want to delete "{contactListToDelete?.name}"? This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

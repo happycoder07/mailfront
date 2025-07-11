@@ -178,8 +178,11 @@ export function CreateContactForm() {
                 <FormLabel className="text-foreground">Contact Lists</FormLabel>
                 <div className="space-y-2 max-h-60 overflow-y-auto border border-border/50 rounded-md p-4 bg-muted/30">
                   {contactLists.length > 0 ? (
-                    contactLists.map((list) => (
-                      <div key={list.id} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                    contactLists.map(list => (
+                      <div
+                        key={list.id}
+                        className="flex items-center space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                      >
                         <Checkbox
                           id={`list-${list.id}`}
                           checked={form.watch('contactListIds')?.includes(list.id) || false}

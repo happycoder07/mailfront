@@ -27,7 +27,6 @@ import { PERMISSIONS } from '@/lib/permissions';
 import { z } from 'zod';
 import type { Role } from '@/lib/config';
 
-
 const registerSchema = z
   .object({
     email: z.string().email('Invalid email address'),
@@ -197,7 +196,13 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
             <FormItem>
               <FormLabel htmlFor={emailId}>Email</FormLabel>
               <FormControl>
-                <Input id={emailId} type="email" placeholder="john@example.com" {...field} aria-label="Email address" />
+                <Input
+                  id={emailId}
+                  type="email"
+                  placeholder="john@example.com"
+                  {...field}
+                  aria-label="Email address"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -225,7 +230,12 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
             <FormItem>
               <FormLabel htmlFor={confirmPasswordId}>Confirm Password</FormLabel>
               <FormControl>
-                <Input id={confirmPasswordId} type="password" {...field} aria-label="Confirm password" />
+                <Input
+                  id={confirmPasswordId}
+                  type="password"
+                  {...field}
+                  aria-label="Confirm password"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -260,7 +270,13 @@ export function UserRegisterForm({ onSuccess }: UserRegisterFormProps) {
           )}
         />
 
-        <Button type="submit" disabled={loading} className="w-full" aria-label="Register new user" title="Register new user">
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-full"
+          aria-label="Register new user"
+          title="Register new user"
+        >
           {loading ? 'Registering...' : 'Register User'}
         </Button>
       </form>

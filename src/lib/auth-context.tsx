@@ -12,7 +12,13 @@ interface AuthContextType {
   login: (
     email: string,
     password: string
-  ) => Promise<{ success: boolean; user?: any; message?: string; requires2FA?: boolean; tempToken?: string }>;
+  ) => Promise<{
+    success: boolean;
+    user?: any;
+    message?: string;
+    requires2FA?: boolean;
+    tempToken?: string;
+  }>;
   loginWithTwoFactor: (
     token: string,
     tempToken: string

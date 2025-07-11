@@ -15,13 +15,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -36,13 +30,19 @@ import {
   AlertTriangle,
   Loader2,
 } from 'lucide-react';
+import type {
+  TwoFactorStatusResponseDto,
+  TwoFactorSetupResponseDto,
+  TwoFactorVerificationResponseDto,
+  RegenerateBackupCodesDto,
+} from '@/lib/config';
 import {
-  EnableTwoFactorFormData,
-  DisableTwoFactorFormData,
-  RegenerateBackupCodesFormData,
   enableTwoFactorSchema,
   disableTwoFactorSchema,
   regenerateBackupCodesSchema,
+  EnableTwoFactorFormData,
+  DisableTwoFactorFormData,
+  RegenerateBackupCodesFormData,
 } from '@/lib/validation';
 import { API_ENDPOINTS } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
@@ -65,14 +65,14 @@ interface TwoFactorSetupProps {
 
 export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
   const { getCSRFToken } = useAuth();
-  const [status, setStatus] = useState<TwoFactorStatus | null>(null);
-  const [setupData, setSetupData] = useState<TwoFactorSetupData | null>(null);
+  const [status, setStatus] = useState<TwoFactorStatusResponseDto | null>(null);
+  const [setupData, setSetupData] = useState<TwoFactorSetupResponseDto | null>(null);
   const [currentBackupCodes, setCurrentBackupCodes] = useState<string[]>([]);
-  const [showSetup, setShowSetup] = useState(false);
-  const [showDisable, setShowDisable] = useState(false);
-  const [showBackupCodes, setShowBackupCodes] = useState(false);
-  const [setupLoading, setIsSetupLoading] = useState(false);
-  const [statusLoading, setIsStatusLoading] = useState(true);
+  const [showSetup, setShowSetup] = useState<boolean>(false);
+  const [showDisable, setShowDisable] = useState<boolean>(false);
+  const [showBackupCodes, setShowBackupCodes] = useState<boolean>(false);
+  const [setupLoading, setIsSetupLoading] = useState<boolean>(false);
+  const [statusLoading, setIsStatusLoading] = useState<boolean>(true);
 
   // Generate unique IDs for accessibility
   const tokenId = useId();
@@ -101,7 +101,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
   });
 
   // Fetch 2FA status
-  const fetchStatus = async () => {
+  const fetchStatus = async (): Promise<void> => {
     try {
       const response = await fetch(API_ENDPOINTS.AUTH.TWO_FACTOR.STATUS, {
         method: 'GET',
@@ -110,9 +110,8 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
           'X-XSRF-TOKEN': getCSRFToken(),
         },
       });
-
       if (response.ok) {
-        const data = await response.json();
+        const data: TwoFactorStatusResponseDto = await response.json();
         setStatus(data);
       } else {
         console.error('Failed to fetch 2FA status');
@@ -129,7 +128,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
   }, []);
 
   // Handle 2FA setup
-  const handleSetup = async () => {
+  const handleSetup = async (): Promise<void> => {
     setIsSetupLoading(true);
     try {
       const response = await fetch(API_ENDPOINTS.AUTH.TWO_FACTOR.SETUP, {
@@ -139,13 +138,12 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
           'X-XSRF-TOKEN': getCSRFToken(),
         },
       });
-
       if (response.ok) {
-        const data = await response.json();
+        const data: TwoFactorSetupResponseDto = await response.json();
         setSetupData(data);
         setCurrentBackupCodes(data.backupCodes);
         setShowSetup(true);
-        setShowBackupCodes(true); // Show backup codes modal after setup
+        setShowBackupCodes(true);
         toast({
           title: 'Setup Generated',
           description: 'Scan the QR code with your authenticator app.',
@@ -170,7 +168,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
   };
 
   // Handle 2FA enable
-  const handleEnable = async (data: EnableTwoFactorFormData) => {
+  const handleEnable = async (data: EnableTwoFactorFormData): Promise<void> => {
     try {
       const response = await fetch(API_ENDPOINTS.AUTH.TWO_FACTOR.ENABLE, {
         method: 'POST',
@@ -181,9 +179,8 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         },
         body: JSON.stringify(data),
       });
-
       if (response.ok) {
-        const result = await response.json();
+        const result: TwoFactorVerificationResponseDto = await response.json();
         setShowSetup(false);
         setSetupData(null);
         await fetchStatus();
@@ -210,7 +207,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
   };
 
   // Handle 2FA disable
-  const handleDisable = async (data: DisableTwoFactorFormData) => {
+  const handleDisable = async (data: DisableTwoFactorFormData): Promise<void> => {
     try {
       const response = await fetch(API_ENDPOINTS.AUTH.TWO_FACTOR.DISABLE, {
         method: 'POST',
@@ -221,7 +218,6 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         },
         body: JSON.stringify(data),
       });
-
       if (response.ok) {
         setShowDisable(false);
         setCurrentBackupCodes([]);
@@ -249,8 +245,11 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
   };
 
   // Handle backup codes regeneration
-  const handleRegenerateBackupCodes = async (data: RegenerateBackupCodesFormData) => {
+  const handleRegenerateBackupCodes = async (
+    data: RegenerateBackupCodesFormData
+  ): Promise<void> => {
     try {
+      const requestBody: RegenerateBackupCodesDto = data;
       const response = await fetch(API_ENDPOINTS.AUTH.TWO_FACTOR.REGENERATE_BACKUP_CODES, {
         method: 'POST',
         credentials: 'include',
@@ -258,15 +257,14 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
           'Content-Type': 'application/json',
           'X-XSRF-TOKEN': getCSRFToken(),
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(requestBody),
       });
-
       if (response.ok) {
-        const result = await response.json();
+        const result: { backupCodes: string[]; message: string } = await response.json();
         setCurrentBackupCodes(result.backupCodes);
         regenerateForm.reset();
         await fetchStatus();
-        setShowBackupCodes(true); // Show backup codes modal after regeneration
+        setShowBackupCodes(true);
         toast({
           title: 'Success',
           description: 'Backup codes have been regenerated.',
@@ -362,9 +360,7 @@ Note: These codes will be invalidated if you regenerate new backup codes.`;
             <Shield className="h-5 w-5" />
             Two-Factor Authentication
           </CardTitle>
-          <CardDescription>
-            Add an extra layer of security to your account
-          </CardDescription>
+          <CardDescription>Add an extra layer of security to your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -396,15 +392,12 @@ Note: These codes will be invalidated if you regenerate new backup codes.`;
                 <div className="text-sm">
                   <p className="font-medium text-blue-900">How it works</p>
                   <p className="text-blue-700 mt-1">
-                    Two-factor authentication adds an extra layer of security by requiring a code from your authenticator app in addition to your password.
+                    Two-factor authentication adds an extra layer of security by requiring a code
+                    from your authenticator app in addition to your password.
                   </p>
                 </div>
               </div>
-              <Button
-                onClick={handleSetup}
-                disabled={setupLoading}
-                className="w-full"
-              >
+              <Button onClick={handleSetup} disabled={setupLoading} className="w-full">
                 {setupLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -430,11 +423,7 @@ Note: These codes will be invalidated if you regenerate new backup codes.`;
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowDisable(true)}
-                  className="flex-1"
-                >
+                <Button variant="outline" onClick={() => setShowDisable(true)} className="flex-1">
                   <XCircle className="mr-2 h-4 w-4" />
                   Disable 2FA
                 </Button>
@@ -464,11 +453,7 @@ Note: These codes will be invalidated if you regenerate new backup codes.`;
           <CardContent className="space-y-6">
             <div className="flex justify-center">
               <div className="p-4 bg-white rounded-lg border">
-                <img
-                  src={setupData.qrCode}
-                  alt="QR Code for 2FA setup"
-                  className="w-48 h-48"
-                />
+                <img src={setupData.qrCode} alt="QR Code for 2FA setup" className="w-48 h-48" />
               </div>
             </div>
 
@@ -476,11 +461,7 @@ Note: These codes will be invalidated if you regenerate new backup codes.`;
               <p className="text-sm font-medium">Manual Entry (if QR code doesn't work):</p>
               <div className="flex items-center gap-2 p-2 bg-muted rounded">
                 <code className="text-sm flex-1">{setupData.secret}</code>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copyToClipboard(setupData.secret)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => copyToClipboard(setupData.secret)}>
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
@@ -501,7 +482,9 @@ Note: These codes will be invalidated if you regenerate new backup codes.`;
                           maxLength={6}
                           className="text-center text-lg tracking-widest"
                           {...field}
-                          aria-describedby={enableForm.formState.errors.token ? tokenErrorId : undefined}
+                          aria-describedby={
+                            enableForm.formState.errors.token ? tokenErrorId : undefined
+                          }
                         />
                       </FormControl>
                       <FormMessage id={tokenErrorId} />
@@ -572,11 +555,7 @@ Note: These codes will be invalidated if you regenerate new backup codes.`;
                   <Button type="submit" variant="destructive" className="flex-1">
                     Disable 2FA
                   </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowDisable(false)}
-                  >
+                  <Button type="button" variant="outline" onClick={() => setShowDisable(false)}>
                     Cancel
                   </Button>
                 </div>
@@ -592,7 +571,8 @@ Note: These codes will be invalidated if you regenerate new backup codes.`;
           <CardHeader>
             <CardTitle>Regenerate Backup Codes</CardTitle>
             <CardDescription>
-              Generate new backup codes. This will invalidate all existing backup codes. Codes are only shown once after generation.
+              Generate new backup codes. This will invalidate all existing backup codes. Codes are
+              only shown once after generation.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -600,20 +580,13 @@ Note: These codes will be invalidated if you regenerate new backup codes.`;
               <>
                 <div className="grid grid-cols-2 gap-2">
                   {currentBackupCodes.map((code, index) => (
-                    <div
-                      key={index}
-                      className="p-2 bg-muted rounded font-mono text-sm text-center"
-                    >
+                    <div key={index} className="p-2 bg-muted rounded font-mono text-sm text-center">
                       {code}
                     </div>
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={downloadBackupCodes}
-                    className="flex-1"
-                  >
+                  <Button variant="outline" onClick={downloadBackupCodes} className="flex-1">
                     <Download className="mr-2 h-4 w-4" />
                     Download
                   </Button>
@@ -630,7 +603,10 @@ Note: These codes will be invalidated if you regenerate new backup codes.`;
             )}
             <div className="space-y-2">
               <Form {...regenerateForm}>
-                <form onSubmit={regenerateForm.handleSubmit(handleRegenerateBackupCodes)} className="space-y-4">
+                <form
+                  onSubmit={regenerateForm.handleSubmit(handleRegenerateBackupCodes)}
+                  className="space-y-4"
+                >
                   <FormField
                     control={regenerateForm.control}
                     name="token"
@@ -638,11 +614,7 @@ Note: These codes will be invalidated if you regenerate new backup codes.`;
                       <FormItem>
                         <FormLabel>Authentication Code</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="Enter 6-digit code"
-                            maxLength={6}
-                            {...field}
-                          />
+                          <Input placeholder="Enter 6-digit code" maxLength={6} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
