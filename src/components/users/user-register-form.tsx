@@ -26,6 +26,7 @@ import { useAuth } from '@/lib/auth-context';
 import { PERMISSIONS } from '@/lib/permissions';
 import { z } from 'zod';
 import type { Role } from '@/lib/config';
+import type { UserResponseDto, RegisterDto } from '@/lib/config';
 
 const registerSchema = z
   .object({

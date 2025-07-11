@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
-import { Role, ROLE_PERMISSIONS, Permission, ROLES } from './permissions';
+import { Role, Permission, ROLES } from './permissions';
 import { API_ENDPOINTS } from './config';
 
 interface AuthContextType {

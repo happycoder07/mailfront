@@ -477,3 +477,24 @@ export type TwoFactorStatusResponseDto = {
   enabled: boolean;
   backupCodesRemaining: number;
 };
+
+// User management types
+export type UserProfileDto = {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  twoFactorEnabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+  permissions: string[];
+};
+
+export type PaginatedUsersResponseDto = {
+  data: UserProfileDto[];
+  totalItems: number;
+  totalPages: number;
+  page: number;
+  pageSize: number;
+};
